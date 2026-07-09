@@ -46,6 +46,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
             <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;font:800 13px Archivo,sans-serif;cursor:pointer;" onClick="{{ goSettle }}">$</div>
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
                 <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
               </div>
@@ -142,6 +143,40 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
               </div>
             </div>
           </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.wolfActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#eef2f6;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.5px;margin-bottom:6px;">WOLF — {{ currentHoleObj.wolfSummary }}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <sc-for list="{{ currentHoleObj.wolfPartnerChips }}" as="wc" hint-placeholder-count="3">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ wc.bg }};color:{{ wc.color }};" onClick="{{ wc.onClick }}">{{ wc.initials }}</div>
+              </sc-for>
+              <div style="padding:7px 12px;border-radius:20px;font:800 10px Archivo,sans-serif;cursor:pointer;background:{{ currentHoleObj.wolfLoneActive ? '#0f2a4a' : '#fff' }};color:{{ currentHoleObj.wolfLoneActive ? '#fff' : '#0f2a4a' }};border:1.5px solid #0f2a4a;" onClick="{{ currentHoleObj.onWolfLone }}">LONE WOLF</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.sandyActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">SANDIES — up-and-down from the bunker</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ currentHoleObj.sandyChips }}" as="sc_" hint-placeholder-count="4">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ sc_.bg }};color:{{ sc_.color }};" onClick="{{ sc_.onClick }}">{{ sc_.initials }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.polyActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">POLIES — putt made longer than the flagstick</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ currentHoleObj.polyChips }}" as="pc_" hint-placeholder-count="4">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ pc_.bg }};color:{{ pc_.color }};" onClick="{{ pc_.onClick }}">{{ pc_.initials }}</div>
+              </sc-for>
+            </div>
+          </div>
         </sc-if>
 
         <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
@@ -314,6 +349,58 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
       </div>
     </sc-if>
 
+    <!-- ============ SETTLE ============ -->
+    <sc-if value="{{ isSettle }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+        <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
+              <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+            </div>
+          </div>
+          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">SETTLE UP · BASED ON HOLES ENTERED SO FAR</div>
+        </div>
+
+        <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
+          <sc-if value="{{ !hasSettleData }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">Enter some scores (and turn on games/junk) to see who owes who.</div>
+          </sc-if>
+          <sc-if value="{{ hasSettleData }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">NET</div>
+              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleNetRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
+                    <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ r.name }}</div>
+                    <div style="font:800 14px Georgia,serif;color:{{ r.color }};">{{ r.amountLabel }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">WHO PAYS WHO</div>
+              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleTransactions }}" as="t" hint-placeholder-count="2">
+                  <div style="padding:9px 0;border-bottom:1px solid #f3f1ea;font:700 13px Archivo,sans-serif;color:#1a2733;">{{ t.text }}</div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">BREAKDOWN</div>
+              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleLines }}" as="l" hint-placeholder-count="3">
+                  <div style="padding:9px 0;border-bottom:1px solid #f3f1ea;font:600 11px Archivo,sans-serif;color:#5a6672;">{{ l.text }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ============ HISTORY ============ -->
     <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
@@ -384,7 +471,12 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
                   <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ p.name }}</div>
                   <div style="display:flex;gap:8px;margin-top:4px;">
                     <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="number" step="0.1" value="{{ p.index }}" onChange="{{ p.onIndexChange }}" style="border:none;background:transparent;width:34px;font:700 11px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">TEE</span><span style="font:700 11px Archivo,sans-serif;color:#1a2733;">{{ p.tee }}</span></div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">TEE</span><select value="{{ p.tee }}" onChange="{{ p.onTeeChange }}" style="border:none;background:transparent;font:700 11px Archivo,sans-serif;color:#1a2733;outline:none;">
+                      <sc-for list="{{ p.tees }}" as="t" hint-placeholder-count="3">
+                        <option value="{{ t }}">{{ t }}</option>
+                      </sc-for>
+                    </select></div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">CH</span><span style="font:700 11px Georgia,serif;color:#1a2733;">{{ p.ch }}</span></div>
                   </div>
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
@@ -399,7 +491,11 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
                 <input placeholder="Player name" value="{{ newName }}" onChange="{{ onNewName }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                 <div style="display:flex;gap:8px;">
                   <input placeholder="Index (e.g. 12.4)" value="{{ newIndex }}" onChange="{{ onNewIndex }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
-                  <input placeholder="Tee" value="{{ newTee }}" onChange="{{ onNewTee }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
+                  <select value="{{ newTee }}" onChange="{{ onNewTee }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;">
+                    <sc-for list="{{ availableTees }}" as="t" hint-placeholder-count="3">
+                      <option value="{{ t }}">{{ t }}</option>
+                    </sc-for>
+                  </select>
                 </div>
                 <div style="background:#0f2a4a;color:#fff;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;" onClick="{{ onAddPlayer }}">ADD PLAYER</div>
               </div>
@@ -558,11 +654,11 @@ const DEFAULT_ROSTER = [];
 const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
-  nassau: {active:true, front:10, back:10, overall:10},
-  wolf: {active:true, value:5, label:'WOLF', sub:'Per hole, lone wolf pays double'},
-  sixsixsix: {active:false, value:5, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
+  nassau: {active:true, front:2, back:2, overall:2},
+  wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
+  sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
   skins: {active:false, value:2, label:'SKINS', sub:'Per hole, carries on a tie'},
-  vegas: {active:false, value:10, label:'T&A / VEGAS', sub:'Team score combos'}
+  vegas: {active:false, value:2, label:'T&A / VEGAS', sub:'Team score combos'}
 };
 
 const JUNK_DEFAULT = {
@@ -619,6 +715,9 @@ class Component extends DCLogic {
     rrcHolder: null,
     greenieWinners: {},
     greenieResolved: {},
+    wolfPicks: {},
+    sandyFlags: {},
+    polyFlags: {},
     sweepCandidate: null,
     sweepCount: 0,
     sweepDead: false,
@@ -774,6 +873,31 @@ class Component extends DCLogic {
     if (par === 3) this.evaluateGreenieHole(hole, scores);
   }
 
+  wolfForHole(hole, active){
+    if (!active.length) return null;
+    return active[(hole-1) % active.length];
+  }
+  setWolfPartner(hole, partnerId){
+    const wolfPicks = {...this.state.wolfPicks, [hole]: {partnerId, lone:false}};
+    this.setState({wolfPicks});
+  }
+  setWolfLone(hole){
+    const wolfPicks = {...this.state.wolfPicks, [hole]: {partnerId:null, lone:true}};
+    this.setState({wolfPicks});
+  }
+  toggleSandy(hole, playerId){
+    const sandyFlags = JSON.parse(JSON.stringify(this.state.sandyFlags));
+    if (!sandyFlags[hole]) sandyFlags[hole] = {};
+    sandyFlags[hole][playerId] = !sandyFlags[hole][playerId];
+    this.setState({sandyFlags});
+  }
+  togglePoly(hole, playerId){
+    const polyFlags = JSON.parse(JSON.stringify(this.state.polyFlags));
+    if (!polyFlags[hole]) polyFlags[hole] = {};
+    polyFlags[hole][playerId] = !polyFlags[hole][playerId];
+    this.setState({polyFlags});
+  }
+
   setGreenieWinner(hole, playerId){
     const greenieWinners = {...this.state.greenieWinners};
     greenieWinners[hole] = greenieWinners[hole] === playerId ? null : playerId;
@@ -865,6 +989,277 @@ class Component extends DCLogic {
 
   goSettings(){ this.setState({screen:'settings'}); }
   goBoard(){ this.setState({screen:'board'}); }
+  goSettle(){ this.setState({screen:'settle'}); }
+
+  segmentNet(p, mode, active, start, end){
+    const ch = this.getScoringCH(p, mode, active);
+    let net = 0, count = 0;
+    for (let h = start; h <= end; h++){
+      const g = (this.state.scores[p.id] || {})[h];
+      if (g == null) continue;
+      count++;
+      const si = this.course.si[h-1], par = this.course.par[h-1];
+      const strokes = this.strokesAllocated(ch, si);
+      net += (g - strokes - par);
+    }
+    return {net, count};
+  }
+
+  netToParAt(p, h, mode, active){
+    const g = (this.state.scores[p.id] || {})[h];
+    if (g == null) return null;
+    const ch = this.getScoringCH(p, mode, active);
+    const strokes = this.strokesAllocated(ch, this.course.si[h-1]);
+    return g - strokes - this.course.par[h-1];
+  }
+
+  buildSixSixSegments(active){
+    const groups = [];
+    for (let i=0; i<active.length; i+=4){
+      const grp = active.slice(i, i+4);
+      if (grp.length < 4) continue;
+      const [w,x,y,z] = grp;
+      groups.push(
+        {label:'HOLES 1-6', start:1, end:6, teamA:[w,x], teamB:[y,z]},
+        {label:'HOLES 7-12', start:7, end:12, teamA:[w,y], teamB:[x,z]},
+        {label:'HOLES 13-18', start:13, end:18, teamA:[w,z], teamB:[x,y]}
+      );
+    }
+    return groups;
+  }
+
+  computeSettlement(){
+    const active = this.state.roster.filter(p => p.active);
+    const mode = this.state.scoringMode;
+    const ledger = {};
+    active.forEach(p => { ledger[p.id] = 0; });
+    const lines = [];
+
+    if (active.length >= 2){
+      // Nassau
+      if (this.state.games.nassau.active){
+        const segs = [
+          {key:'front', label:'FRONT 9', start:1, end:9, value:this.state.games.nassau.front},
+          {key:'back', label:'BACK 9', start:10, end:18, value:this.state.games.nassau.back},
+          {key:'overall', label:'OVERALL', start:1, end:18, value:this.state.games.nassau.overall}
+        ];
+        segs.forEach(seg => {
+          const withScores = active.map(p => ({p, ...this.segmentNet(p, mode, active, seg.start, seg.end)})).filter(x => x.count > 0);
+          if (withScores.length < 2 || !seg.value) return;
+          const minNet = Math.min(...withScores.map(x => x.net));
+          const winners = withScores.filter(x => x.net === minNet);
+          if (winners.length !== 1) return;
+          const winner = winners[0].p;
+          const payers = active.filter(p => p.id !== winner.id);
+          ledger[winner.id] += seg.value * payers.length;
+          payers.forEach(p => { ledger[p.id] -= seg.value; });
+          lines.push(`NASSAU · ${seg.label}: ${winner.name} wins $${seg.value} from each other player`);
+        });
+      }
+      // Birdies (gross only)
+      if (this.state.junk.birdies && this.state.junk.birdies.active && this.state.junk.birdies.value){
+        const val = this.state.junk.birdies.value;
+        active.forEach(p => {
+          let count = 0;
+          for (let h = 1; h <= 18; h++){
+            const g = (this.state.scores[p.id] || {})[h];
+            if (g == null) continue;
+            if (g === this.course.par[h-1] - 1) count++;
+          }
+          if (count > 0){
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * count * others.length;
+            others.forEach(o => { ledger[o.id] -= val * count; });
+            lines.push(`BIRDIES: ${p.name} made ${count} — collects $${val} each from every other player`);
+          }
+        });
+      }
+      // Greenies (valid winners only — must have par'd the hole)
+      if (this.state.junk.greenies && this.state.junk.greenies.active && this.state.junk.greenies.value){
+        const val = this.state.junk.greenies.value;
+        Object.keys(this.state.greenieWinners).forEach(holeStr => {
+          const hole = parseInt(holeStr, 10);
+          const winnerId = this.state.greenieWinners[hole];
+          if (!winnerId) return;
+          const winner = active.find(p => p.id === winnerId);
+          if (!winner) return;
+          const g = (this.state.scores[winnerId] || {})[hole];
+          if (g == null || g > this.course.par[hole-1]) return;
+          const others = active.filter(o => o.id !== winnerId);
+          ledger[winnerId] += val * others.length;
+          others.forEach(o => { ledger[o.id] -= val; });
+          lines.push(`GREENIE #${hole}: ${winner.name} collects $${val} each from every other player`);
+        });
+      }
+      // RRC — current holder collects from the field
+      if (this.state.junk.rrc && this.state.junk.rrc.active && this.state.rrcHolder){
+        const holder = active.find(p => p.id === this.state.rrcHolder);
+        if (holder){
+          const val = this.state.junk.rrc.value;
+          const others = active.filter(o => o.id !== holder.id);
+          ledger[holder.id] += val * others.length;
+          others.forEach(o => { ledger[o.id] -= val; });
+          lines.push(`RRC: ${holder.name} holds it — collects $${val} each from every other player`);
+        }
+      }
+      // Sandies
+      if (this.state.junk.sandies && this.state.junk.sandies.active && this.state.junk.sandies.value){
+        const val = this.state.junk.sandies.value;
+        for (let h = 1; h <= 18; h++){
+          const flagged = this.state.sandyFlags[h] || {};
+          Object.keys(flagged).forEach(pid => {
+            if (!flagged[pid]) return;
+            const p = active.find(x => String(x.id) === String(pid));
+            if (!p) return;
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * others.length;
+            others.forEach(o => { ledger[o.id] -= val; });
+            lines.push(`SANDY #${h}: ${p.name} collects $${val} each from every other player`);
+          });
+        }
+      }
+      // Polies
+      if (this.state.junk.polies && this.state.junk.polies.active && this.state.junk.polies.value){
+        const val = this.state.junk.polies.value;
+        for (let h = 1; h <= 18; h++){
+          const flagged = this.state.polyFlags[h] || {};
+          Object.keys(flagged).forEach(pid => {
+            if (!flagged[pid]) return;
+            const p = active.find(x => String(x.id) === String(pid));
+            if (!p) return;
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * others.length;
+            others.forEach(o => { ledger[o.id] -= val; });
+            lines.push(`POLY #${h}: ${p.name} collects $${val} each from every other player`);
+          });
+        }
+      }
+      // Skins (auto-computed from scores, carries on ties)
+      if (this.state.games.skins.active && this.state.games.skins.value){
+        const val = this.state.games.skins.value;
+        let carry = 0;
+        for (let h = 1; h <= 18; h++){
+          const vals = active.map(p => ({p, v: this.netToParAt(p, h, mode, active)}));
+          if (vals.some(x => x.v == null)) continue;
+          const minV = Math.min(...vals.map(x => x.v));
+          const winners = vals.filter(x => x.v === minV);
+          if (winners.length === 1){
+            const w = winners[0].p;
+            const payout = val * (1 + carry);
+            const others = active.filter(p => p.id !== w.id);
+            ledger[w.id] += payout * others.length;
+            others.forEach(o => { ledger[o.id] -= payout; });
+            lines.push(`SKINS #${h}: ${w.name} wins the $${payout} skin` + (carry>0 ? ` (carried ${carry} tied hole${carry>1?'s':''})` : ''));
+            carry = 0;
+          } else {
+            carry++;
+          }
+        }
+      }
+      // 6-6-6 (rotating best-ball teams, computed from existing pairings)
+      if (this.state.games.sixsixsix.active && this.state.games.sixsixsix.value){
+        const val = this.state.games.sixsixsix.value;
+        this.buildSixSixSegments(active).forEach(seg => {
+          let sumA = 0, sumB = 0, any = false;
+          for (let h = seg.start; h <= seg.end; h++){
+            const aVals = seg.teamA.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
+            const bVals = seg.teamB.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
+            if (!aVals.length || !bVals.length) continue;
+            any = true;
+            sumA += Math.min(...aVals);
+            sumB += Math.min(...bVals);
+          }
+          if (!any || sumA === sumB) return;
+          const winners = sumA < sumB ? seg.teamA : seg.teamB;
+          const losers = sumA < sumB ? seg.teamB : seg.teamA;
+          losers.forEach(l => winners.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
+          lines.push(`6-6-6 · ${seg.label}: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
+        });
+      }
+      // T&A / Vegas (static 2v2 teams by roster order, whole round)
+      if (this.state.games.vegas.active && this.state.games.vegas.value){
+        const val = this.state.games.vegas.value;
+        for (let i=0; i+3 < active.length + 1 && i+4 <= active.length; i+=4){
+          const [a,b,c,d] = active.slice(i, i+4);
+          let sumA = 0, sumB = 0, any = false;
+          for (let h=1; h<=18; h++){
+            const ga=(this.state.scores[a.id]||{})[h], gb=(this.state.scores[b.id]||{})[h];
+            const gc=(this.state.scores[c.id]||{})[h], gd=(this.state.scores[d.id]||{})[h];
+            if (ga==null||gb==null||gc==null||gd==null) continue;
+            any = true;
+            sumA += parseInt(`${Math.min(ga,gb)}${Math.max(ga,gb)}`, 10);
+            sumB += parseInt(`${Math.min(gc,gd)}${Math.max(gc,gd)}`, 10);
+          }
+          if (!any || sumA === sumB) continue;
+          const winners = sumA < sumB ? [a,b] : [c,d];
+          const losers = sumA < sumB ? [c,d] : [a,b];
+          losers.forEach(l => winners.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
+          lines.push(`VEGAS: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
+        }
+      }
+      // Wolf (per-hole rotation + partner pick or lone wolf, best-ball vs the field)
+      if (this.state.games.wolf.active && this.state.games.wolf.value){
+        const val = this.state.games.wolf.value;
+        for (let h=1; h<=18; h++){
+          const pick = this.state.wolfPicks[h];
+          if (!pick) continue;
+          const wolf = this.wolfForHole(h, active);
+          if (!wolf) continue;
+          const wolfNet = this.netToParAt(wolf, h, mode, active);
+          if (wolfNet == null) continue;
+          if (pick.lone){
+            const rest = active.filter(p => p.id !== wolf.id);
+            const restVals = rest.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
+            if (!restVals.length) continue;
+            const bestRest = Math.min(...restVals);
+            const payout = val * 2;
+            if (wolfNet < bestRest){
+              rest.forEach(o => { ledger[wolf.id] += payout; ledger[o.id] -= payout; });
+              lines.push(`WOLF #${h}: ${wolf.name} (lone wolf) wins $${payout} from each other player`);
+            } else if (wolfNet > bestRest){
+              rest.forEach(o => { ledger[wolf.id] -= payout; ledger[o.id] += payout; });
+              lines.push(`WOLF #${h}: ${wolf.name} (lone wolf) loses $${payout} to each other player`);
+            }
+          } else {
+            const partner = active.find(p => p.id === pick.partnerId);
+            if (!partner || partner.id === wolf.id) continue;
+            const partnerNet = this.netToParAt(partner, h, mode, active);
+            const rest = active.filter(p => p.id !== wolf.id && p.id !== partner.id);
+            const restVals = rest.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
+            if (partnerNet == null || !restVals.length) continue;
+            const teamBest = Math.min(wolfNet, partnerNet);
+            const bestRest = Math.min(...restVals);
+            if (teamBest === bestRest) continue;
+            const winners = teamBest < bestRest ? [wolf, partner] : rest;
+            const losers = teamBest < bestRest ? rest : [wolf, partner];
+            losers.forEach(l => winners.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
+            lines.push(`WOLF #${h}: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
+          }
+        }
+      }
+    }
+
+    const netRows = active.map(p => ({id:p.id, name:p.name, amount: ledger[p.id] || 0}))
+      .sort((a,b) => b.amount - a.amount);
+
+    // Greedy debt simplification
+    const creditors = netRows.filter(r => r.amount > 0).map(r => ({...r}));
+    const debtors = netRows.filter(r => r.amount < 0).map(r => ({...r, amount: -r.amount}));
+    const transactions = [];
+    let ci = 0, di = 0;
+    while (ci < creditors.length && di < debtors.length){
+      const amt = Math.min(creditors[ci].amount, debtors[di].amount);
+      if (amt > 0.001){
+        transactions.push({from: debtors[di].name, to: creditors[ci].name, amount: Math.round(amt*100)/100});
+      }
+      creditors[ci].amount -= amt;
+      debtors[di].amount -= amt;
+      if (creditors[ci].amount <= 0.001) ci++;
+      if (debtors[di].amount <= 0.001) di++;
+    }
+
+    return {netRows, transactions, lines};
+  }
 
   toggleGame(key){
     const games = JSON.parse(JSON.stringify(this.state.games));
@@ -940,6 +1335,10 @@ class Component extends DCLogic {
   updatePlayerIndex(id, val){
     const n = parseFloat(val);
     const roster = this.state.roster.map(p => p.id === id ? {...p, index: isNaN(n) ? p.index : n} : p);
+    this.setState({roster});
+  }
+  updatePlayerTee(id, tee){
+    const roster = this.state.roster.map(p => p.id === id ? {...p, tee} : p);
     this.setState({roster});
   }
   toggleActive(id){
@@ -1033,10 +1432,42 @@ class Component extends DCLogic {
       color: s.greenieWinners[n] === p.id ? '#fff' : '#1a2733',
       onClick: () => this.setGreenieWinner(n, p.id)
     })) : [];
+
+    const sandyActive = !!(s.junk.sandies && s.junk.sandies.active);
+    const sandyChips = sandyActive ? active.map(p => {
+      const on = !!(s.sandyFlags[n] && s.sandyFlags[n][p.id]);
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleSandy(n, p.id)};
+    }) : [];
+    const polyActive = !!(s.junk.polies && s.junk.polies.active);
+    const polyChips = polyActive ? active.map(p => {
+      const on = !!(s.polyFlags[n] && s.polyFlags[n][p.id]);
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.togglePoly(n, p.id)};
+    }) : [];
+
+    const wolfActive = !!(s.games.wolf && s.games.wolf.active);
+    const wolfPlayer = wolfActive ? this.wolfForHole(n, active) : null;
+    const wolfPick = s.wolfPicks[n];
+    const wolfPartnerChips = (wolfActive && wolfPlayer) ? active.filter(p => p.id !== wolfPlayer.id).map(p => ({
+      id:p.id, initials:p.initials,
+      isPicked: wolfPick && !wolfPick.lone && wolfPick.partnerId === p.id,
+      bg: (wolfPick && !wolfPick.lone && wolfPick.partnerId === p.id) ? '#0f2a4a' : '#f3f1ea',
+      color: (wolfPick && !wolfPick.lone && wolfPick.partnerId === p.id) ? '#fff' : '#1a2733',
+      onClick: () => this.setWolfPartner(n, p.id)
+    })) : [];
+    const wolfLoneActive = !!(wolfPick && wolfPick.lone);
+    const wolfSummary = wolfPlayer ? (
+      wolfPick ? (wolfPick.lone ? `${wolfPlayer.name} is going it alone` : `${wolfPlayer.name} picked a partner`) : `${wolfPlayer.name} is the wolf — pick a partner or go alone`
+    ) : '';
+
     const currentHoleObj = {
       n, par, si, playerRows, isPar3,
       greenieActive: !!(s.junk.greenies && s.junk.greenies.active),
-      greenieChips
+      greenieChips,
+      sandyActive, sandyChips,
+      polyActive, polyChips,
+      wolfActive, wolfPlayerName: wolfPlayer ? wolfPlayer.name : '', wolfSummary,
+      wolfPartnerChips, wolfLoneActive,
+      onWolfLone: () => this.setWolfLone(n)
     };
 
     const nassau = {
@@ -1118,11 +1549,13 @@ class Component extends DCLogic {
 
     const rosterList = s.roster.map(p => ({
       id:p.id, name:p.name, initials:p.initials, index:p.index, tee:p.tee, tees: Object.keys(this.course.tees),
+      ch: this.courseHandicap(p.index, p.tee),
       activeLabel: p.active ? 'ACTIVE TODAY' : 'BENCHED',
       activeColor: p.active ? '#1e7a3d' : '#98928a',
       onToggleActive: () => this.toggleActive(p.id),
       onRemove: () => this.removePlayer(p.id),
-      onIndexChange: (e)=>this.updatePlayerIndex(p.id, e.target.value)
+      onIndexChange: (e)=>this.updatePlayerIndex(p.id, e.target.value),
+      onTeeChange: (e)=>this.updatePlayerTee(p.id, e.target.value)
     }));
 
     const courseQuery = s.courseSearch.trim();
@@ -1141,6 +1574,18 @@ class Component extends DCLogic {
     const currentCourseTees = Object.keys(this.course.tees).map(t => ({
       tee:t, rating:this.course.tees[t].rating, slope:this.course.tees[t].slope
     }));
+    const availableTees = Object.keys(this.course.tees);
+
+    const settlement = this.computeSettlement();
+    const settleNetRows = settlement.netRows.map(r => ({
+      name: r.name, amountLabel: (r.amount>=0?'+$':'-$')+Math.abs(r.amount).toFixed(2),
+      color: r.amount > 0 ? '#1e7a3d' : (r.amount < 0 ? '#c8102e' : '#5a6672')
+    }));
+    const settleTransactions = settlement.transactions.map(t => ({
+      text: `${t.from} pays ${t.to} $${t.amount.toFixed(2)}`
+    }));
+    const settleLines = settlement.lines.map(l => ({text:l}));
+    const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
     const navItems = [
       {key:'games', label:'WAGERING', onClick: ()=>this.setScreen('games'), icon:'./icons/wagering-white.png', iconSize:29},
@@ -1166,7 +1611,9 @@ class Component extends DCLogic {
       unlocked: s.unlocked, pwInput: s.pwInput, pwError: s.pwError,
       onPwChange: (e)=>this.onPwChange(e), onPwSubmit: () => this.onPwSubmit(),
       isBoard: s.screen==='board', isCard: s.screen==='card', isGames: s.screen==='games',
-      isHistory: s.screen==='history', isSettings: s.screen==='settings',
+      isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
+      goSettle: () => this.goSettle(),
+      settleNetRows, settleTransactions, settleLines, hasSettleData,
       showNav: true,
       viewTabs,
       goSettings: () => this.goSettings(), goBoard: () => this.goBoard(),
@@ -1196,8 +1643,8 @@ class Component extends DCLogic {
       canAddMore: s.roster.length < 12,
       showAddForm: s.showAddForm,
       addFormToggleLabel: s.showAddForm ? 'CANCEL' : '+ ADD PLAYER',
-      onToggleAddForm: () => this.setState({showAddForm:!s.showAddForm}),
-      newName: s.newName, newIndex: s.newIndex, newTee: s.newTee,
+      onToggleAddForm: () => this.setState({showAddForm:!s.showAddForm, newTee: Object.keys(this.course.tees)[0] || 'White'}),
+      newName: s.newName, newIndex: s.newIndex, newTee: s.newTee, availableTees,
       onNewName: (e)=>this.setState({newName:e.target.value}),
       onNewIndex: (e)=>this.setState({newIndex:e.target.value}),
       onNewTee: (e)=>this.setState({newTee:e.target.value}),
