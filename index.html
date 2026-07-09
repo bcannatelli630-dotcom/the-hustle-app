@@ -598,11 +598,11 @@ const HISTORY_DEFAULT = [
 //   GROUP_KEY = 'usual-suspects'   // any slug your group agrees on
 //   SYNC_WRITE_KEY = 'hustle-2026' // must match HUSTLE_WRITE_KEY on the feed
 // loadState()/pushState() below already speak that endpoint's exact contract.
-const USE_LIVE_SYNC = false;
-const SYNC_ENDPOINT = '';
-const COURSE_ENDPOINT = '';
+const USE_LIVE_SYNC = true;
+const SYNC_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/state';
+const COURSE_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/course';
 const GROUP_KEY = 'default';
-const SYNC_WRITE_KEY = 'hustle-2026';
+const SYNC_WRITE_KEY = 'OhNo2026';
 const SYNC_POLL_MS = 4000;
 
 class Component extends DCLogic {
