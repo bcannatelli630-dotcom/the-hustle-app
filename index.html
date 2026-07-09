@@ -45,8 +45,8 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-              <div style="width:26px;height:26px;border-radius:50%;background:#c8102e;display:flex;align-items:center;justify-content:center;color:#fff;font:800 13px Archivo,sans-serif;cursor:pointer;" onClick="{{ goSettle }}">$</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0;">
+              <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
                 <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
               </div>
@@ -470,23 +470,23 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </div>
 
             <sc-for list="{{ rosterList }}" as="p" hint-placeholder-count="8">
-              <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#eef2f6;display:flex;align-items:center;justify-content:center;font:800 12px Archivo,sans-serif;color:#0f2a4a;flex:none;">{{ p.initials }}</div>
-                <div style="flex:1;min-width:0;">
-                  <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ p.name }}</div>
-                  <div style="display:flex;gap:8px;margin-top:4px;">
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="number" step="0.1" value="{{ p.index }}" onChange="{{ p.onIndexChange }}" style="border:none;background:transparent;width:34px;font:700 11px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">TEE</span><select value="{{ p.tee }}" onChange="{{ p.onTeeChange }}" style="border:none;background:transparent;font:700 11px Archivo,sans-serif;color:#1a2733;outline:none;">
-                      <sc-for list="{{ p.tees }}" as="t" hint-placeholder-count="3">
-                        <option value="{{ t }}">{{ t }}</option>
-                      </sc-for>
-                    </select></div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">CH</span><span style="font:700 11px Georgia,serif;color:#1a2733;">{{ p.ch }}</span></div>
+              <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:#eef2f6;display:flex;align-items:center;justify-content:center;font:800 12px Archivo,sans-serif;color:#0f2a4a;flex:none;">{{ p.initials }}</div>
+                  <div style="font:700 13px Archivo,sans-serif;color:#1a2733;flex:1;min-width:0;">{{ p.name }}</div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none;">
+                    <div style="font:700 9px Archivo,sans-serif;color:{{ p.activeColor }};cursor:pointer;white-space:nowrap;" onClick="{{ p.onToggleActive }}">{{ p.activeLabel }}</div>
+                    <div style="font:700 9px Archivo,sans-serif;color:#c8102e;cursor:pointer;white-space:nowrap;" onClick="{{ p.onRemove }}">REMOVE</div>
                   </div>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-                  <div style="font:700 9px Archivo,sans-serif;color:{{ p.activeColor }};cursor:pointer;" onClick="{{ p.onToggleActive }}">{{ p.activeLabel }}</div>
-                  <div style="font:700 9px Archivo,sans-serif;color:#c8102e;cursor:pointer;" onClick="{{ p.onRemove }}">REMOVE</div>
+                <div style="display:flex;gap:8px;">
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="number" step="0.1" value="{{ p.index }}" onChange="{{ p.onIndexChange }}" style="border:none;background:transparent;width:34px;font:700 11px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">TEE</span><select value="{{ p.tee }}" onChange="{{ p.onTeeChange }}" style="border:none;background:transparent;font:700 11px Archivo,sans-serif;color:#1a2733;outline:none;">
+                    <sc-for list="{{ p.tees }}" as="t" hint-placeholder-count="3">
+                      <option value="{{ t }}">{{ t }}</option>
+                    </sc-for>
+                  </select></div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">CH</span><span style="font:700 11px Georgia,serif;color:#1a2733;">{{ p.ch }}</span></div>
                 </div>
               </div>
             </sc-for>
@@ -673,7 +673,7 @@ const DEFAULT_ROSTER = [];
 const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
-  nassau: {active:true, front:2, back:2, overall:2},
+  nassau: {active:true, front:5, back:5, overall:5},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
   skins: {active:false, value:2, label:'SKINS', sub:'Per hole, carries on a tie'},
@@ -681,11 +681,11 @@ const GAMES_DEFAULT = {
 };
 
 const JUNK_DEFAULT = {
-  birdies: {active:true, value:5, label:'BIRDIES', sub:'For birdie or better.'},
-  greenies: {active:true, value:5, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
-  sandies: {active:true, value:3, label:'SANDIES', sub:'Par or better from a bunker'},
-  polies: {active:true, value:3, label:'POLIES', sub:'Made putt longer than the flagstick.'},
-  rrc: {active:true, value:5, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
+  birdies: {active:true, value:2, label:'BIRDIES', sub:'For birdie or better.'},
+  greenies: {active:true, value:2, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
+  sandies: {active:true, value:2, label:'SANDIES', sub:'Par or better from a bunker'},
+  polies: {active:true, value:2, label:'POLIES', sub:'Made putt longer than the flagstick.'},
+  rrc: {active:false, value:2, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
 };
 
 const HISTORY_DEFAULT = [];
@@ -1635,7 +1635,7 @@ class Component extends DCLogic {
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
     const navItems = [
-      {key:'games', label:'WAGERING', onClick: ()=>this.setScreen('games'), icon:'./icons/wagering-white.png', iconSize:29},
+      {key:'games', label:'WAGERING', onClick: ()=>this.setScreen('games'), icon:'./icons/wagering-white.png', iconSize:31},
       {key:'settings', label:'SETTINGS', onClick: ()=>this.setScreen('settings'), isCog:true},
       {key:'history', label:'HISTORY', onClick: ()=>this.setScreen('history'), icon:'./icons/history-white.png'}
     ].map(it => ({
