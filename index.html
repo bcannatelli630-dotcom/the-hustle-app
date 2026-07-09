@@ -433,6 +433,15 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
             <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
               <input placeholder="Search for your course by name" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
+              <sc-if value="{{ courseSearchLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">Searching GolfCourseAPI…</div>
+              </sc-if>
+              <sc-if value="{{ courseSearchError }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check the feed is deployed and connected.</div>
+              </sc-if>
+              <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">No courses found.</div>
+              </sc-if>
               <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
                 <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
                   <div style="flex:1;min-width:0;">
@@ -621,12 +630,16 @@ class Component extends DCLogic {
     courseName: 'No Course Selected',
     courseSearchOpen: false,
     courseSearch: '',
+    courseSearchResults: [],
+    courseSearchLoading: false,
+    courseSearchError: false,
+    liveCourses: {},
     roundType: '18',
     tournamentDays: 2,
     eventName: ''
   };
 
-  get course(){ return COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
+  get course(){ return this.state.liveCourses[this.state.courseName] || COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
 
   onPwChange(e){ this.setState({pwInput: e.target.value, pwError:false}); }
   onPwSubmit(){
@@ -899,6 +912,30 @@ class Component extends DCLogic {
     if (!COURSE_DB[name]) return;
     this.setState({courseName:name, courseSearchOpen:false, courseSearch:''});
   }
+  selectLiveCourse(courseObj){
+    const liveCourses = {...this.state.liveCourses, [courseObj.name]: courseObj};
+    this.setState({liveCourses, courseName: courseObj.name, courseSearchOpen:false, courseSearch:'', courseSearchResults:[]});
+  }
+  onCourseSearchChange(e){
+    const val = e.target.value;
+    this.setState({courseSearch: val});
+    if (this._courseSearchTimer) clearTimeout(this._courseSearchTimer);
+    if (val.trim().length < 2){ this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false}); return; }
+    this.setState({courseSearchLoading:true, courseSearchError:false});
+    this._courseSearchTimer = setTimeout(() => this.runCourseSearch(val), 400);
+  }
+  async runCourseSearch(query){
+    if (!USE_LIVE_SYNC || !COURSE_ENDPOINT){
+      this.setState({courseSearchLoading:false, courseSearchError:true});
+      return;
+    }
+    const results = await this.searchCoursesLive(query);
+    if (results == null){
+      this.setState({courseSearchLoading:false, courseSearchError:true});
+      return;
+    }
+    this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchResults: results});
+  }
 
   updatePlayerIndex(id, val){
     const n = parseFloat(val);
@@ -1088,19 +1125,19 @@ class Component extends DCLogic {
       onIndexChange: (e)=>this.updatePlayerIndex(p.id, e.target.value)
     }));
 
-    const courseQuery = s.courseSearch.trim().toLowerCase();
-    const courseResults = Object.keys(COURSE_DB)
-      .filter(name => !courseQuery || name.toLowerCase().includes(courseQuery))
-      .map(name => {
-        const c = COURSE_DB[name];
-        const teeNames = Object.keys(c.tees);
-        const primaryTee = c.tees[teeNames[0]];
-        return {
-          name, isCurrent: name === s.courseName,
-          sub: `PAR ${c.par.reduce((a,b)=>a+b,0)} · ${teeNames.join('/')} · RATING ${primaryTee.rating} / SLOPE ${primaryTee.slope}`,
-          onSelect: () => this.selectCourse(name)
-        };
-      });
+    const courseQuery = s.courseSearch.trim();
+    const courseResults = courseQuery.length < 2 ? [] : s.courseSearchResults.map(c => {
+      const teeNames = Object.keys(c.tees || {});
+      const primaryTee = teeNames.length ? c.tees[teeNames[0]] : {rating:'—', slope:'—'};
+      return {
+        name: c.name, isCurrent: c.name === s.courseName,
+        sub: `PAR ${(c.par||[]).reduce((a,b)=>a+b,0)} · ${teeNames.join('/') || 'no tee data'} · RATING ${primaryTee.rating} / SLOPE ${primaryTee.slope}`,
+        onSelect: () => this.selectLiveCourse(c)
+      };
+    });
+    const courseSearchLoading = s.courseSearchLoading;
+    const courseSearchError = s.courseSearchError;
+    const showNoResults = !courseSearchLoading && !courseSearchError && courseQuery.length >= 2 && courseResults.length === 0;
     const currentCourseTees = Object.keys(this.course.tees).map(t => ({
       tee:t, rating:this.course.tees[t].rating, slope:this.course.tees[t].slope
     }));
@@ -1170,7 +1207,8 @@ class Component extends DCLogic {
       onToggleCourseSearch: () => this.setState({courseSearchOpen: !s.courseSearchOpen, courseSearch:''}),
       courseChangeLabel: s.courseSearchOpen ? 'CANCEL' : 'CHANGE',
       courseSearch: s.courseSearch,
-      onCourseSearchChange: (e)=>this.setState({courseSearch:e.target.value}),
+      onCourseSearchChange: (e)=>this.onCourseSearchChange(e),
+      courseSearchLoading, courseSearchError, showNoResults,
       courseResults, currentCourseTees,
       roundTypes,
       isTournament: s.roundType === 'tournament',
