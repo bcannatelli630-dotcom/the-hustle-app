@@ -20,9 +20,23 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 <div style="min-height:100vh;background:#e5e2da;display:flex;justify-content:center;padding:28px 0;font-family:Archivo,system-ui,sans-serif;">
   <div style="width:390px;min-height:844px;background:#fbfaf7;border-radius:30px;overflow:hidden;box-shadow:0 24px 60px rgba(15,42,74,.28);position:relative;display:flex;flex-direction:column;border:1px solid rgba(15,42,74,.08);">
 
+    <sc-if value="{{ !unlocked }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;background:#0f2a4a;text-align:center;">
+        <div style="font:900 22px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;">THE HUSTLE</div>
+        <div style="font:600 12px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.4px;">ENTER GROUP PASSWORD</div>
+        <input type="password" value="{{ pwInput }}" onChange="{{ onPwChange }}" placeholder="Password" style="width:220px;text-align:center;padding:12px;border-radius:8px;border:none;font:700 14px Archivo,sans-serif;outline:none;"/>
+        <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
+          <div style="font:700 11px Archivo,sans-serif;color:#ff8a7a;">Incorrect password</div>
+        </sc-if>
+        <div style="background:#d4a017;color:#0f2a4a;padding:12px 30px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onPwSubmit }}">UNLOCK</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ true }}">
+
     <!-- status bar -->
     <div style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#98928a;font:600 12px Archivo,sans-serif;background:#0f2a4a;">
-      <span style="color:#fff;">9:41</span><span style="color:#a9bdd4;">●●●●&nbsp;&nbsp;📶&nbsp;&nbsp;🔋</span>
+      <span style="color:#fff;">9:41</span>
     </div>
 
     <!-- ============ BOARD ============ -->
@@ -418,7 +432,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </div>
 
             <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
-              <input placeholder="Search courses (e.g. Fairway, Stonebridge)" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
+              <input placeholder="Search for your course by name" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
               <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
                 <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
                   <div style="flex:1;min-width:0;">
@@ -516,53 +530,23 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
       </div>
     </sc-if>
 
+    </sc-if>
+
   </div>
 </div>
-
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 const COURSE_DB = {
-  'Pebble Creek G.C.': {
-    par: [4,4,3,5,4,3,4,5,4,4,3,5,4,3,4,5,4,4],
-    si:  [7,13,17,1,11,15,5,9,3,8,18,2,12,16,4,10,6,14],
-    tees: { Black:{rating:74.1, slope:143}, Blue:{rating:71.8, slope:135}, White:{rating:69.5, slope:128} }
-  },
-  'Fairway Oaks C.C.': {
-    par: [4,5,3,4,4,3,5,4,4,4,4,3,5,4,3,4,5,4],
-    si:  [5,11,17,3,9,15,1,13,7,6,10,18,2,8,16,4,12,14],
-    tees: { Black:{rating:73.2, slope:139}, Blue:{rating:70.9, slope:130}, White:{rating:68.4, slope:122} }
-  },
-  'Twin Rivers Golf Club': {
-    par: [4,4,5,3,4,4,3,5,4,4,3,4,5,4,3,4,4,5],
-    si:  [9,7,1,17,5,11,15,3,13,4,18,8,2,10,16,6,14,12],
-    tees: { Blue:{rating:72.0, slope:132}, White:{rating:69.8, slope:124}, Red:{rating:71.1, slope:126} }
-  },
-  'Stonebridge National': {
-    par: [5,4,4,3,4,5,4,3,4,4,3,5,4,4,3,5,4,4],
-    si:  [3,9,13,17,5,1,11,15,7,8,18,2,10,6,16,4,14,12],
-    tees: { Black:{rating:75.0, slope:146}, Blue:{rating:72.4, slope:137}, White:{rating:70.1, slope:129} }
+  'No Course Selected': {
+    par: [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+    si:  [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+    tees: { White:{rating:72.0, slope:113} }
   }
 };
 
-const DEFAULT_ROSTER = [
-  {id:1, name:'Danny K.', initials:'DK', index:8.4, tee:'White', active:true},
-  {id:2, name:'Rich C.', initials:'RC', index:12.1, tee:'White', active:true},
-  {id:3, name:'Tom M.', initials:'TM', index:15.6, tee:'Blue', active:true},
-  {id:4, name:'Jake B.', initials:'JB', index:19.8, tee:'Blue', active:true},
-  {id:5, name:'Steve P.', initials:'SP', index:6.2, tee:'Black', active:true},
-  {id:6, name:'Mike O.', initials:'MO', index:22.5, tee:'White', active:true},
-  {id:7, name:'Chris D.', initials:'CD', index:10.0, tee:'White', active:false},
-  {id:8, name:'Andy F.', initials:'AF', index:17.4, tee:'Blue', active:false}
-];
+const DEFAULT_ROSTER = [];
 
-const DEFAULT_SCORES = {
-  1:{1:4,2:5,3:2,4:5,5:4,6:2,7:4,8:4,9:4,10:4,11:3,12:5,13:4,14:2},
-  2:{1:5,2:4,3:4,4:6,5:4,6:3,7:5,8:5,9:4,10:5,11:4,12:6,13:4,14:3},
-  3:{1:5,2:5,3:4,4:6,5:5,6:4,7:5,8:6,9:4,10:5,11:4,12:6,13:5,14:4},
-  4:{1:6,2:5,3:5,4:7,5:5,6:4,7:5,8:6,9:5,10:6,11:5,12:7,13:5,14:4},
-  5:{1:4,2:4,3:3,4:5,5:4,6:3,7:4,8:5,9:3,10:4,11:4,12:5,13:4,14:3},
-  6:{1:6,2:6,3:5,4:7,5:6,6:5,7:6,8:7,9:5,10:6,11:5,12:7,13:6,14:5}
-};
+const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
   nassau: {active:true, front:10, back:10, overall:10},
@@ -580,14 +564,7 @@ const JUNK_DEFAULT = {
   rrc: {active:true, value:5, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
 };
 
-const HISTORY_DEFAULT = [
-  {id:1, title:'Ryder Cup Weekend — Day 1', date:'Jun 21, 2026', course:'Pebble Creek', format:'Nassau + Wolf', expanded:false,
-    payouts:[{name:'Danny K.',amount:85},{name:'Steve P.',amount:40},{name:'Rich C.',amount:-15},{name:'Tom M.',amount:-20},{name:'Jake B.',amount:-45},{name:'Mike O.',amount:-45}]},
-  {id:2, title:'Sunday Money Grab', date:'Jun 8, 2026', course:'Fairway Oaks', format:'Nassau', expanded:false,
-    payouts:[{name:'Rich C.',amount:30},{name:'Danny K.',amount:20},{name:'Tom M.',amount:-15},{name:'Jake B.',amount:-35}]},
-  {id:3, title:'Memorial Day Scramble', date:'May 25, 2026', course:'Pebble Creek (Front 9)', format:'Skins', expanded:false,
-    payouts:[{name:'Steve P.',amount:15},{name:'Danny K.',amount:5},{name:'Rich C.',amount:-12},{name:'Mike O.',amount:-8}]}
-];
+const HISTORY_DEFAULT = [];
 
 // ── Live sync (mirrors the Mickeltitties Cup app's LIVE_ENDPOINT pattern) ──
 // Off by default (mock data only, as built). To go live once `the-hustle-feed`
@@ -598,6 +575,12 @@ const HISTORY_DEFAULT = [
 //   GROUP_KEY = 'usual-suspects'   // any slug your group agrees on
 //   SYNC_WRITE_KEY = 'hustle-2026' // must match HUSTLE_WRITE_KEY on the feed
 // loadState()/pushState() below already speak that endpoint's exact contract.
+// Simple shared password so casual visitors to thehustleapp.net can't see or touch
+// live scores/settings. Not bulletproof (view-source reveals it) — good enough to
+// keep out randoms; change it any time and re-deploy.
+const SITE_PASSWORD = 'OhNo2026';
+const UNLOCK_STORAGE_KEY = 'hustle_unlocked';
+
 const USE_LIVE_SYNC = true;
 const SYNC_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/state';
 const COURSE_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/course';
@@ -607,6 +590,9 @@ const SYNC_POLL_MS = 4000;
 
 class Component extends DCLogic {
   state = {
+    unlocked: (typeof localStorage !== 'undefined' && localStorage.getItem(UNLOCK_STORAGE_KEY) === '1'),
+    pwInput: '',
+    pwError: false,
     screen: 'board',
     scoringMode: 'full',
     currentHole: 15,
@@ -632,7 +618,7 @@ class Component extends DCLogic {
     presses: [],
     pressPickerOpen: false,
     sixPairingsOpen: false,
-    courseName: 'Pebble Creek G.C.',
+    courseName: 'No Course Selected',
     courseSearchOpen: false,
     courseSearch: '',
     roundType: '18',
@@ -640,7 +626,17 @@ class Component extends DCLogic {
     eventName: ''
   };
 
-  get course(){ return COURSE_DB[this.state.courseName] || COURSE_DB['Pebble Creek G.C.']; }
+  get course(){ return COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
+
+  onPwChange(e){ this.setState({pwInput: e.target.value, pwError:false}); }
+  onPwSubmit(){
+    if (this.state.pwInput === SITE_PASSWORD){
+      if (typeof localStorage !== 'undefined') localStorage.setItem(UNLOCK_STORAGE_KEY, '1');
+      this.setState({unlocked:true, pwInput:'', pwError:false});
+    } else {
+      this.setState({pwError:true});
+    }
+  }
 
   // ── Live sync stubs — see USE_LIVE_SYNC block above ──
   componentDidMount(){
@@ -1130,6 +1126,8 @@ class Component extends DCLogic {
     }));
 
     return {
+      unlocked: s.unlocked, pwInput: s.pwInput, pwError: s.pwError,
+      onPwChange: (e)=>this.onPwChange(e), onPwSubmit: () => this.onPwSubmit(),
       isBoard: s.screen==='board', isCard: s.screen==='card', isGames: s.screen==='games',
       isHistory: s.screen==='history', isSettings: s.screen==='settings',
       showNav: true,
