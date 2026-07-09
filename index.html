@@ -22,7 +22,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <sc-if value="{{ !unlocked }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;background:#0f2a4a;text-align:center;">
-        <div style="font:900 22px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;">THE HUSTLE</div>
+        <div style="font:900 22px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
         <div style="font:600 12px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.4px;">ENTER GROUP PASSWORD</div>
         <input type="password" value="{{ pwInput }}" onChange="{{ onPwChange }}" placeholder="Password" style="width:220px;text-align:center;padding:12px;border-radius:8px;border:none;font:700 14px Archivo,sans-serif;outline:none;"/>
         <sc-if value="{{ pwError }}" hint-placeholder-val="{{ false }}">
@@ -44,7 +44,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+            <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0;">
               <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
@@ -98,7 +98,8 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
-            <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+            <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
+            <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;flex-shrink:0;" onClick="{{ goSettle }}">SETTLE UP</div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">ENTER SCORES · HOLE {{ currentHoleObj.n }}</div>
         </div>
@@ -201,19 +202,32 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
         <div style="flex:none;padding:12px 18px 16px;display:flex;flex-direction:column;gap:8px;">
           <sc-if value="{{ pressPickerOpen }}" hint-placeholder-val="{{ false }}">
             <div style="background:#fff8e6;border:1.5px solid #d4a017;border-radius:10px;padding:10px 12px;">
-              <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;margin-bottom:8px;">WHO IS CALLING THE PRESS?</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <sc-for list="{{ pressChips }}" as="pc" hint-placeholder-count="4">
-                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#fff;border:1.5px solid #d4a017;color:#0f2a4a;" onClick="{{ pc.onClick }}">{{ pc.initials }}</div>
-                </sc-for>
+              <div style="display:flex;gap:6px;margin-bottom:8px;">
+                <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressModeIndividualBg }};color:{{ pressModeIndividualColor }};border:1.5px solid #0f2a4a;" onClick="{{ onPressModeIndividual }}">INDIVIDUAL</div>
+                <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressModeTeamBg }};color:{{ pressModeTeamColor }};border:1.5px solid #0f2a4a;" onClick="{{ onPressModeTeam }}">TEAM</div>
               </div>
+              <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;margin-bottom:8px;">WHO IS CALLING THE PRESS?</div>
+              <sc-if value="{{ isPressIndividual }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ pressChips }}" as="pc" hint-placeholder-count="4">
+                    <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#fff;border:1.5px solid #d4a017;color:#0f2a4a;" onClick="{{ pc.onClick }}">{{ pc.initials }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ isPressTeam }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ pressTeamChips }}" as="tc" hint-placeholder-count="2">
+                    <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#fff;border:1.5px solid #d4a017;color:#0f2a4a;" onClick="{{ tc.onClick }}">{{ tc.label }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
             </div>
           </sc-if>
           <div style="background:#fff;color:#0f2a4a;text-align:center;padding:12px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;border:1.5px solid #0f2a4a;" onClick="{{ onTogglePressPicker }}">{{ pressPickerLabel }}</div>
-          <sc-if value="{{ showEndEventButton }}" hint-placeholder-val="{{ false }}">
-            <div style="background:#c8102e;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onEndEvent }}">END EVENT</div>
+          <sc-if value="{{ isLastHole }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#c8102e;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onEndEvent }}">SAVE &amp; END ROUND</div>
           </sc-if>
-          <sc-if value="{{ !showEndEventButton }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ !isLastHole }}" hint-placeholder-val="{{ true }}">
             <div style="background:#0f2a4a;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onSaveAdvance }}">SAVE &amp; NEXT HOLE</div>
           </sc-if>
         </div>
@@ -227,38 +241,13 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
-              <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+              <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             </div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">WAGERING · TODAY'S VALUES</div>
         </div>
 
         <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
-
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:10px;">ROUND TYPE</div>
-            <div style="display:flex;gap:6px;">
-              <sc-for list="{{ roundTypes }}" as="rt" hint-placeholder-count="3">
-                <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ rt.bg }};color:{{ rt.color }};" onClick="{{ rt.onClick }}">{{ rt.label }}</div>
-              </sc-for>
-            </div>
-            <sc-if value="{{ isTournament }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;flex:1;">TOURNAMENT LENGTH</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:70px;">
-                  <input type="number" min="2" value="{{ tournamentDays }}" onChange="{{ onTournamentDaysChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/>
-                  <span style="font:600 10px Archivo,sans-serif;color:#98928a;margin-left:4px;">days</span>
-                </div>
-              </div>
-            </sc-if>
-          </div>
-
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">EVENT NAME</div>
-            <input placeholder="e.g. Fall Member-Guest" value="{{ eventName }}" onChange="{{ onEventNameChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 13px Archivo,sans-serif;outline:none;background:#fbfaf7;box-sizing:border-box;"/>
-          </div>
-
-          <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">START EVENT</div>
 
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
             <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
@@ -361,7 +350,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
-              <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+              <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             </div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">SETTLE UP · BASED ON HOLES ENTERED SO FAR</div>
@@ -413,7 +402,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
-              <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
+              <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             </div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">HISTORY · ALL ROUNDS &amp; TOURNAMENTS</div>
@@ -455,6 +444,31 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
         <!-- roster management -->
         <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">ROUND TYPE</div>
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ roundTypes }}" as="rt" hint-placeholder-count="3">
+                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ rt.bg }};color:{{ rt.color }};" onClick="{{ rt.onClick }}">{{ rt.label }}</div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ isTournament }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;flex:1;">TOURNAMENT LENGTH</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:70px;">
+                    <input type="number" min="2" value="{{ tournamentDays }}" onChange="{{ onTournamentDaysChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/>
+                    <span style="font:600 10px Archivo,sans-serif;margin-left:4px;color:#98928a;">days</span>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">EVENT NAME</div>
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <input placeholder="e.g. Fall Member-Guest" value="{{ eventName }}" onChange="{{ onEventNameChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 13px Archivo,sans-serif;outline:none;background:#fbfaf7;box-sizing:border-box;"/>
+            </div>
+
+            <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-bottom:6px;" onClick="{{ onStartEvent }}">START EVENT</div>
 
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
@@ -575,7 +589,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </sc-if>
             <sc-if value="{{ n.icon }}" hint-placeholder-val="{{ false }}">
               <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
-                <div style="width:{{ n.iconSize }}px;height:{{ n.iconSize }}px;background-color:{{ n.color }};-webkit-mask-image:url({{ n.icon }});-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;mask-image:url({{ n.icon }});mask-size:contain;mask-repeat:no-repeat;mask-position:center;"></div>
+                <img src="{{ n.icon }}" style="width:{{ n.iconSize }}px;height:{{ n.iconSize }}px;object-fit:contain;filter:brightness(0) invert(1);display:block;"/>
               </div>
             </sc-if>
             <span>{{ n.label }}</span>
@@ -639,7 +653,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
     <!-- ============ SWEEP STILL ALIVE ============ -->
     <sc-if value="{{ showSweepAlive }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;top:44px;left:10px;right:10px;background:#fff8e6;border:1.5px solid #d4a017;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
-        <div style="font:800 11px Archivo,sans-serif;color:#a4750f;letter-spacing:.6px;">GREENIE SWEEP ALIVE</div>
+        <div style="font:800 11px Archivo,sans-serif;color:#a4750f;letter-spacing:.6px;">GREENIE SWEEPS ARE STILL IN EFFECT</div>
         <div style="font:700 14px Archivo,sans-serif;color:#0f2a4a;margin-top:4px;">{{ sweepAliveToast.name }} — {{ sweepAliveToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a4750f;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
       </div>
@@ -648,7 +662,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
     <!-- ============ SWEEP DEAD ============ -->
     <sc-if value="{{ showSweepDead }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;top:44px;left:10px;right:10px;background:#0f2a4a;border:1.5px solid #c8102e;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
-        <div style="font:800 11px Archivo,sans-serif;color:#ff8a7a;letter-spacing:.6px;">GREENIE SWEEP DEAD</div>
+        <div style="font:800 11px Archivo,sans-serif;color:#ff8a7a;letter-spacing:.6px;">GREENIE SWEEPS ARE DEAD</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ sweepDeadToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
       </div>
@@ -739,6 +753,7 @@ class Component extends DCLogic {
     polyFlags: {},
     showEndConfirm: false,
     eventEnded: false,
+    pressMode: 'individual',
     sweepCandidate: null,
     sweepCount: 0,
     sweepDead: false,
@@ -952,7 +967,7 @@ class Component extends DCLogic {
         greenieResolved, sweepCandidate: winnerId, sweepCount,
         activeNotif: sweepCount === par3Count
           ? {kind:'sweep', name: winnerName, count: sweepCount, total: par3Count}
-          : {kind:'sweepAlive', name: winnerName, count: sweepCount, total: par3Count}
+          : null
       });
     } else if (this.state.sweepCandidate === winnerId){
       const sweepCount = this.state.sweepCount + 1;
@@ -971,12 +986,17 @@ class Component extends DCLogic {
     }
   }
 
-  togglePressPicker(){ this.setState({pressPickerOpen: !this.state.pressPickerOpen}); }
+  togglePressPicker(){ this.setState({pressPickerOpen: !this.state.pressPickerOpen, pressMode:'individual'}); }
+  setPressMode(mode){ this.setState({pressMode: mode}); }
   callPress(playerId){
     const player = this.state.roster.find(p => p.id === playerId);
     if (!player) return;
     const presses = [...this.state.presses, {hole: this.state.currentHole, playerId, playerName: player.name}];
     this.setState({presses, pressPickerOpen:false, activeNotif:{kind:'press', name: player.name, hole: this.state.currentHole}});
+  }
+  callTeamPress(teamName, playerIds){
+    const presses = [...this.state.presses, {hole: this.state.currentHole, playerId: null, playerName: teamName, teamIds: playerIds}];
+    this.setState({presses, pressPickerOpen:false, activeNotif:{kind:'press', name: teamName, hole: this.state.currentHole}});
   }
   toggleSixPairings(){ this.setState({sixPairingsOpen: !this.state.sixPairingsOpen}); }
 
@@ -1675,7 +1695,7 @@ class Component extends DCLogic {
       onReplaySweep: () => this.replaySweep(),
       holeChips, frontChips, backChips, currentHoleObj,
       onSaveAdvance: () => this.saveAdvance(),
-      showEndEventButton: n === this.totalHolesForRound() && this.lastHoleComplete(),
+      isLastHole: n === this.totalHolesForRound(),
       onEndEvent: () => this.attemptEndEvent(),
       showEndConfirm: s.showEndConfirm,
       onDismissEndConfirm: () => this.dismissEndConfirm(),
@@ -1683,7 +1703,24 @@ class Component extends DCLogic {
       pressPickerOpen: s.pressPickerOpen,
       onTogglePressPicker: () => this.togglePressPicker(),
       pressPickerLabel: s.pressPickerOpen ? 'CANCEL' : 'CALL PRESS',
+      pressMode: s.pressMode,
+      isPressIndividual: s.pressMode === 'individual',
+      isPressTeam: s.pressMode === 'team',
+      pressModeIndividualBg: s.pressMode==='individual' ? '#0f2a4a' : '#fff',
+      pressModeIndividualColor: s.pressMode==='individual' ? '#fff' : '#0f2a4a',
+      pressModeTeamBg: s.pressMode==='team' ? '#0f2a4a' : '#fff',
+      pressModeTeamColor: s.pressMode==='team' ? '#fff' : '#0f2a4a',
+      onPressModeIndividual: () => this.setPressMode('individual'),
+      onPressModeTeam: () => this.setPressMode('team'),
       pressChips: active.map(p => ({id:p.id, initials:p.initials, name:p.name, onClick: () => this.callPress(p.id)})),
+      pressTeamChips: (() => {
+        const teams = [];
+        for (let i=0; i+1 < active.length; i+=2){
+          const a = active[i], b = active[i+1];
+          teams.push({id:`${a.id}_${b.id}`, label:`${a.initials} & ${b.initials}`, onClick: () => this.callTeamPress(`${a.name} & ${b.name}`, [a.id,b.id])});
+        }
+        return teams;
+      })(),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
       nassau, simpleGames, junkList, historyList,
       sixSix, sixSixGroups,
