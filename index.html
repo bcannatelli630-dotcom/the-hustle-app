@@ -45,8 +45,8 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;">THE HUSTLE</div>
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-              <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;font:800 13px Archivo,sans-serif;cursor:pointer;" onClick="{{ goSettle }}">$</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+              <div style="width:26px;height:26px;border-radius:50%;background:#c8102e;display:flex;align-items:center;justify-content:center;color:#fff;font:800 13px Archivo,sans-serif;cursor:pointer;" onClick="{{ goSettle }}">$</div>
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
                 <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
               </div>
@@ -210,7 +210,12 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </div>
           </sc-if>
           <div style="background:#fff;color:#0f2a4a;text-align:center;padding:12px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;border:1.5px solid #0f2a4a;" onClick="{{ onTogglePressPicker }}">{{ pressPickerLabel }}</div>
-          <div style="background:#0f2a4a;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onSaveAdvance }}">SAVE &amp; NEXT HOLE</div>
+          <sc-if value="{{ showEndEventButton }}" hint-placeholder-val="{{ false }}">
+            <div style="background:#c8102e;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onEndEvent }}">END EVENT</div>
+          </sc-if>
+          <sc-if value="{{ !showEndEventButton }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onSaveAdvance }}">SAVE &amp; NEXT HOLE</div>
+          </sc-if>
         </div>
       </div>
     </sc-if>
@@ -597,6 +602,20 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
       </div>
     </sc-if>
 
+    <!-- ============ END EVENT CONFIRM ============ -->
+    <sc-if value="{{ showEndConfirm }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Finish the card?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">Some players are missing scores on one or more holes. Go back and finish entering, or end the round anyway?</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onDismissEndConfirm }}">GO BACK TO SCORECARD</div>
+            <div style="background:#fff;color:#c8102e;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #c8102e;" onClick="{{ onForceEndEvent }}">END ROUND ANYWAY</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ============ RRC AWARDED ============ -->
     <sc-if value="{{ showRRC }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:#0f2a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:32px;text-align:center;animation:mb-pop .3s ease-out;">
@@ -665,7 +684,7 @@ const JUNK_DEFAULT = {
   birdies: {active:true, value:5, label:'BIRDIES', sub:'For birdie or better.'},
   greenies: {active:true, value:5, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
   sandies: {active:true, value:3, label:'SANDIES', sub:'Par or better from a bunker'},
-  polies: {active:false, value:3, label:'POLIES', sub:'Made putt longer than the flagstick.'},
+  polies: {active:true, value:3, label:'POLIES', sub:'Made putt longer than the flagstick.'},
   rrc: {active:true, value:5, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
 };
 
@@ -718,6 +737,8 @@ class Component extends DCLogic {
     wolfPicks: {},
     sandyFlags: {},
     polyFlags: {},
+    showEndConfirm: false,
+    eventEnded: false,
     sweepCandidate: null,
     sweepCount: 0,
     sweepDead: false,
@@ -976,6 +997,32 @@ class Component extends DCLogic {
     this.setState({customJunk: this.state.customJunk.map(j => j.id===id ? {...j, value: isNaN(n)?0:n} : j)});
   }
 
+  totalHolesForRound(){
+    return this.state.roundType === '9' ? 9 : 18;
+  }
+  allScoresComplete(){
+    const active = this.state.roster.filter(p => p.active);
+    const total = this.totalHolesForRound();
+    return active.length > 0 && active.every(p => {
+      const s = this.state.scores[p.id] || {};
+      for (let h = 1; h <= total; h++){ if (s[h] == null) return false; }
+      return true;
+    });
+  }
+  lastHoleComplete(){
+    const active = this.state.roster.filter(p => p.active);
+    const total = this.totalHolesForRound();
+    return active.length > 0 && active.every(p => (this.state.scores[p.id] || {})[total] != null);
+  }
+  attemptEndEvent(){
+    if (this.allScoresComplete()) this.finalizeEndEvent();
+    else this.setState({showEndConfirm:true});
+  }
+  finalizeEndEvent(){
+    this.setState({showEndConfirm:false, eventEnded:true, screen:'settle'});
+  }
+  dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
+
   saveAdvance(){
     const next = Math.min(18, this.state.currentHole + 1);
     this.selectHole(next);
@@ -1053,7 +1100,7 @@ class Component extends DCLogic {
           const payers = active.filter(p => p.id !== winner.id);
           ledger[winner.id] += seg.value * payers.length;
           payers.forEach(p => { ledger[p.id] -= seg.value; });
-          lines.push(`NASSAU · ${seg.label}: ${winner.name} wins $${seg.value} from each other player`);
+          lines.push(`NASSAU · ${seg.label}: ${winner.name} wins $${seg.value} from every other player`);
         });
       }
       // Birdies (gross only)
@@ -1628,6 +1675,11 @@ class Component extends DCLogic {
       onReplaySweep: () => this.replaySweep(),
       holeChips, frontChips, backChips, currentHoleObj,
       onSaveAdvance: () => this.saveAdvance(),
+      showEndEventButton: n === this.totalHolesForRound() && this.lastHoleComplete(),
+      onEndEvent: () => this.attemptEndEvent(),
+      showEndConfirm: s.showEndConfirm,
+      onDismissEndConfirm: () => this.dismissEndConfirm(),
+      onForceEndEvent: () => this.finalizeEndEvent(),
       pressPickerOpen: s.pressPickerOpen,
       onTogglePressPicker: () => this.togglePressPicker(),
       pressPickerLabel: s.pressPickerOpen ? 'CANCEL' : 'CALL PRESS',
