@@ -215,6 +215,27 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           </div>
         </sc-if>
 
+        <sc-if value="{{ currentHoleObj.vegasActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">T&amp;A / VEGAS TEAMS — tap to cycle blue / orange / none</div>
+              <div style="display:flex;align-items:center;gap:6px;cursor:pointer;" onClick="{{ currentHoleObj.onToggleVegasSkip }}">
+                <div style="font:700 9px Archivo,sans-serif;color:{{ currentHoleObj.vegasSkip ? '#c8102e' : '#98928a' }};">NO PARTNERS THIS HOLE</div>
+                <div style="width:32px;height:18px;border-radius:9px;background:{{ currentHoleObj.vegasSkip ? '#c8102e' : '#e9e5dc' }};position:relative;">
+                  <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ currentHoleObj.vegasSkip ? '16px' : '2px' }};transition:left .15s;"></div>
+                </div>
+              </div>
+            </div>
+            <sc-if value="{{ !currentHoleObj.vegasSkip }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ currentHoleObj.vegasChips }}" as="vc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ vc_.bg }};color:{{ vc_.color }};" onClick="{{ vc_.onClick }}">{{ vc_.initials }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
         <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
           <sc-for list="{{ currentHoleObj.playerRows }}" as="p" hint-placeholder-count="6">
             <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
@@ -832,6 +853,7 @@ class Component extends DCLogic {
     polyFlags: {},
     barkyFlags: {},
     chippyFlags: {},
+    vegasTeams: {}, // { [hole]: { skip: bool, assign: { [playerId]: 'A'|'B' } } }
     showEndConfirm: false,
     eventEnded: false,
     pressMode: 'individual',
@@ -1026,6 +1048,24 @@ class Component extends DCLogic {
     if (!chippyFlags[hole]) chippyFlags[hole] = {};
     chippyFlags[hole][playerId] = !chippyFlags[hole][playerId];
     this.setState({chippyFlags});
+  }
+  // Vegas/T&A teams vary hole to hole — some holes may have no partners at all,
+  // some 2v2, some 3v1 (or any uneven split). Tapping a chip cycles it
+  // unassigned -> Team A -> Team B -> unassigned; "skip" excludes the hole entirely.
+  cycleVegasAssign(hole, playerId){
+    const vegasTeams = JSON.parse(JSON.stringify(this.state.vegasTeams));
+    if (!vegasTeams[hole]) vegasTeams[hole] = {skip:false, assign:{}};
+    const cur = vegasTeams[hole].assign[playerId];
+    const next = cur === 'A' ? 'B' : (cur === 'B' ? undefined : 'A');
+    if (next) vegasTeams[hole].assign[playerId] = next;
+    else delete vegasTeams[hole].assign[playerId];
+    this.setState({vegasTeams});
+  }
+  toggleVegasSkip(hole){
+    const vegasTeams = JSON.parse(JSON.stringify(this.state.vegasTeams));
+    if (!vegasTeams[hole]) vegasTeams[hole] = {skip:false, assign:{}};
+    vegasTeams[hole].skip = !vegasTeams[hole].skip;
+    this.setState({vegasTeams});
   }
 
   setGreenieWinner(hole, playerId){
@@ -1434,24 +1474,30 @@ class Component extends DCLogic {
         });
       }
       // T&A / Vegas (static 2v2 teams by roster order, whole round)
+      // T&A / Vegas — teams are set per hole (some holes may have no partners,
+      // some 2v2, some 3v1 or any other split); each side's combined gross for
+      // the hole is compared, low side collects from the high side.
       if (this.state.games.vegas.active && this.state.games.vegas.value){
         const val = this.state.games.vegas.value;
-        for (let i=0; i+3 < active.length + 1 && i+4 <= active.length; i+=4){
-          const [a,b,c,d] = active.slice(i, i+4);
-          let sumA = 0, sumB = 0, any = false;
-          for (let h=1; h<=18; h++){
-            const ga=(this.state.scores[a.id]||{})[h], gb=(this.state.scores[b.id]||{})[h];
-            const gc=(this.state.scores[c.id]||{})[h], gd=(this.state.scores[d.id]||{})[h];
-            if (ga==null||gb==null||gc==null||gd==null) continue;
-            any = true;
-            sumA += parseInt(`${Math.min(ga,gb)}${Math.max(ga,gb)}`, 10);
-            sumB += parseInt(`${Math.min(gc,gd)}${Math.max(gc,gd)}`, 10);
-          }
-          if (!any || sumA === sumB) continue;
-          const winners = sumA < sumB ? [a,b] : [c,d];
-          const losers = sumA < sumB ? [c,d] : [a,b];
+        for (let h = 1; h <= 18; h++){
+          const holeState = this.state.vegasTeams[h];
+          if (!holeState || holeState.skip) continue;
+          const assign = holeState.assign || {};
+          const teamAIds = Object.keys(assign).filter(id => assign[id] === 'A');
+          const teamBIds = Object.keys(assign).filter(id => assign[id] === 'B');
+          if (teamAIds.length === 0 || teamBIds.length === 0) continue;
+          const teamA = active.filter(p => teamAIds.includes(String(p.id)));
+          const teamB = active.filter(p => teamBIds.includes(String(p.id)));
+          if (teamA.length !== teamAIds.length || teamB.length !== teamBIds.length) continue;
+          const scoreOf = p => (this.state.scores[p.id] || {})[h];
+          if (teamA.some(p => scoreOf(p) == null) || teamB.some(p => scoreOf(p) == null)) continue;
+          const sumA = teamA.reduce((t,p) => t + scoreOf(p), 0);
+          const sumB = teamB.reduce((t,p) => t + scoreOf(p), 0);
+          if (sumA === sumB) continue;
+          const winners = sumA < sumB ? teamA : teamB;
+          const losers = sumA < sumB ? teamB : teamA;
           losers.forEach(l => winners.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
-          lines.push(`VEGAS: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
+          lines.push(`VEGAS #${h}: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
         }
       }
       // Wolf (per-hole rotation + partner pick or lone wolf, best-ball vs the field)
@@ -1718,6 +1764,18 @@ class Component extends DCLogic {
       return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleChippy(n, p.id)};
     }) : [];
 
+    const vegasActive = !!(s.games.vegas && s.games.vegas.active);
+    const vegasHoleState = s.vegasTeams[n] || {skip:false, assign:{}};
+    const vegasSkip = !!vegasHoleState.skip;
+    const vegasChips = vegasActive ? active.map(p => {
+      const team = vegasHoleState.assign[p.id];
+      const bg = team === 'A' ? '#0f2a4a' : (team === 'B' ? '#ffa62f' : '#f3f1ea');
+      const color = team === 'A' ? '#fff' : (team === 'B' ? '#1a2733' : '#1a2733');
+      const label = team ? `${p.initials} · ${team}` : p.initials;
+      return {id:p.id, initials:label, bg, color, onClick: () => this.cycleVegasAssign(n, p.id)};
+    }) : [];
+    const onToggleVegasSkip = () => this.toggleVegasSkip(n);
+
     const wolfActive = !!(s.games.wolf && s.games.wolf.active);
     const wolfPlayer = wolfActive ? this.wolfForHole(n, active) : null;
     const wolfPick = s.wolfPicks[n];
@@ -1741,6 +1799,7 @@ class Component extends DCLogic {
       polyActive, polyChips,
       barkyActive, barkyChips,
       chippyActive, chippyChips,
+      vegasActive, vegasSkip, vegasChips, onToggleVegasSkip,
       wolfActive, wolfPlayerName: wolfPlayer ? wolfPlayer.name : '', wolfSummary,
       wolfPartnerChips, wolfLoneActive,
       onWolfLone: () => this.setWolfLone(n)
