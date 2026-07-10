@@ -646,6 +646,13 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ false }}">
               <div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:8px;">
                 <input placeholder="Player name" value="{{ newName }}" onChange="{{ onNewName }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
+                <sc-if value="{{ nameSuggestions.length }}" hint-placeholder-val="{{ 0 }}">
+                  <div style="display:flex;flex-direction:column;gap:2px;background:#fbfaf7;border:1px solid #e9e5dc;border-radius:6px;overflow:hidden;margin-top:-4px;">
+                    <sc-for list="{{ nameSuggestions }}" as="ns" hint-placeholder-count="2">
+                      <div style="padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;cursor:pointer;border-bottom:1px solid #e9e5dc;" onClick="{{ ns.onSelect }}">{{ ns.name }}</div>
+                    </sc-for>
+                  </div>
+                </sc-if>
                 <div style="display:flex;gap:8px;">
                   <input placeholder="Index (e.g. 12.4)" value="{{ newIndex }}" onChange="{{ onNewIndex }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                   <select value="{{ newTee }}" onChange="{{ onNewTee }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;">
@@ -844,6 +851,8 @@ class Component extends DCLogic {
     pwError: false,
     showAddForm: false,
     newName: '', newIndex: '', newTee: 'White',
+    knownPlayers: [], // [{name, index, tee}] — remembered across sessions so the roster autofills as you type
+    showNameSuggestions: false,
     activeNotif: null,
     rrcHolder: null,
     greenieWinners: {},
@@ -892,6 +901,10 @@ class Component extends DCLogic {
 
   // ── Live sync stubs — see USE_LIVE_SYNC block above ──
   componentDidMount(){
+    try {
+      const saved = JSON.parse(localStorage.getItem('hustle_known_players') || '[]');
+      if (Array.isArray(saved)) this.setState({knownPlayers: saved});
+    } catch(e){}
     if (!USE_LIVE_SYNC) return;
     this.loadState();
     this._syncTimer = setInterval(() => this.loadState(), SYNC_POLL_MS);
@@ -1661,10 +1674,20 @@ class Component extends DCLogic {
     if (this.state.roster.length >= 12) return;
     if (!this.state.newName.trim()) return;
     const id = Math.max(0, ...this.state.roster.map(p=>p.id)) + 1;
-    const initials = this.state.newName.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const name = this.state.newName.trim();
+    const initials = name.split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const idx = parseFloat(this.state.newIndex) || 0;
-    const roster = [...this.state.roster, {id, name:this.state.newName.trim(), initials, index: idx, tee: this.state.newTee || 'White', active:true}];
-    this.setState({roster, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false});
+    const tee = this.state.newTee || 'White';
+    const roster = [...this.state.roster, {id, name, initials, index: idx, tee, active:true}];
+
+    const knownPlayers = this.state.knownPlayers.filter(k => k.name.toLowerCase() !== name.toLowerCase());
+    knownPlayers.unshift({name, index: idx, tee});
+    try { localStorage.setItem('hustle_known_players', JSON.stringify(knownPlayers.slice(0, 50))); } catch(e){}
+
+    this.setState({roster, knownPlayers, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false, showNameSuggestions:false});
+  }
+  selectKnownPlayer(p){
+    this.setState({newName:p.name, newIndex:String(p.index || ''), newTee:p.tee || 'White', showNameSuggestions:false});
   }
 
   renderVals(){
@@ -2021,7 +2044,16 @@ class Component extends DCLogic {
       addFormToggleLabel: s.showAddForm ? 'CANCEL' : '+ ADD PLAYER',
       onToggleAddForm: () => this.setState({showAddForm:!s.showAddForm, newTee: Object.keys(this.course.tees)[0] || 'White'}),
       newName: s.newName, newIndex: s.newIndex, newTee: s.newTee, availableTees,
-      onNewName: (e)=>this.setState({newName:e.target.value}),
+      onNewName: (e)=>this.setState({newName:e.target.value, showNameSuggestions: e.target.value.trim().length > 0}),
+      nameSuggestions: (() => {
+        const q = s.newName.trim().toLowerCase();
+        if (!s.showNameSuggestions || !q) return [];
+        const rosterNames = new Set(s.roster.map(p => p.name.toLowerCase()));
+        return s.knownPlayers
+          .filter(k => k.name.toLowerCase().includes(q) && k.name.toLowerCase() !== q && !rosterNames.has(k.name.toLowerCase()))
+          .slice(0, 5)
+          .map(k => ({name:k.name, onSelect: () => this.selectKnownPlayer(k)}));
+      })(),
       onNewIndex: (e)=>this.setState({newIndex:e.target.value}),
       onNewTee: (e)=>this.setState({newTee:e.target.value}),
       onAddPlayer: () => this.addPlayer(),
