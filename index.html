@@ -547,9 +547,45 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
               <input placeholder="e.g. Fall Member-Guest" value="{{ eventName }}" onChange="{{ onEventNameChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 13px Archivo,sans-serif;outline:none;background:#fbfaf7;box-sizing:border-box;"/>
             </div>
 
-            <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-bottom:6px;" onClick="{{ onStartEvent }}">START EVENT</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">COURSE</div>
+              <div style="display:flex;align-items:center;gap:5px;font:700 8px Archivo,sans-serif;color:#98928a;">
+                <span style="width:5px;height:5px;border-radius:50%;background:#1e7a3d;"></span>SYNCED VIA GOLFCOURSEAPI
+              </div>
+            </div>
 
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">SCORING MODE</div>
+            <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ courseName }}</div>
+                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;" onClick="{{ onToggleCourseSearch }}">{{ courseChangeLabel }}</div>
+              </div>
+            </div>
+
+            <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
+              <input placeholder="Search for your course by name" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
+              <sc-if value="{{ courseSearchLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">Searching GolfCourseAPI…</div>
+              </sc-if>
+              <sc-if value="{{ courseSearchError }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check the feed is deployed and connected.</div>
+              </sc-if>
+              <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">No courses found.</div>
+              </sc-if>
+              <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
+                <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ c.name }}</div>
+                    <div style="font:600 9px Georgia,serif;color:#98928a;margin-top:2px;">{{ c.sub }}</div>
+                  </div>
+                  <sc-if value="{{ c.isCurrent }}" hint-placeholder-val="{{ false }}">
+                    <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;">CURRENT</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
               <div style="display:flex;gap:6px;">
                 <sc-for list="{{ scoringModes }}" as="m" hint-placeholder-count="3">
@@ -606,48 +642,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
               <div style="text-align:center;padding:10px;font:600 10px Archivo,sans-serif;color:#98928a;">Roster cap reached (12 players)</div>
             </sc-if>
 
-            <div style="display:flex;align-items:center;justify-content:space-between;margin:14px 2px -2px;">
-              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">COURSE</div>
-              <div style="display:flex;align-items:center;gap:5px;font:700 8px Archivo,sans-serif;color:#98928a;">
-                <span style="width:5px;height:5px;border-radius:50%;background:#1e7a3d;"></span>SYNCED VIA GOLFCOURSEAPI
-              </div>
-            </div>
-
-            <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ courseName }}</div>
-                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;" onClick="{{ onToggleCourseSearch }}">{{ courseChangeLabel }}</div>
-              </div>
-              <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-                <sc-for list="{{ currentCourseTees }}" as="t" hint-placeholder-count="3">
-                  <span style="background:#f3f1ea;color:#5a6672;font:700 9px Georgia,serif;padding:4px 8px;border-radius:5px;">{{ t.tee }} · {{ t.rating }}/{{ t.slope }}</span>
-                </sc-for>
-              </div>
-            </div>
-
-            <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
-              <input placeholder="Search for your course by name" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
-              <sc-if value="{{ courseSearchLoading }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">Searching GolfCourseAPI…</div>
-              </sc-if>
-              <sc-if value="{{ courseSearchError }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check the feed is deployed and connected.</div>
-              </sc-if>
-              <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">No courses found.</div>
-              </sc-if>
-              <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
-                <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
-                  <div style="flex:1;min-width:0;">
-                    <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ c.name }}</div>
-                    <div style="font:600 9px Georgia,serif;color:#98928a;margin-top:2px;">{{ c.sub }}</div>
-                  </div>
-                  <sc-if value="{{ c.isCurrent }}" hint-placeholder-val="{{ false }}">
-                    <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;">CURRENT</div>
-                  </sc-if>
-                </div>
-              </sc-for>
-            </sc-if>
+            <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:8px;" onClick="{{ onStartEvent }}">START EVENT</div>
           </div>
         </sc-if>
       </div>
