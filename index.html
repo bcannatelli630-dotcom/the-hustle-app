@@ -67,6 +67,12 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           </sc-for>
         </div>
 
+        <sc-if value="{{ showHero }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;margin:8px 10px 8px;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,74,.06);min-height:0;">
+            <img src="./assets/course-photo.jpg" style="width:100%;height:100%;object-fit:cover;display:block;"/>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ sweepAchieved }}" hint-placeholder-val="{{ true }}">
           <div style="flex:none;margin:10px 18px 0;background:#fff8e6;border:1.5px solid #d4a017;border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ onReplaySweep }}">
             <div style="font:900 18px Archivo,sans-serif;color:#d4a017;">🏆</div>
@@ -84,7 +90,12 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
               <div style="width:38px;height:38px;border-radius:50%;background:#eef2f6;display:flex;align-items:center;justify-content:center;font:800 13px Archivo,sans-serif;color:#0f2a4a;flex:none;">{{ r.initials }}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font:700 14px Archivo,sans-serif;color:#1a2733;">{{ r.name }}</div>
-                <div style="font:600 10px Georgia,serif;color:#98928a;">THRU {{ r.thru }} · GROSS {{ r.gross }} · {{ r.strokesLabel }}</div>
+                <div style="font:600 10px Georgia,serif;color:#98928a;">THRU {{ r.thru }} · {{ r.strokesLabel }}</div>
+                <div style="display:flex;gap:10px;margin-top:3px;">
+                  <span style="font:700 10px JetBrains Mono,Georgia,serif;color:#5a6672;">OUT <b style="color:#1a2733;">{{ r.front }}</b></span>
+                  <span style="font:700 10px JetBrains Mono,Georgia,serif;color:#5a6672;">IN <b style="color:#1a2733;">{{ r.back }}</b></span>
+                  <span style="font:700 10px JetBrains Mono,Georgia,serif;color:#5a6672;">TOT <b style="color:#1a2733;">{{ r.gross }}</b></span>
+                </div>
               </div>
               <div style="font:700 22px Georgia,serif;color:{{ r.netColor }};">{{ r.netLabel }}</div>
             </div>
@@ -272,16 +283,43 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </div>
           </div>
 
-          <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:12px;">
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
               <div style="flex:1;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">BEST BALL</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ bestBall.sub }}</div>
               </div>
-              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
+              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ bestBall.value }}" onChange="{{ bestBall.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ bestBall.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ bestBall.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ bestBall.knob }};transition:left .15s;"></div>
               </div>
+            </div>
+            <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="flex:1;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
+                </div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <sc-if value="{{ g.showCarryover }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ g.onToggleCarryover }}">
+                  <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ g.carryoverBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ g.carryoverCheck }}</div>
+                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Carryover on Ties</div>
+                </div>
+              </sc-if>
             </div>
           </sc-for>
 
@@ -324,7 +362,12 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
                 <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ j.label }}</div>
                 <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ j.sub }}</div>
               </div>
-              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ j.value }}" onChange="{{ j.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              <sc-if value="{{ j.isPriceless }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#f3f1ea;border-radius:6px;padding:6px 10px;"><span style="font:800 11px Archivo,sans-serif;letter-spacing:.4px;color:#d4a017;">PRICELESS</span></div>
+              </sc-if>
+              <sc-if value="{{ !j.isPriceless }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ j.value }}" onChange="{{ j.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              </sc-if>
               <div style="width:38px;height:22px;border-radius:11px;background:{{ j.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ j.onToggle }}">
                 <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ j.knob }};transition:left .15s;"></div>
               </div>
@@ -463,7 +506,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
               </sc-if>
             </div>
 
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">EVENT NAME</div>
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">TOURNAMENT NAME</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
               <input placeholder="e.g. Fall Member-Guest" value="{{ eventName }}" onChange="{{ onEventNameChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 13px Archivo,sans-serif;outline:none;background:#fbfaf7;box-sizing:border-box;"/>
             </div>
@@ -688,9 +731,10 @@ const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
   nassau: {active:true, front:5, back:5, overall:5},
+  bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
-  skins: {active:false, value:2, label:'SKINS', sub:'Per hole, carries on a tie'},
+  skins: {active:false, value:2, label:'SKINS', sub:'Per hole', carryover:false},
   vegas: {active:false, value:2, label:'T&A / VEGAS', sub:'Team score combos'}
 };
 
@@ -699,6 +743,8 @@ const JUNK_DEFAULT = {
   greenies: {active:true, value:2, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
   sandies: {active:true, value:2, label:'SANDIES', sub:'Par or better from a bunker'},
   polies: {active:true, value:2, label:'POLIES', sub:'Made putt longer than the flagstick.'},
+  barkies: {active:true, value:2, label:'BARKIES', sub:'Par or better after hitting a tree'},
+  chippies: {active:true, value:2, label:'CHIPPIES', sub:'Up-and-down from off the green with a chip-in'},
   rrc: {active:false, value:2, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
 };
 
@@ -771,7 +817,8 @@ class Component extends DCLogic {
     liveCourses: {},
     roundType: '18',
     tournamentDays: 2,
-    eventName: ''
+    eventName: '',
+    showHero: true
   };
 
   get course(){ return this.state.liveCourses[this.state.courseName] || COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
@@ -852,7 +899,7 @@ class Component extends DCLogic {
     const course = this.course;
     const rows = active.map(p => {
       const ch = this.getScoringCH(p, mode, active);
-      let gross = 0, net = 0, thru = 0, strokesTotal = 0;
+      let gross = 0, net = 0, thru = 0, strokesTotal = 0, front = 0, back = 0;
       for (let h = 1; h <= 18; h++){
         const g = (this.state.scores[p.id] || {})[h];
         if (g == null) continue;
@@ -862,8 +909,9 @@ class Component extends DCLogic {
         strokesTotal += strokes;
         gross += g;
         net += (g - strokes - par);
+        if (h <= 9) front += g; else back += g;
       }
-      return {id:p.id, name:p.name, initials:p.initials, thru, gross, net, ch, strokesTotal};
+      return {id:p.id, name:p.name, initials:p.initials, thru, gross, net, ch, strokesTotal, front, back};
     });
     rows.sort((a,b) => a.net - b.net);
     return rows;
@@ -1039,7 +1087,26 @@ class Component extends DCLogic {
     else this.setState({showEndConfirm:true});
   }
   finalizeEndEvent(){
-    this.setState({showEndConfirm:false, eventEnded:true, screen:'settle'});
+    if (this.state.roundType === 'tournament'){
+      const settlement = this.computeSettlement();
+      const active = this.state.roster.filter(p => p.active);
+      const activeGames = [];
+      if (this.state.games.nassau.active) activeGames.push('Nassau');
+      if (this.state.games.bestball.active) activeGames.push('Best Ball');
+      ['wolf','sixsixsix','skins','vegas'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
+      const record = {
+        id: 'h' + Date.now(),
+        title: this.state.eventName.trim() || 'Untitled Tournament',
+        date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+        course: this.state.courseName,
+        format: activeGames.length ? activeGames.join(' + ') : 'No games active',
+        expanded: false,
+        payouts: active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}))
+      };
+      this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
+    } else {
+      this.setState({showEndConfirm:false, eventEnded:true, screen:'settle'});
+    }
   }
   dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
 
@@ -1158,15 +1225,11 @@ class Component extends DCLogic {
           lines.push(`GREENIE #${hole}: ${winner.name} collects $${val} each from every other player`);
         });
       }
-      // RRC — current holder collects from the field
+      // RRC — priceless bragging rights only, no dollar value
       if (this.state.junk.rrc && this.state.junk.rrc.active && this.state.rrcHolder){
         const holder = active.find(p => p.id === this.state.rrcHolder);
         if (holder){
-          const val = this.state.junk.rrc.value;
-          const others = active.filter(o => o.id !== holder.id);
-          ledger[holder.id] += val * others.length;
-          others.forEach(o => { ledger[o.id] -= val; });
-          lines.push(`RRC: ${holder.name} holds it — collects $${val} each from every other player`);
+          lines.push(`RRC: ${holder.name} holds it — priceless, no dollar value`);
         }
       }
       // Sandies
@@ -1201,9 +1264,46 @@ class Component extends DCLogic {
           });
         }
       }
-      // Skins (auto-computed from scores, carries on ties)
+      // Best Ball (2-player teams, low-ball vs low-ball across the round; optional second-ball tiebreak)
+      if (this.state.games.bestball.active && this.state.games.bestball.value){
+        const val = this.state.games.bestball.value;
+        const tiebreak = !!this.state.games.bestball.secondBallTiebreak;
+        const teams = [];
+        for (let i=0; i+1 < active.length; i+=2){
+          teams.push({label:`${active[i].name} & ${active[i+1].name}`, players:[active[i], active[i+1]]});
+        }
+        const teamTotals = teams.map(t => {
+          let bestSum = 0, secondSum = 0, any = false;
+          for (let h=1; h<=18; h++){
+            const vals = t.players.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
+            if (vals.length < t.players.length) continue;
+            any = true;
+            bestSum += Math.min(...vals);
+            secondSum += Math.max(...vals);
+          }
+          return {...t, bestSum, secondSum, any};
+        });
+        for (let i=0; i<teamTotals.length; i++){
+          for (let j=i+1; j<teamTotals.length; j++){
+            const A = teamTotals[i], B = teamTotals[j];
+            if (!A.any || !B.any) continue;
+            let winnerTeam = null, loserTeam = null;
+            if (A.bestSum !== B.bestSum){
+              winnerTeam = A.bestSum < B.bestSum ? A : B;
+              loserTeam = A.bestSum < B.bestSum ? B : A;
+            } else if (tiebreak && A.secondSum !== B.secondSum){
+              winnerTeam = A.secondSum < B.secondSum ? A : B;
+              loserTeam = A.secondSum < B.secondSum ? B : A;
+            }
+            if (!winnerTeam) continue;
+            loserTeam.players.forEach(l => winnerTeam.players.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
+            lines.push(`BEST BALL: ${winnerTeam.label} beat ${loserTeam.label}` + (tiebreak && A.bestSum===B.bestSum ? ' (won on second-ball tiebreak)' : ''));
+          }
+        }
+      }
       if (this.state.games.skins.active && this.state.games.skins.value){
         const val = this.state.games.skins.value;
+        const carryoverOn = !!this.state.games.skins.carryover;
         let carry = 0;
         for (let h = 1; h <= 18; h++){
           const vals = active.map(p => ({p, v: this.netToParAt(p, h, mode, active)}));
@@ -1218,7 +1318,7 @@ class Component extends DCLogic {
             others.forEach(o => { ledger[o.id] -= payout; });
             lines.push(`SKINS #${h}: ${w.name} wins the $${payout} skin` + (carry>0 ? ` (carried ${carry} tied hole${carry>1?'s':''})` : ''));
             carry = 0;
-          } else {
+          } else if (carryoverOn){
             carry++;
           }
         }
@@ -1333,6 +1433,11 @@ class Component extends DCLogic {
     games[key].active = !games[key].active;
     this.setState({games});
   }
+  toggleGameFlag(key, field){
+    const games = JSON.parse(JSON.stringify(this.state.games));
+    games[key][field] = !games[key][field];
+    this.setState({games});
+  }
   setGameValue(key, field, val){
     const games = JSON.parse(JSON.stringify(this.state.games));
     const n = parseFloat(val); games[key][field] = isNaN(n) ? 0 : n;
@@ -1423,7 +1528,7 @@ class Component extends DCLogic {
     const initials = this.state.newName.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const idx = parseFloat(this.state.newIndex) || 0;
     const roster = [...this.state.roster, {id, name:this.state.newName.trim(), initials, index: idx, tee: this.state.newTee || 'White', active:true}];
-    this.setState({roster, newName:'', newIndex:'', newTee:'White', showAddForm:false});
+    this.setState({roster, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false});
   }
 
   renderVals(){
@@ -1434,6 +1539,7 @@ class Component extends DCLogic {
       rankColor: i===0 ? '#d4a017' : '#b7b0a3',
       rankBorder: i===0 ? '#d4a017' : 'transparent',
       initials: r.initials, name: r.name, thru: r.thru, gross: r.gross,
+      front: r.front || 0, back: r.back || 0,
       strokesLabel: `CH ${r.ch} · ${r.strokesTotal} STROKES`,
       netLabel: this.netLabel(r.net), netColor: this.netColor(r.net)
     }));
@@ -1459,7 +1565,7 @@ class Component extends DCLogic {
 
     const activeGamesList = [];
     if (s.games.nassau.active) activeGamesList.push(`NASSAU $${s.games.nassau.front}`);
-    ['wolf','sixsixsix','skins','vegas'].forEach(k => { if (s.games[k].active) activeGamesList.push(`${s.games[k].label} $${s.games[k].value}`); });
+    ['bestball','wolf','sixsixsix','skins','vegas'].forEach(k => { if (s.games[k].active) activeGamesList.push(`${s.games[k].label} $${s.games[k].value}`); });
     const gamesChips = activeGamesList.map(text => ({text}));
 
     const holeChips = [];
@@ -1585,10 +1691,26 @@ class Component extends DCLogic {
       key:k, label:s.games[k].label, sub:s.games[k].sub, value:s.games[k].value, active:s.games[k].active,
       bg: s.games[k].active ? '#0f2a4a' : '#e9e5dc', knob: s.games[k].active ? '18px' : '2px',
       onToggle: () => this.toggleGame(k),
-      onChange: (e)=>this.setGameValue(k,'value',e.target.value)
+      onChange: (e)=>this.setGameValue(k,'value',e.target.value),
+      showCarryover: k === 'skins',
+      carryoverBg: s.games[k].carryover ? '#0f2a4a' : '#fff',
+      carryoverCheck: s.games[k].carryover ? '✓' : '',
+      onToggleCarryover: () => this.toggleGameFlag(k, 'carryover')
     }));
+    const bestBall = {
+      active: s.games.bestball.active,
+      value: s.games.bestball.value,
+      sub: s.games.bestball.sub,
+      bg: s.games.bestball.active ? '#0f2a4a' : '#e9e5dc',
+      knob: s.games.bestball.active ? '18px' : '2px',
+      onToggle: () => this.toggleGame('bestball'),
+      onChange: (e)=>this.setGameValue('bestball','value',e.target.value),
+      tiebreakBg: s.games.bestball.secondBallTiebreak ? '#0f2a4a' : '#fff',
+      tiebreakCheck: s.games.bestball.secondBallTiebreak ? '✓' : '',
+      onToggleTiebreak: () => this.toggleGameFlag('bestball', 'secondBallTiebreak')
+    };
     const rrcHolderName = (s.roster.find(p => p.id === s.rrcHolder) || {}).name;
-    const junkList = ['birdies','greenies','sandies','polies','rrc'].map(k => ({
+    const junkList = ['birdies','greenies','sandies','polies','barkies','chippies','rrc'].map(k => ({
       key:k,
       label:s.junk[k].label,
       sub: k==='rrc' ? (rrcHolderName ? `Current holder: ${rrcHolderName}` : s.junk[k].sub) : s.junk[k].sub,
@@ -1596,7 +1718,8 @@ class Component extends DCLogic {
       bg: s.junk[k].active ? '#0f2a4a' : '#e9e5dc', knob: s.junk[k].active ? '18px' : '2px',
       onToggle: () => this.toggleJunk(k),
       onChange: (e)=>this.setJunkValue(k,e.target.value),
-      deletable:false
+      deletable:false,
+      isPriceless: k==='rrc'
     })).concat(s.customJunk.map(j => ({
       key:j.id, label:j.label, sub:j.sub, value:j.value, active:j.active,
       bg: j.active ? '#0f2a4a' : '#e9e5dc', knob: j.active ? '18px' : '2px',
@@ -1722,7 +1845,7 @@ class Component extends DCLogic {
         return teams;
       })(),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
-      nassau, simpleGames, junkList, historyList,
+      nassau, simpleGames, bestBall, junkList, historyList,
       sixSix, sixSixGroups,
       newJunkLabel,
       onNewJunkLabelChange: (e)=>this.setState({newJunkLabel:e.target.value}),
@@ -1753,6 +1876,7 @@ class Component extends DCLogic {
       eventName: s.eventName,
       onEventNameChange: (e)=>this.setState({eventName:e.target.value}),
       onStartEvent: () => this.startEvent(),
+      showHero: s.showHero,
       navItems,
       dismissNotif: () => this.dismissNotif(),
       showStrokeToast: !!s.activeNotif && s.activeNotif.kind==='stroke',
