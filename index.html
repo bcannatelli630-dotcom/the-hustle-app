@@ -193,6 +193,28 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           </div>
         </sc-if>
 
+        <sc-if value="{{ currentHoleObj.barkyActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">BARKIES — par or better after hitting a tree</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ currentHoleObj.barkyChips }}" as="bk_" hint-placeholder-count="4">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ bk_.bg }};color:{{ bk_.color }};" onClick="{{ bk_.onClick }}">{{ bk_.initials }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.chippyActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">CHIPPIES — up-and-down off the green with a chip-in</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ currentHoleObj.chippyChips }}" as="cp_" hint-placeholder-count="4">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ cp_.bg }};color:{{ cp_.color }};" onClick="{{ cp_.onClick }}">{{ cp_.initials }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
         <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
           <sc-for list="{{ currentHoleObj.playerRows }}" as="p" hint-placeholder-count="6">
             <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
@@ -405,6 +427,18 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
           <sc-if value="{{ !hasSettleData }}" hint-placeholder-val="{{ false }}">
             <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">Enter some scores (and turn on games/junk) to see who owes who.</div>
           </sc-if>
+
+          <div>
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">GROSS TOTALS</div>
+            <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+              <sc-for list="{{ settleGrossTotals }}" as="gt" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
+                  <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ gt.name }}</div>
+                  <div style="font:800 14px Georgia,serif;color:#0f2a4a;">{{ gt.gross }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
           <sc-if value="{{ hasSettleData }}" hint-placeholder-val="{{ false }}">
             <div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">NET</div>
@@ -665,8 +699,8 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
     <sc-if value="{{ showEndConfirm }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
         <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
-          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Finish the card?</div>
-          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">Some players are missing scores on one or more holes. Go back and finish entering, or end the round anyway?</div>
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">End the round?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">Go back and finish editing or end the round.</div>
           <div style="display:flex;flex-direction:column;gap:8px;">
             <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onDismissEndConfirm }}">GO BACK TO SCORECARD</div>
             <div style="background:#fff;color:#c8102e;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #c8102e;" onClick="{{ onForceEndEvent }}">END ROUND ANYWAY</div>
@@ -799,6 +833,8 @@ class Component extends DCLogic {
     wolfPicks: {},
     sandyFlags: {},
     polyFlags: {},
+    barkyFlags: {},
+    chippyFlags: {},
     showEndConfirm: false,
     eventEnded: false,
     pressMode: 'individual',
@@ -955,8 +991,7 @@ class Component extends DCLogic {
         activeNotif: {kind:'rrc', winner: winner ? winner.name : '', loser: loser ? loser.name : null}
       };
     }
-    this.setState({scores, ...extra});
-    if (par === 3) this.evaluateGreenieHole(hole, scores);
+    this.setState({scores, ...extra}, () => { if (par === 3) this.refreshGreenieSweep(); });
   }
 
   wolfForHole(hole, active){
@@ -983,57 +1018,73 @@ class Component extends DCLogic {
     polyFlags[hole][playerId] = !polyFlags[hole][playerId];
     this.setState({polyFlags});
   }
+  toggleBarky(hole, playerId){
+    const barkyFlags = JSON.parse(JSON.stringify(this.state.barkyFlags));
+    if (!barkyFlags[hole]) barkyFlags[hole] = {};
+    barkyFlags[hole][playerId] = !barkyFlags[hole][playerId];
+    this.setState({barkyFlags});
+  }
+  toggleChippy(hole, playerId){
+    const chippyFlags = JSON.parse(JSON.stringify(this.state.chippyFlags));
+    if (!chippyFlags[hole]) chippyFlags[hole] = {};
+    chippyFlags[hole][playerId] = !chippyFlags[hole][playerId];
+    this.setState({chippyFlags});
+  }
 
   setGreenieWinner(hole, playerId){
     const greenieWinners = {...this.state.greenieWinners};
     greenieWinners[hole] = greenieWinners[hole] === playerId ? null : playerId;
-    this.setState({greenieWinners});
-    this.evaluateGreenieHole(hole, this.state.scores, greenieWinners);
+    this.setState({greenieWinners}, () => this.refreshGreenieSweep());
   }
 
-  evaluateGreenieHole(hole, scores, greenieWinnersOverride){
+  // Pure, derived from source-of-truth (greenieWinners + scores), walked in ascending
+  // hole order every time — this is what makes it immune to holes being entered
+  // out of order (e.g. tapping hole 14 before hole 2).
+  computeGreenieSweep(){
+    const course = this.course;
+    const par3Holes = [];
+    for (let h = 1; h <= 18; h++){ if (course.par[h-1] === 3) par3Holes.push(h); }
+    let candidate = null, count = 0, dead = false, lastResolvedHole = null, lastResolvedWinner = null;
+    for (const h of par3Holes){
+      const winnerId = this.state.greenieWinners[h];
+      if (!winnerId) continue;
+      const g = (this.state.scores[winnerId] || {})[h];
+      if (g == null || g > course.par[h-1]) continue; // must par (or better) to validly claim it
+      lastResolvedHole = h; lastResolvedWinner = winnerId;
+      if (dead) continue;
+      if (candidate == null){ candidate = winnerId; count = 1; }
+      else if (candidate === winnerId){ count++; }
+      else { dead = true; candidate = null; count = 0; }
+    }
+    return {candidate, count, dead, totalPar3: par3Holes.length, lastResolvedHole, lastResolvedWinner};
+  }
+
+  refreshGreenieSweep(){
     if (!this.state.junk.greenies || !this.state.junk.greenies.active) return;
-    if (this.state.greenieResolved[hole]) return;
-    const greenieWinners = greenieWinnersOverride || this.state.greenieWinners;
-    const winnerId = greenieWinners[hole];
-    if (!winnerId) return;
-    const par = this.course.par[hole-1];
-    const g = (scores[winnerId] || {})[hole];
-    if (g == null || g > par) return; // must par the hole to claim it
+    const prevCandidate = this.state.sweepCandidate, prevCount = this.state.sweepCount, prevDead = this.state.sweepDead;
+    const next = this.computeGreenieSweep();
+    if (next.candidate === prevCandidate && next.count === prevCount && next.dead === prevDead) return;
 
-    const greenieResolved = {...this.state.greenieResolved, [hole]: true};
-    const par3Count = this.course.par.filter(p => p === 3).length;
-    const winner = this.state.roster.find(p => p.id === winnerId);
-    const winnerName = winner ? winner.name : '';
-
-    if (this.state.sweepDead){
-      this.setState({greenieResolved});
-      return;
+    let activeNotif = null;
+    if (next.dead && !prevDead){
+      const priorHolder = this.state.roster.find(p => p.id === prevCandidate);
+      const newWinner = this.state.roster.find(p => p.id === next.lastResolvedWinner);
+      activeNotif = {kind:'sweepDead', priorName: priorHolder ? priorHolder.name : '', name: newWinner ? newWinner.name : ''};
+    } else if (!next.dead && next.candidate && next.count > prevCount){
+      const winner = this.state.roster.find(p => p.id === next.candidate);
+      const winnerName = winner ? winner.name : '';
+      if (next.totalPar3 > 0 && next.count === next.totalPar3){
+        activeNotif = {kind:'sweep', name: winnerName, count: next.count, total: next.totalPar3};
+      } else if (next.count >= 2){
+        activeNotif = {kind:'sweepAlive', name: winnerName, count: next.count, total: next.totalPar3};
+      }
+      // count === 1 (first valid greenie of the round) stays silent by design
     }
 
-    if (this.state.sweepCandidate == null){
-      const sweepCount = 1;
-      this.setState({
-        greenieResolved, sweepCandidate: winnerId, sweepCount,
-        activeNotif: sweepCount === par3Count
-          ? {kind:'sweep', name: winnerName, count: sweepCount, total: par3Count}
-          : null
-      });
-    } else if (this.state.sweepCandidate === winnerId){
-      const sweepCount = this.state.sweepCount + 1;
-      this.setState({
-        greenieResolved, sweepCount,
-        activeNotif: sweepCount === par3Count
-          ? {kind:'sweep', name: winnerName, count: sweepCount, total: par3Count}
-          : {kind:'sweepAlive', name: winnerName, count: sweepCount, total: par3Count}
-      });
-    } else {
-      const priorHolder = this.state.roster.find(p => p.id === this.state.sweepCandidate);
-      this.setState({
-        greenieResolved, sweepDead: true, sweepCandidate: null, sweepCount: 0,
-        activeNotif: {kind:'sweepDead', priorName: priorHolder ? priorHolder.name : '', name: winnerName}
-      });
-    }
+    this.setState({
+      sweepCandidate: next.candidate, sweepCount: next.count, sweepDead: next.dead,
+      ...(activeNotif ? {activeNotif} : {})
+    });
   }
 
   togglePressPicker(){ this.setState({pressPickerOpen: !this.state.pressPickerOpen, pressMode:'individual'}); }
@@ -1085,8 +1136,7 @@ class Component extends DCLogic {
     return active.length > 0 && active.every(p => (this.state.scores[p.id] || {})[total] != null);
   }
   attemptEndEvent(){
-    if (this.allScoresComplete()) this.finalizeEndEvent();
-    else this.setState({showEndConfirm:true});
+    this.setState({showEndConfirm:true});
   }
   finalizeEndEvent(){
     if (this.state.roundType === 'tournament'){
@@ -1227,6 +1277,15 @@ class Component extends DCLogic {
           lines.push(`GREENIE #${hole}: ${winner.name} collects $${val} each from every other player`);
         });
       }
+      // Greenie Sweep — bragging-rights acknowledgment (no separate $ value; the individual
+      // greenie payouts above already cover it since a sweep is just winning every par-3)
+      if (this.state.junk.greenies && this.state.junk.greenies.active){
+        const sweep = this.computeGreenieSweep();
+        if (!sweep.dead && sweep.candidate && sweep.totalPar3 > 0 && sweep.count === sweep.totalPar3){
+          const sweeper = active.find(p => p.id === sweep.candidate);
+          if (sweeper) lines.push(`GREENIE SWEEP: ${sweeper.name} won all ${sweep.totalPar3} par-3s`);
+        }
+      }
       // RRC — priceless bragging rights only, no dollar value
       if (this.state.junk.rrc && this.state.junk.rrc.active && this.state.rrcHolder){
         const holder = active.find(p => p.id === this.state.rrcHolder);
@@ -1263,6 +1322,38 @@ class Component extends DCLogic {
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
             lines.push(`POLY #${h}: ${p.name} collects $${val} each from every other player`);
+          });
+        }
+      }
+      // Barkies
+      if (this.state.junk.barkies && this.state.junk.barkies.active && this.state.junk.barkies.value){
+        const val = this.state.junk.barkies.value;
+        for (let h = 1; h <= 18; h++){
+          const flagged = this.state.barkyFlags[h] || {};
+          Object.keys(flagged).forEach(pid => {
+            if (!flagged[pid]) return;
+            const p = active.find(x => String(x.id) === String(pid));
+            if (!p) return;
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * others.length;
+            others.forEach(o => { ledger[o.id] -= val; });
+            lines.push(`BARKY #${h}: ${p.name} collects $${val} each from every other player`);
+          });
+        }
+      }
+      // Chippies
+      if (this.state.junk.chippies && this.state.junk.chippies.active && this.state.junk.chippies.value){
+        const val = this.state.junk.chippies.value;
+        for (let h = 1; h <= 18; h++){
+          const flagged = this.state.chippyFlags[h] || {};
+          Object.keys(flagged).forEach(pid => {
+            if (!flagged[pid]) return;
+            const p = active.find(x => String(x.id) === String(pid));
+            if (!p) return;
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * others.length;
+            others.forEach(o => { ledger[o.id] -= val; });
+            lines.push(`CHIPPY #${h}: ${p.name} collects $${val} each from every other player`);
           });
         }
       }
@@ -1619,6 +1710,17 @@ class Component extends DCLogic {
       return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.togglePoly(n, p.id)};
     }) : [];
 
+    const barkyActive = !!(s.junk.barkies && s.junk.barkies.active);
+    const barkyChips = barkyActive ? active.map(p => {
+      const on = !!(s.barkyFlags[n] && s.barkyFlags[n][p.id]);
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleBarky(n, p.id)};
+    }) : [];
+    const chippyActive = !!(s.junk.chippies && s.junk.chippies.active);
+    const chippyChips = chippyActive ? active.map(p => {
+      const on = !!(s.chippyFlags[n] && s.chippyFlags[n][p.id]);
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleChippy(n, p.id)};
+    }) : [];
+
     const wolfActive = !!(s.games.wolf && s.games.wolf.active);
     const wolfPlayer = wolfActive ? this.wolfForHole(n, active) : null;
     const wolfPick = s.wolfPicks[n];
@@ -1640,6 +1742,8 @@ class Component extends DCLogic {
       greenieChips,
       sandyActive, sandyChips,
       polyActive, polyChips,
+      barkyActive, barkyChips,
+      chippyActive, chippyChips,
       wolfActive, wolfPlayerName: wolfPlayer ? wolfPlayer.name : '', wolfSummary,
       wolfPartnerChips, wolfLoneActive,
       onWolfLone: () => this.setWolfLone(n)
@@ -1777,6 +1881,8 @@ class Component extends DCLogic {
       text: `${t.from} pays ${t.to} $${t.amount.toFixed(2)}`
     }));
     const settleLines = settlement.lines.map(l => ({text:l}));
+    const standingsForGross = this.computeStandings();
+    const settleGrossTotals = standingsForGross.map(r => ({name:r.name, gross:r.gross})).sort((a,b)=>a.gross-b.gross);
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
     const navItems = [
@@ -1805,7 +1911,7 @@ class Component extends DCLogic {
       isBoard: s.screen==='board', isCard: s.screen==='card', isGames: s.screen==='games',
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(),
-      settleNetRows, settleTransactions, settleLines, hasSettleData,
+      settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
       goSettings: () => this.goSettings(), goBoard: () => this.goBoard(),
