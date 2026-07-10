@@ -284,101 +284,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
         <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
 
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-            <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
-              <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">NASSAU</div>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ nassau.bg }};position:relative;cursor:pointer;" onClick="{{ nassau.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ nassau.knob }};transition:left .15s;"></div>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;">
-              <div style="flex:1;">
-                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              </div>
-              <div style="flex:1;">
-                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              </div>
-              <div style="flex:1;">
-                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              </div>
-            </div>
-          </div>
-
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-              <div style="flex:1;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">BEST BALL</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ bestBall.sub }}</div>
-              </div>
-              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ bestBall.value }}" onChange="{{ bestBall.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ bestBall.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ bestBall.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ bestBall.knob }};transition:left .15s;"></div>
-              </div>
-            </div>
-            <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
-                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
-                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
-              </div>
-            </sc-if>
-          </div>
-
-          <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-              <div style="display:flex;align-items:center;gap:12px;">
-                <div style="flex:1;">
-                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
-                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
-                </div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
-                </div>
-              </div>
-              <sc-if value="{{ g.showCarryover }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ g.onToggleCarryover }}">
-                  <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ g.carryoverBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ g.carryoverCheck }}</div>
-                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Carryover on Ties</div>
-                </div>
-              </sc-if>
-            </div>
-          </sc-for>
-
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-              <div style="flex:1;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">6-6-6</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ sixSix.sub }}</div>
-              </div>
-              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ sixSix.value }}" onChange="{{ sixSix.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ sixSix.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ sixSix.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ sixSix.knob }};transition:left .15s;"></div>
-              </div>
-            </div>
-            <sc-if value="{{ sixSix.active }}" hint-placeholder-val="{{ false }}">
-              <div style="text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;margin-top:6px;" onClick="{{ sixSix.onTogglePairings }}">{{ sixSix.pairingsLabel }}</div>
-              <sc-if value="{{ sixSix.pairingsOpen }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
-                  <sc-for list="{{ sixSixGroups }}" as="grp" hint-placeholder-count="1">
-                    <div style="background:#fbfaf7;border-radius:8px;padding:10px;">
-                      <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-bottom:6px;">{{ grp.groupLabel }}</div>
-                      <sc-for list="{{ grp.segments }}" as="seg" hint-placeholder-count="3">
-                        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-                          <div style="font:700 9px Georgia,serif;color:#a4750f;width:70px;flex:none;">{{ seg.range }}</div>
-                          <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ seg.a }} <span style="color:#98928a;font:600 10px Archivo,sans-serif;">vs</span> {{ seg.b }}</div>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </sc-for>
-                </div>
-              </sc-if>
-            </sc-if>
-          </div>
-
-          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin:6px 2px -2px;">JUNK</div>
+          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">JUNK</div>
 
           <sc-for list="{{ junkList }}" as="j" hint-placeholder-count="4">
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:12px;">
@@ -584,6 +490,102 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
                 </div>
               </sc-for>
             </sc-if>
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TYPE OF GAME</div>
+
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">NASSAU</div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ nassau.bg }};position:relative;cursor:pointer;" onClick="{{ nassau.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ nassau.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="flex:1;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">BEST BALL</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ bestBall.sub }}</div>
+                </div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ bestBall.value }}" onChange="{{ bestBall.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ bestBall.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ bestBall.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ bestBall.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
+                  <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
+                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
+              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="flex:1;">
+                    <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
+                    <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
+                    <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
+                  </div>
+                </div>
+                <sc-if value="{{ g.showCarryover }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ g.onToggleCarryover }}">
+                    <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ g.carryoverBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ g.carryoverCheck }}</div>
+                    <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Carryover on Ties</div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="flex:1;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">6-6-6</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ sixSix.sub }}</div>
+                </div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ sixSix.value }}" onChange="{{ sixSix.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ sixSix.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ sixSix.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ sixSix.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <sc-if value="{{ sixSix.active }}" hint-placeholder-val="{{ false }}">
+                <div style="text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;margin-top:6px;" onClick="{{ sixSix.onTogglePairings }}">{{ sixSix.pairingsLabel }}</div>
+                <sc-if value="{{ sixSix.pairingsOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+                    <sc-for list="{{ sixSixGroups }}" as="grp" hint-placeholder-count="1">
+                      <div style="background:#fbfaf7;border-radius:8px;padding:10px;">
+                        <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-bottom:6px;">{{ grp.groupLabel }}</div>
+                        <sc-for list="{{ grp.segments }}" as="seg" hint-placeholder-count="3">
+                          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+                            <div style="font:700 9px Georgia,serif;color:#a4750f;width:70px;flex:none;">{{ seg.range }}</div>
+                            <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ seg.a }} <span style="color:#98928a;font:600 10px Archivo,sans-serif;">vs</span> {{ seg.b }}</div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </sc-if>
+            </div>
 
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
