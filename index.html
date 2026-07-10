@@ -711,19 +711,25 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ STROKE ALERT TOAST ============ -->
     <sc-if value="{{ showStrokeToast }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:44px;left:10px;right:10px;background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">STROKES ON #{{ strokeToast.hole }}</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ strokeToast.names }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
+      </div>
+      </div>
       </div>
     </sc-if>
 
     <!-- ============ PRESS CALLED ============ -->
     <sc-if value="{{ showPress }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:44px;left:10px;right:10px;background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">PRESS CALLED</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ pressToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
+      </div>
+      </div>
       </div>
     </sc-if>
 
@@ -763,19 +769,25 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ SWEEP STILL ALIVE ============ -->
     <sc-if value="{{ showSweepAlive }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:44px;left:10px;right:10px;background:#fff8e6;border:1.5px solid #d4a017;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.35);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#fff8e6;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#a4750f;letter-spacing:.6px;">GREENIE SWEEPS ARE STILL IN EFFECT</div>
         <div style="font:700 14px Archivo,sans-serif;color:#0f2a4a;margin-top:4px;">{{ sweepAliveToast.name }} — {{ sweepAliveToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a4750f;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
+      </div>
+      </div>
       </div>
     </sc-if>
 
     <!-- ============ SWEEP DEAD ============ -->
     <sc-if value="{{ showSweepDead }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;top:44px;left:10px;right:10px;background:#0f2a4a;border:1.5px solid #c8102e;border-radius:12px;padding:14px 16px;box-shadow:0 12px 30px rgba(0,0,0,.3);z-index:20;animation:mb-slide-down .25s ease-out;">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#0f2a4a;border:1.5px solid #c8102e;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#ff8a7a;letter-spacing:.6px;">GREENIE SWEEPS ARE DEAD</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ sweepDeadToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
+      </div>
+      </div>
       </div>
     </sc-if>
 
