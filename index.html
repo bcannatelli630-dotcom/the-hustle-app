@@ -784,7 +784,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ STROKE ALERT TOAST ============ -->
     <sc-if value="{{ showStrokeToast }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
       <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">STROKES ON #{{ strokeToast.hole }}</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ strokeToast.names }}</div>
@@ -832,7 +832,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ SWEEP CELEBRATION ============ -->
     <sc-if value="{{ showSweep }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;background:#0f2a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:32px;text-align:center;animation:mb-pop .3s ease-out;">
+      <div style="position:fixed;inset:0;background:#0f2a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:30;padding:32px;text-align:center;animation:mb-pop .3s ease-out;">
         <div style="font:800 12px Archivo,sans-serif;color:#d4a017;letter-spacing:2px;">GREENIE SWEEP</div>
         <div style="font:900 44px 'Archivo Black',sans-serif;color:#fff;margin:14px 0 8px;">{{ sweepToast.name }}</div>
         <div style="font:700 16px Georgia,serif;color:#a9bdd4;">{{ sweepToast.line }}</div>
@@ -842,7 +842,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ SWEEP STILL ALIVE ============ -->
     <sc-if value="{{ showSweepAlive }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;background:rgba(15,42,74,.35);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.35);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
       <div style="background:#fff8e6;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#a4750f;letter-spacing:.6px;">GREENIE SWEEPS ARE STILL IN EFFECT</div>
         <div style="font:700 14px Archivo,sans-serif;color:#0f2a4a;margin-top:4px;">{{ sweepAliveToast.name }} — {{ sweepAliveToast.line }}</div>
@@ -854,7 +854,7 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
 
     <!-- ============ SWEEP DEAD ============ -->
     <sc-if value="{{ showSweepDead }}" hint-placeholder-val="{{ false }}">
-      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
       <div style="background:#0f2a4a;border:1.5px solid #c8102e;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
         <div style="font:800 11px Archivo,sans-serif;color:#ff8a7a;letter-spacing:.6px;">GREENIE SWEEPS ARE DEAD</div>
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ sweepDeadToast.line }}</div>
@@ -1658,7 +1658,7 @@ class Component extends DCLogic {
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
-            lines.push(`POLY #${h}: ${p.name} collects $${val} each from every other player`);
+            lines.push(`POLIE #${h}: ${p.name} collects $${val} each from every other player`);
           });
         }
       }
