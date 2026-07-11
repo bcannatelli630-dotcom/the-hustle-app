@@ -1077,7 +1077,11 @@ class Component extends DCLogic {
     const val = this.state.groupKeyInput.trim();
     if (!val || val === this.state.groupKey) { this.setState({groupKeyInput:''}); return; }
     if (typeof localStorage !== 'undefined') localStorage.setItem(GROUP_KEY_STORAGE, val);
-    this.setState({groupKey: val, groupKeyInput:''}, () => this.loadState(true));
+    this.setState({groupKey: val, groupKeyInput:''}, () => {
+      this.loadState(true);
+      // Retry shortly after in case the host's data was still in flight when we joined.
+      setTimeout(() => this.loadState(true), 2500);
+    });
   }
   openClearDataConfirm(){ this.setState({clearDataConfirmOpen:true}); }
   dismissClearDataConfirm(){ this.setState({clearDataConfirmOpen:false}); }
@@ -1124,10 +1128,16 @@ class Component extends DCLogic {
     this._localSaveTimer = setTimeout(() => {
       try { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(this.state)); } catch(e){}
     }, 300);
-    // Skip marking "local change" bookkeeping when this update IS a remote poll
-    // landing (avoids a feedback loop); otherwise remember when we last changed
-    // something locally so the poll below can hold off overwriting it.
-    if (!this._applyingRemote) this._lastLocalChangeAt = Date.now();
+    // Only count it as a "local change" (for the stale-poll guard below) if a
+    // field that actually SYNCS changed — not just any UI interaction (typing in
+    // a search box, switching tabs, opening a panel). Otherwise a device that has
+    // done nothing but browse the app would permanently refuse a teammate's
+    // roster/scores, because its own "last change" timestamp always looks newer
+    // than the shared data ever could. This was why joining a session code showed
+    // no data: any local interaction quietly blocked every future sync forever.
+    const curSyncSnap = JSON.stringify(pickSyncFields(this.state));
+    if (!this._applyingRemote && curSyncSnap !== this._lastSyncSnap) this._lastLocalChangeAt = Date.now();
+    this._lastSyncSnap = curSyncSnap;
     this.pushStateDebounced();
   }
   pushStateDebounced(){
