@@ -1021,7 +1021,12 @@ class Component extends DCLogic {
   onPwSubmit(){
     if (this.state.pwInput === getSitePassword()){
       if (typeof localStorage !== 'undefined') localStorage.setItem(UNLOCK_STORAGE_KEY, '1');
-      this.setState({unlocked:true, pwInput:'', pwError:false});
+      this.setState({unlocked:true, pwInput:'', pwError:false}, () => {
+        // The lock screen can grow taller than the viewport (e.g. "Forgot password?"
+        // expanded), leaving the page scrolled down. The app underneath is shorter,
+        // so without this the header banner stays scrolled out of view after unlock.
+        if (typeof window !== 'undefined') window.scrollTo(0, 0);
+      });
     } else {
       this.setState({pwError:true});
     }
@@ -1076,6 +1081,7 @@ class Component extends DCLogic {
 
   // ── Live sync stubs — see USE_LIVE_SYNC block above ──
   componentDidMount(){
+    if (typeof window !== 'undefined') window.scrollTo(0, 0);
     try {
       const saved = JSON.parse(localStorage.getItem('hustle_known_players') || '[]');
       if (Array.isArray(saved)) this.setState({knownPlayers: saved});
