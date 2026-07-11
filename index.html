@@ -22,11 +22,15 @@
 @keyframes mb-slide-down{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 @keyframes mb-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
+@media (max-width: 480px) {
+  .hustle-outer{padding:0 !important;}
+  .hustle-frame{width:100% !important;min-height:100vh !important;min-height:100dvh !important;border-radius:0 !important;box-shadow:none !important;border:none !important;}
+}
 </style>
 </helmet>
 
-<div style="min-height:100vh;background:#e5e2da;display:flex;justify-content:center;padding:28px 0;font-family:Archivo,system-ui,sans-serif;">
-  <div style="width:390px;min-height:844px;background:#fbfaf7;border-radius:30px;overflow:hidden;box-shadow:0 24px 60px rgba(15,42,74,.28);position:relative;display:flex;flex-direction:column;border:1px solid rgba(15,42,74,.08);">
+<div style="min-height:100vh;background:#e5e2da;display:flex;justify-content:center;padding:28px 0;font-family:Archivo,system-ui,sans-serif;" class="hustle-outer">
+  <div style="width:390px;min-height:844px;background:#fbfaf7;border-radius:30px;overflow:hidden;box-shadow:0 24px 60px rgba(15,42,74,.28);position:relative;display:flex;flex-direction:column;border:1px solid rgba(15,42,74,.08);" class="hustle-frame">
 
     <sc-if value="{{ !unlocked }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;background:#0f2a4a;text-align:center;">
