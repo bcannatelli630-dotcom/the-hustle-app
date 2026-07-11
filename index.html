@@ -736,6 +736,8 @@ body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased}
             </sc-if>
 
             <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:8px;" onClick="{{ onStartEvent }}">START EVENT</div>
+
+            <div style="text-align:center;padding:12px;border-radius:10px;font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.4px;cursor:pointer;margin-top:4px;border:1.5px solid #e9e5dc;" onClick="{{ onLogout }}">LOG OUT</div>
           </div>
         </sc-if>
       </div>
@@ -1041,6 +1043,10 @@ class Component extends DCLogic {
     if (!val) return;
     if (typeof localStorage !== 'undefined') localStorage.setItem(SITE_PASSWORD_STORAGE_KEY, val);
     this.setState({newSitePasswordSaved:true, newSitePasswordInput:''});
+  }
+  logout(){
+    if (typeof localStorage !== 'undefined') localStorage.removeItem(UNLOCK_STORAGE_KEY);
+    this.setState({unlocked:false, pwInput:'', pwError:false});
   }
   onGroupKeyInputChange(e){ this.setState({groupKeyInput: e.target.value}); }
   joinGroupKey(){
@@ -2257,6 +2263,7 @@ class Component extends DCLogic {
       onOpenClearDataConfirm: () => this.openClearDataConfirm(),
       onDismissClearDataConfirm: () => this.dismissClearDataConfirm(),
       onClearAllSavedData: () => this.clearAllSavedData(),
+      onLogout: () => this.logout(),
       groupKey: s.groupKey, groupKeyInput: s.groupKeyInput,
       onGroupKeyInputChange: (e)=>this.onGroupKeyInputChange(e), onJoinGroupKey: () => this.joinGroupKey(),
       syncError: s.syncError,
