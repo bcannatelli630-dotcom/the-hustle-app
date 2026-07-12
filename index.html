@@ -79,7 +79,7 @@ html{overflow-x:hidden}
 
     <!-- status bar -->
     <div style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#98928a;font:600 12px Archivo,sans-serif;background:#0f2a4a;">
-      <span style="color:#fff;">9:41</span>
+      <span style="color:#fff;">{{ currentTime }}</span>
     </div>
 
     <!-- ============ BOARD ============ -->
@@ -987,6 +987,11 @@ function getOrCreateGroupKey(){
   }
   return k;
 }
+function formatClockTime(d){
+  let h = d.getHours() % 12; if (h === 0) h = 12;
+  const m = String(d.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
 function getSitePassword(){
   if (typeof localStorage === 'undefined') return SITE_PASSWORD_DEFAULT;
   return localStorage.getItem(SITE_PASSWORD_STORAGE_KEY) || SITE_PASSWORD_DEFAULT;
@@ -1008,6 +1013,7 @@ class Component extends DCLogic {
     newSitePasswordSaved: false,
     clearDataConfirmOpen: false,
     clearRoundConfirmOpen: false,
+    currentTime: formatClockTime(new Date()),
     resetAllConfirmOpen: false,
     screen: 'board',
     scoringMode: 'low',
@@ -1175,6 +1181,9 @@ class Component extends DCLogic {
       const localSaved = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
       if (localSaved && typeof localSaved === 'object') this.setState(localSaved);
     } catch(e){}
+    // Real device clock, synced to the phone's local time, ticking every 15s
+    // (plenty for a minute-resolution display) rather than a hardcoded mockup time.
+    this._clockTimer = setInterval(() => this.setState({currentTime: formatClockTime(new Date())}), 15000);
     if (!USE_LIVE_SYNC) return;
     this.loadState();
     this._syncTimer = setInterval(() => this.loadState(), SYNC_POLL_MS);
@@ -1206,6 +1215,7 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){
     if (this._syncTimer) clearInterval(this._syncTimer);
+    if (this._clockTimer) clearInterval(this._clockTimer);
   }
   async loadState(force){
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
@@ -2372,6 +2382,7 @@ class Component extends DCLogic {
       groupKey: s.groupKey, groupKeyInput: s.groupKeyInput,
       onGroupKeyInputChange: (e)=>this.onGroupKeyInputChange(e), onJoinGroupKey: () => this.joinGroupKey(),
       syncError: s.syncError,
+      currentTime: s.currentTime,
       isBoard: s.screen==='board', isCard: s.screen==='card', isGames: s.screen==='games',
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(),
