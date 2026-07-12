@@ -23,7 +23,14 @@
 @keyframes mb-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 body{margin:0;background:#e5e2da;-webkit-font-smoothing:antialiased;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html{overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-*{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*{-webkit-text-size-adjust:100%;text-size-adjust:100%;box-sizing:border-box}
+img{max-width:100%;display:block}
+/* iOS Safari auto-zooms the whole page on focus of any input/select/textarea
+   under 16px font-size, then leaves the page zoomed in until the user manually
+   pinches back out — this was the real cause of "page doesn't fit, have to
+   shrink it" and "field snaps back" reports. Every text control in this app is
+   forced to 16px so that can never trigger, regardless of its inline font-size. */
+input, select, textarea { font-size:16px !important; }
 </style>
 </helmet>
 
@@ -78,10 +85,9 @@ html{overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
     <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ true }}">
 
-    <!-- status bar -->
-    <div style="height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#98928a;font:600 12px Archivo,sans-serif;background:#0f2a4a;">
-      <span style="color:#fff;">{{ currentTime }}</span>
-    </div>
+    <!-- status bar removed: the real device status bar already shows the clock,
+    signal, and battery — this was a leftover desktop-mockup element causing a
+    confusing duplicate time display on real phones. -->
 
     <!-- ============ BOARD ============ -->
     <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ true }}">
