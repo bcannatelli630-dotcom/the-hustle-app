@@ -26,8 +26,8 @@ html{overflow-x:hidden}
 </style>
 </helmet>
 
-<div style="min-height:100dvh;background:#e5e2da;display:flex;justify-content:center;padding:calc(max(0px, (100vw - 390px) / 2)) 0;font-family:Archivo,system-ui,sans-serif;">
-  <div style="width:min(390px, 100vw);box-sizing:border-box;min-height:100dvh;background:#fbfaf7;border-radius:clamp(0px, calc((100vw - 391px) * 999), 30px);overflow:hidden;box-shadow:0 24px 60px rgba(15,42,74,.28);position:relative;display:flex;flex-direction:column;border:1px solid rgba(15,42,74,.08);">
+<div style="width:100%;max-width:480px;margin:0 auto;background:#e5e2da;">
+  <div style="width:100%;box-sizing:border-box;min-height:100dvh;background:#fbfaf7;overflow:hidden;position:relative;display:flex;flex-direction:column;font-family:Archivo,system-ui,sans-serif;">
 
     <sc-if value="{{ !unlocked }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;background:#0f2a4a;text-align:center;">
