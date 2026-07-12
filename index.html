@@ -1176,7 +1176,10 @@ class Component extends DCLogic {
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
     const attemptedAt = Date.now();
     try {
-      const res = await fetch(SYNC_ENDPOINT, {
+      // Group is sent BOTH in the URL and the body — the feed's write endpoint
+      // resolves it from either, but sending both means a write and a read always
+      // agree on which row they mean, however the endpoint is deployed.
+      const res = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
