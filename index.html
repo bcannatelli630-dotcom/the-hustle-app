@@ -1596,6 +1596,7 @@ class Component extends DCLogic {
   exportData(){ try{ const o=this.gatherData(); const blob=new Blob([JSON.stringify(o,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mickeltitties-backup-'+new Date().toISOString().slice(0,10)+'.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),1500); this.flash('Backup downloaded'); }catch(e){ this.flash('Backup failed'); } }
   importData(e){ const file=e&&e.target&&e.target.files&&e.target.files[0]; if(!file) return; const rdr=new FileReader(); rdr.onload=()=>{ try{ const o=JSON.parse(rdr.result); if(this.applyData(o)){ this.refreshFromStorage(); this.flash('Backup restored'); } else { this.flash('That file didn’t look right'); } }catch(err){ this.flash('Could not read that file'); } }; rdr.readAsText(file); e.target.value=''; }
 
+  requireDraftAuth(cb){ if(this._draftAuthed){ cb(); return; } const pin=window.prompt('Enter passcode to make draft changes:'); if(pin===null) return; if(pin!==this.userPass() && pin!==this.MASTER_PASSCODE){ this.flash('Incorrect passcode'); return; } this._draftAuthed=true; cb(); }
   draftPlayer(name){ this.setState(st=>{ if(st.pickIdx>=40) return null; const item=(st.field||[]).find(f=>f.n===name); if(!item) return null; const order=st.draftOrder||[0,1,2,3,4,5,6,7]; const pid=order[this.draftSeq()[st.pickIdx]]; const drafted=st.drafted.concat([{player:name,cc:item.cc,odds:item.odds,pid,pickNo:st.pickIdx+1,session:true}]); this.saveDraft(drafted, st.pickIdx+1, order); return { drafted, field:st.field.filter(f=>f.n!==name), pickIdx:st.pickIdx+1, clock:st.clockDur }; }); }
   undo(){ this.setState(st=>{ if(st.pickIdx<=(this.DEMO_MODE?18:0)) return null; const last=st.drafted[st.drafted.length-1]; if(!last||!last.session) return null; const drafted=st.drafted.slice(0,-1); this.saveDraft(drafted, st.pickIdx-1, st.draftOrder); return { drafted, field:[{n:last.player,cc:last.cc,odds:last.odds}].concat(st.field), pickIdx:st.pickIdx-1, clock:st.clockDur }; }); }
   resetDraft(){ this.setState(st=>{ const drafted=this.initialDrafted(); const pickIdx=(this.DEMO_MODE?18:0); this.saveDraft(drafted, pickIdx, st.draftOrder); return { drafted, field:this.initialField(), pickIdx, clock:st.clockDur, running:true, rosterEdit:null }; }); if(this.USE_LIVE_FEED) setTimeout(()=>this.loadLiveField(), 50); }
@@ -1794,9 +1795,9 @@ class Component extends DCLogic {
     const noSessionPicks = !drafted.some(d=>d.session);
     const ocCount = drafted.filter(d=>d.pid===ocPart.id).length;
     const onClock = { initials:ocPart.ini, name:ocPart.name, meta:'Round '+(curRound+1)+' of 5 · '+ocCount+'/5 drafted' };
-    const durations = [120,300,600,1200].map(d=>({ label:this.fmt(d), active:d===S.clockDur, idle:d!==S.clockDur, onClick:()=>this.setState({ clockDur:d, clock:d }) }));
+    const durations = [120,300,600,1200].map(d=>({ label:this.fmt(d), active:d===S.clockDur, idle:d!==S.clockDur, onClick:()=>this.requireDraftAuth(()=>this.setState({ clockDur:d, clock:d })) }));
     const q = (S.draftSearch||'').trim().toLowerCase();
-    const availAll = (S.field||[]).map(f=>({ ...f, draft:()=>this.draftPlayer(f.n), remove:()=>this.removePlayerFromBoard(f.n) }));
+    const availAll = (S.field||[]).map(f=>({ ...f, draft:()=>this.requireDraftAuth(()=>this.draftPlayer(f.n)), remove:()=>this.removePlayerFromBoard(f.n) }));
     const avail = q ? availAll.filter(a=>(a.n||'').toLowerCase().includes(q)) : availAll;
     const availCountStr = 'AVAILABLE \u00b7 ' + availAll.length;
     const recent = drafted.slice(-3).reverse().map(d=>({ n:d.player, by:this.PARTS[d.pid].name.split(' ')[0] }));
@@ -1914,7 +1915,7 @@ class Component extends DCLogic {
       draftSearch:S.draftSearch, onDraftSearch:(e)=>this.setState({draftSearch:e.target.value}),
       clockStr:this.fmt(S.clock), clockPct:Math.round(S.clock/S.clockDur*100),
       togglePause:()=>this.setState(st=>({running:!st.running})), runLabel:S.running?'Pause clock':'Resume clock',
-      undo:()=>this.undo(), resetDraft:()=>this.resetDraft(),
+      undo:()=>this.requireDraftAuth(()=>this.undo()), resetDraft:()=>this.requireDraftAuth(()=>this.resetDraft()),
       isDraftLocked:draftClosed, draftUnlocked:!draftClosed && !draftNotOpen, toggleLock:()=>this.setState(st=>({draftLocked:!st.draftLocked})),
       draftNotOpen, draftOpenStr, draftOpenEventName:liveEventName2, showScorePicks:draftComplete, draftPreview,
       lockHead:(draftPreview?'Draft preview':(draftComplete?'Draft complete':'Rosters are locked')), lockMsg:(draftPreview?'Sample completed-draft screen — nothing here is saved. Exit preview from Settings.':(draftComplete?'All 40 picks are in. Enter each player\u2019s winning-score pick below.':'The board is closed — no more picks can be made.')),
