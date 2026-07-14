@@ -303,6 +303,15 @@ body{margin:0; background:#0a0a0a;}
             <div style="font-family:var(--fb); font-weight:600; font-size:11px; letter-spacing:.04em; color:var(--mut); margin-top:4px;">{{liveEventName2}} · SNAKE DRAFT</div>
           </div>
 
+          <div style="display:flex; gap:5px; margin:14px 22px 0; background:var(--card); border:1px solid var(--line); padding:4px; border-radius:var(--rad);">
+            <sc-if value="{{draftTabActive}}" hint-placeholder-val="{{true}}"><div onClick="{{showDraftTab}}" style="flex:1; text-align:center; padding:9px; background:var(--acc); color:var(--aci); border-radius:calc(var(--rad) - 1px); font-family:var(--fb); font-weight:700; font-size:12px; cursor:pointer;">Draft</div></sc-if>
+            <sc-if value="{{rostersTabActive2}}" hint-placeholder-val="{{false}}"><div onClick="{{showDraftTab}}" style="flex:1; text-align:center; padding:9px; color:var(--mut); font-family:var(--fb); font-weight:600; font-size:12px; cursor:pointer;">Draft</div></sc-if>
+            <sc-if value="{{rostersTabActive2}}" hint-placeholder-val="{{false}}"><div onClick="{{showRostersTab}}" style="flex:1; text-align:center; padding:9px; background:var(--acc); color:var(--aci); border-radius:calc(var(--rad) - 1px); font-family:var(--fb); font-weight:700; font-size:12px; cursor:pointer;">Rosters</div></sc-if>
+            <sc-if value="{{draftTabActive}}" hint-placeholder-val="{{true}}"><div onClick="{{showRostersTab}}" style="flex:1; text-align:center; padding:9px; color:var(--mut); font-family:var(--fb); font-weight:600; font-size:12px; cursor:pointer;">Rosters</div></sc-if>
+          </div>
+
+          <sc-if value="{{draftTabActive}}" hint-placeholder-val="{{true}}">
+          <sc-if value="{{clockFeatureOn}}" hint-placeholder-val="{{false}}">
           <div style="display:flex; gap:6px; padding:14px 22px 0;">
             <sc-for list="{{durations}}" as="d" hint-placeholder-count="4">
               <sc-if value="{{d.active}}" hint-placeholder-val="{{true}}"><button onClick="{{d.onClick}}" style="flex:1; padding:8px; border:none; background:var(--acc); color:var(--aci); font-family:var(--fb); font-weight:700; font-size:12px; border-radius:var(--rad); cursor:pointer;">{{d.label}}</button></sc-if>
@@ -310,6 +319,7 @@ body{margin:0; background:#0a0a0a;}
             </sc-for>
           </div>
 
+          <sc-if value="{{clockArmed}}" hint-placeholder-val="{{false}}">
           <div style="margin:12px 22px 0; padding:18px; background:var(--pan); border-radius:var(--rad);">
             <div style="display:flex; align-items:center; gap:13px;">
               <div style="width:50px; height:50px; border-radius:50%; background:var(--pnum); display:flex; align-items:center; justify-content:center; font-family:var(--fd); font-size:19px; color:var(--pan); --ringc:var(--pnum); animation:mtRing 1.7s infinite;">{{onClock.initials}}</div>
@@ -322,6 +332,9 @@ body{margin:0; background:#0a0a0a;}
             </div>
             <div style="height:4px; background:var(--psub); opacity:.4; border-radius:999px; margin-top:14px;"></div>
             <div style="height:4px; width:{{clockPct}}%; background:var(--pnum); border-radius:999px; margin-top:-4px;"></div>
+            <sc-if value="{{clockExpired}}" hint-placeholder-val="{{false}}">
+              <div style="margin-top:12px; padding:10px 12px; background:rgba(0,0,0,.18); border-radius:8px; font-family:var(--fb); font-weight:700; font-size:12px; color:var(--pin); text-align:center;">⏱ Time's up — pick now or it counts as a missed cut.</div>
+            </sc-if>
             <div style="display:flex; gap:8px; margin-top:14px;">
               <button onClick="{{togglePause}}" style="flex:1; padding:11px; border:none; background:var(--pin); color:var(--pan); font-family:var(--fb); font-weight:700; font-size:13px; border-radius:var(--rad); cursor:pointer;">{{runLabel}}</button>
               <button onClick="{{undo}}" style="padding:11px 16px; border:1px solid var(--pin); background:transparent; color:var(--pin); font-family:var(--fb); font-weight:600; font-size:13px; border-radius:var(--rad); cursor:pointer;">Undo</button>
@@ -331,6 +344,8 @@ body{margin:0; background:#0a0a0a;}
               <button onClick="{{toggleSound}}" style="border:1px solid var(--pin); background:transparent; color:var(--pin); font-family:var(--fb); font-weight:700; font-size:11px; padding:5px 14px; border-radius:999px; cursor:pointer;">{{soundLabel}}</button>
             </div>
           </div>
+          </sc-if>
+          </sc-if>
 
           <div style="padding:18px 22px 4px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span style="font-family:var(--fb); font-weight:700; font-size:11px; letter-spacing:.09em; color:var(--mut);">{{roundLabel}} ORDER</span><div style="display:flex; gap:6px;"><sc-if value="{{canShuffle}}" hint-placeholder-val="{{true}}"><button onClick="{{orderAction}}" style="border:1px solid var(--acc); background:transparent; color:var(--acc); font-family:var(--fb); font-weight:700; font-size:11px; padding:5px 12px; border-radius:999px; cursor:pointer;">{{orderBtnLabel}}</button><button onClick="{{openOrderPicker}}" style="border:1px solid var(--line); background:transparent; color:var(--mut); font-family:var(--fb); font-weight:700; font-size:11px; padding:5px 12px; border-radius:999px; cursor:pointer;">Set order</button></sc-if><sc-if value="{{cannotShuffle}}" hint-placeholder-val="{{false}}"><span style="font-family:var(--fb); font-weight:500; font-size:11px; color:var(--fnt);">↕ snakes back</span></sc-if></div></div>
@@ -365,6 +380,26 @@ body{margin:0; background:#0a0a0a;}
               <div style="display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line);"><span style="flex:1; font-family:var(--fb); font-weight:500; font-size:13px; color:var(--fnt); text-decoration:line-through;">{{pk.n}}</span><span style="font-family:var(--fb); font-weight:700; font-size:11px; color:var(--acc);">→ {{pk.by}}</span></div>
             </sc-for>
           </div>
+          </sc-if>
+          </sc-if>
+
+          <sc-if value="{{rostersTabActive2}}" hint-placeholder-val="{{false}}">
+            <div style="padding:16px 22px 0;">
+              <div style="font-family:var(--fb); font-weight:500; font-size:12px; color:var(--mut); margin-bottom:4px; line-height:1.5;">Every roster drafted so far this event.</div>
+              <sc-if value="{{noRoster}}" hint-placeholder-val="{{false}}">
+                <div style="padding:22px; text-align:center; font-family:var(--fb); font-weight:600; font-size:13px; color:var(--fnt);">No picks yet.</div>
+              </sc-if>
+              <div style="margin-top:10px; display:flex; flex-direction:column; gap:16px;">
+                <sc-for list="{{rosterGroups}}" as="g" hint-placeholder-count="8">
+                  <div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;"><span style="font-family:var(--fb); font-weight:700; font-size:13px; color:var(--ink);">{{g.name}}</span><span style="font-family:var(--fb); font-weight:600; font-size:11px; color:var(--fnt);">{{g.count}}</span></div>
+                    <sc-for list="{{g.players}}" as="pl" hint-placeholder-count="5">
+                      <div style="padding:9px 0; border-bottom:1px solid var(--line); font-family:var(--fb); font-weight:500; font-size:14px; color:var(--ink);">{{pl.name}}</div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
           </sc-if>
         </div>
       </sc-if>
@@ -902,6 +937,14 @@ body{margin:0; background:#0a0a0a;}
                 </div>
               </sc-for>
             </div>
+            <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line); display:flex; align-items:center; gap:12px;">
+              <div style="flex:1;">
+                <div style="font-family:var(--fb); font-weight:600; font-size:14px; color:var(--ink);">Draft clock (admin)</div>
+                <div style="font-family:var(--fb); font-weight:500; font-size:11px; color:var(--mut); margin-top:2px; line-height:1.4;">Hidden from the draft room until enabled here. Picks never clear if time runs out — it just warns.</div>
+              </div>
+              <sc-if value="{{clockFeatureOn}}" hint-placeholder-val="{{false}}"><button onClick="{{disableClockFeature}}" style="border:none; background:var(--acc); color:var(--aci); font-family:var(--fb); font-weight:700; font-size:11px; padding:8px 14px; border-radius:999px; cursor:pointer;">On</button></sc-if>
+              <sc-if value="{{clockFeatureOff}}" hint-placeholder-val="{{true}}"><button onClick="{{enableClockFeature}}" style="border:1px solid var(--line); background:transparent; color:var(--mut); font-family:var(--fb); font-weight:700; font-size:11px; padding:8px 14px; border-radius:999px; cursor:pointer;">Off</button></sc-if>
+            </div>
           </sc-if>
 
           <sc-if value="{{isPoolTab}}" hint-placeholder-val="{{false}}">
@@ -995,10 +1038,10 @@ class Component extends DCLogic {
     screen: 'home', seasonTab: 'standings', detail: null, showTheme: false, eventChosen: false,
     showSettings: false, nameDraft: null, settingsUnlocked: false, pin: '', pinErr: false,
     theme: 'masters',
-    pickIdx: 18, clockDur: 300, clock: 252, running: true, draftLocked: false,
+    pickIdx: 18, clockDur: 300, clock: 252, running: true, draftLocked: false, clockArmed: false,
     live: true, scores: null, lastUpdated: 0,
     soundOn: true, toast: null, draftSearch: '',
-    drafted: null, field: null, draftOrder: null, rosterEdit: null, rosterSearch: '', eventView: 'pool',
+    drafted: null, field: null, draftOrder: null, rosterEdit: null, rosterSearch: '', eventView: 'pool', draftView: 'draft',
   };
 
   THEMES = {
@@ -1267,7 +1310,7 @@ class Component extends DCLogic {
       if (this.DEMO_MODE){ this.setState({ drafted:this.initialDrafted(), field:this.initialField(), pickIdx:18, draftOrder:[0,1,2,3,4,5,6,7] }); }
       else { const cd=this.draftFor(this.state.theme); this.setState({ drafted:cd.drafted, field:this.initialField(), pickIdx:cd.pickIdx, draftOrder:cd.order }); }
     }
-    this._t = setInterval(()=>{ this.setState(st => (st.running && st.clock>0) ? { clock: st.clock-1 } : null); }, 1000);
+    this._t = setInterval(()=>{ this.setState(st => (st.running && st.clockArmed && st.clock>0) ? { clock: st.clock-1 } : null); }, 1000);
     if (!this.state.scores) this.setState({ scores:this.baseScores(), lastUpdated:Date.now() });
     if (this.USE_LIVE_FEED) this.loadLiveField();
     // Poll only during active tournament hours (Thu–Sun of the selected major) and only while the tab is visible — conserves API quota.
@@ -1597,6 +1640,9 @@ class Component extends DCLogic {
   importData(e){ const file=e&&e.target&&e.target.files&&e.target.files[0]; if(!file) return; const rdr=new FileReader(); rdr.onload=()=>{ try{ const o=JSON.parse(rdr.result); if(this.applyData(o)){ this.refreshFromStorage(); this.flash('Backup restored'); } else { this.flash('That file didn’t look right'); } }catch(err){ this.flash('Could not read that file'); } }; rdr.readAsText(file); e.target.value=''; }
 
   requireDraftAuth(cb){ if(this._draftAuthed){ cb(); return; } const pin=window.prompt('Enter passcode to make draft changes:'); if(pin===null) return; if(pin!==this.userPass() && pin!==this.MASTER_PASSCODE){ this.flash('Incorrect passcode'); return; } this._draftAuthed=true; cb(); }
+  oddsVal(s){ if(!s) return null; const t=String(s).trim(); const m=t.match(/^[+\-]?\d+/); if(!m) return null; const n=parseInt(t.replace('+',''),10); return isNaN(n)?null:n; }
+  loadClockFeature(){ try{ return localStorage.getItem('mtc_clockfeature')==='1'; }catch(e){ return false; } }
+  setClockFeature(on){ try{ localStorage.setItem('mtc_clockfeature', on?'1':'0'); }catch(e){} this.setState({ clockArmed:false, running:false }); this.forceUpdate(); }
   draftPlayer(name){ this.setState(st=>{ if(st.pickIdx>=40) return null; const item=(st.field||[]).find(f=>f.n===name); if(!item) return null; const order=st.draftOrder||[0,1,2,3,4,5,6,7]; const pid=order[this.draftSeq()[st.pickIdx]]; const drafted=st.drafted.concat([{player:name,cc:item.cc,odds:item.odds,pid,pickNo:st.pickIdx+1,session:true}]); this.saveDraft(drafted, st.pickIdx+1, order); return { drafted, field:st.field.filter(f=>f.n!==name), pickIdx:st.pickIdx+1, clock:st.clockDur }; }); }
   undo(){ this.setState(st=>{ if(st.pickIdx<=(this.DEMO_MODE?18:0)) return null; const last=st.drafted[st.drafted.length-1]; if(!last||!last.session) return null; const drafted=st.drafted.slice(0,-1); this.saveDraft(drafted, st.pickIdx-1, st.draftOrder); return { drafted, field:[{n:last.player,cc:last.cc,odds:last.odds}].concat(st.field), pickIdx:st.pickIdx-1, clock:st.clockDur }; }); }
   resetDraft(){ this.setState(st=>{ const drafted=this.initialDrafted(); const pickIdx=(this.DEMO_MODE?18:0); this.saveDraft(drafted, pickIdx, st.draftOrder); return { drafted, field:this.initialField(), pickIdx, clock:st.clockDur, running:true, rosterEdit:null }; }); if(this.USE_LIVE_FEED) setTimeout(()=>this.loadLiveField(), 50); }
@@ -1795,9 +1841,12 @@ class Component extends DCLogic {
     const noSessionPicks = !drafted.some(d=>d.session);
     const ocCount = drafted.filter(d=>d.pid===ocPart.id).length;
     const onClock = { initials:ocPart.ini, name:ocPart.name, meta:'Round '+(curRound+1)+' of 5 · '+ocCount+'/5 drafted' };
-    const durations = [120,300,600,1200].map(d=>({ label:this.fmt(d), active:d===S.clockDur, idle:d!==S.clockDur, onClick:()=>this.requireDraftAuth(()=>this.setState({ clockDur:d, clock:d })) }));
+    const durations = [120,300,600,1200].map(d=>({ label:this.fmt(d), active:d===S.clockDur, idle:d!==S.clockDur, onClick:()=>this.requireDraftAuth(()=>this.setState({ clockDur:d, clock:d, clockArmed:true, running:true })) }));
+    const clockFeatureOn = !!this.loadClockFeature();
+    const clockExpired = clockFeatureOn && S.clockArmed && S.clock<=0;
     const q = (S.draftSearch||'').trim().toLowerCase();
-    const availAll = (S.field||[]).map(f=>({ ...f, draft:()=>this.requireDraftAuth(()=>this.draftPlayer(f.n)), remove:()=>this.removePlayerFromBoard(f.n) }));
+    const availAll = (S.field||[]).map(f=>({ ...f, draft:()=>this.requireDraftAuth(()=>this.draftPlayer(f.n)), remove:()=>this.removePlayerFromBoard(f.n) }))
+      .sort((a,b)=>{ const oa=this.oddsVal(a.odds), ob=this.oddsVal(b.odds); if(oa==null&&ob==null) return a.n.localeCompare(b.n); if(oa==null) return 1; if(ob==null) return -1; return oa-ob; });
     const avail = q ? availAll.filter(a=>(a.n||'').toLowerCase().includes(q)) : availAll;
     const availCountStr = 'AVAILABLE \u00b7 ' + availAll.length;
     const recent = drafted.slice(-3).reverse().map(d=>({ n:d.player, by:this.PARTS[d.pid].name.split(' ')[0] }));
@@ -1914,8 +1963,10 @@ class Component extends DCLogic {
       showPickEdit:!!pickEdit, pickEdit, closePickEdit:()=>this.closePickEdit(),
       draftSearch:S.draftSearch, onDraftSearch:(e)=>this.setState({draftSearch:e.target.value}),
       clockStr:this.fmt(S.clock), clockPct:Math.round(S.clock/S.clockDur*100),
+      clockFeatureOn, clockArmed:!!S.clockArmed, clockNotArmed:!S.clockArmed, clockExpired, clockNotExpired:!clockExpired,
       togglePause:()=>this.setState(st=>({running:!st.running})), runLabel:S.running?'Pause clock':'Resume clock',
       undo:()=>this.requireDraftAuth(()=>this.undo()), resetDraft:()=>this.requireDraftAuth(()=>this.resetDraft()),
+      draftTabActive:S.draftView!=='rosters', rostersTabActive2:S.draftView==='rosters', showDraftTab:()=>this.setState({draftView:'draft'}), showRostersTab:()=>this.setState({draftView:'rosters'}),
       isDraftLocked:draftClosed, draftUnlocked:!draftClosed && !draftNotOpen, toggleLock:()=>this.setState(st=>({draftLocked:!st.draftLocked})),
       draftNotOpen, draftOpenStr, draftOpenEventName:liveEventName2, showScorePicks:draftComplete, draftPreview,
       lockHead:(draftPreview?'Draft preview':(draftComplete?'Draft complete':'Rosters are locked')), lockMsg:(draftPreview?'Sample completed-draft screen — nothing here is saved. Exit preview from Settings.':(draftComplete?'All 40 picks are in. Enter each player\u2019s winning-score pick below.':'The board is closed — no more picks can be made.')),
@@ -1949,6 +2000,7 @@ class Component extends DCLogic {
       historyRows:(S.historyDraft||[]).map((h,i)=>({ yr:h.yr||'', champ:h.champ||'', cup:h.cup||'', cuts:h.cuts||'',
         onYr:(e)=>this.updateHistory(i,'yr',e.target.value), onChamp:(e)=>this.updateHistory(i,'champ',e.target.value), onCup:(e)=>this.updateHistory(i,'cup',e.target.value), onCuts:(e)=>this.updateHistory(i,'cuts',e.target.value), remove:()=>this.removeHistory(i) })),
       hasHistoryRows:(S.historyDraft||[]).length>0, addHistory:()=>this.addHistory(),
+      enableClockFeature:()=>this.setClockFeature(true), disableClockFeature:()=>this.setClockFeature(false), clockFeatureOn:this.loadClockFeature(), clockFeatureOff:!this.loadClockFeature(),
       recordEventResults:()=>this.recordEventResults(), recordSeasonToHistory:()=>this.recordSeasonToHistory(), currentEventName:liveEventName2,
       nameFields:(S.nameDraft||this.PARTS.map(p=>p.name)).map((v,i)=>({ value:v, ini:this.initialsOf(v)||(i+1), placeholder:'Player '+(i+1), onInput:(e)=>this.updateName(i, e.target.value) })),
       live, notLive:!live, seasonStarted, notSeason:!seasonStarted, recordsHas, notRecords:!recordsHas, anyDrafted,
