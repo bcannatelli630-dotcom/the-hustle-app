@@ -486,12 +486,26 @@ input, select, textarea { font-size:16px !important; }
           <sc-for list="{{ historyList }}" as="h" hint-placeholder-count="3">
             <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
               <div style="padding:13px 14px;cursor:pointer;" onClick="{{ h.onToggle }}">
-                <div style="display:flex;align-items:center;justify-content:space-between;">
-                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ h.title }}</div>
-                  <div style="font:700 11px Georgia,serif;color:#98928a;">{{ h.chev }}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;flex:1;min-width:0;">{{ h.title }}</div>
+                  <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;flex:none;" onClick="{{ h.onToggleEdit }}">EDIT</div>
+                  <div style="font:700 10px Archivo,sans-serif;color:#c8102e;cursor:pointer;flex:none;" onClick="{{ h.onDelete }}">DELETE</div>
+                  <div style="font:700 11px Georgia,serif;color:#98928a;flex:none;">{{ h.chev }}</div>
                 </div>
                 <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:3px;">{{ h.date }} · {{ h.course }} · {{ h.format }}</div>
               </div>
+              <sc-if value="{{ h.editing }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #e9e5dc;padding:10px 14px;display:flex;flex-direction:column;gap:8px;">
+                  <div>
+                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:3px;">TITLE</div>
+                    <input value="{{ h.title }}" onChange="{{ h.onTitleChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:7px 9px;font:700 12px Archivo,sans-serif;outline:none;box-sizing:border-box;"/>
+                  </div>
+                  <div>
+                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:3px;">COURSE</div>
+                    <input value="{{ h.course }}" onChange="{{ h.onCourseChange }}" style="width:100%;border:1.5px solid #e9e5dc;border-radius:6px;padding:7px 9px;font:700 12px Archivo,sans-serif;outline:none;box-sizing:border-box;"/>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ h.expanded }}" hint-placeholder-val="{{ false }}">
                 <div style="border-top:1px solid #e9e5dc;padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px;">
                   <sc-for list="{{ h.payouts }}" as="p" hint-placeholder-count="4">
@@ -1553,28 +1567,34 @@ class Component extends DCLogic {
     this.setState({showEndConfirm:true});
   }
   finalizeEndEvent(){
-    if (this.state.roundType === 'tournament'){
-      const settlement = this.computeSettlement();
-      const active = this.state.roster.filter(p => p.active);
-      const activeGames = [];
-      if (this.state.games.nassau.active) activeGames.push('Nassau');
-      if (this.state.games.bestball.active) activeGames.push('Best Ball');
-      ['wolf','sixsixsix','skins','vegas'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
-      const record = {
-        id: 'h' + Date.now(),
-        title: this.state.eventName.trim() || 'Untitled Tournament',
-        date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
-        course: this.state.courseName,
-        format: activeGames.length ? activeGames.join(' + ') : 'No games active',
-        expanded: false,
-        payouts: active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}))
-      };
-      this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
-    } else {
-      this.setState({showEndConfirm:false, eventEnded:true, screen:'settle'});
-    }
+    const settlement = this.computeSettlement();
+    const active = this.state.roster.filter(p => p.active);
+    const activeGames = [];
+    if (this.state.games.nassau.active) activeGames.push('Nassau');
+    if (this.state.games.bestball.active) activeGames.push('Best Ball');
+    ['wolf','sixsixsix','skins','vegas'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
+    const record = {
+      id: 'h' + Date.now(),
+      title: this.state.eventName.trim() || (this.state.roundType === 'tournament' ? 'Untitled Tournament' : 'Untitled Round'),
+      date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+      course: this.state.courseName,
+      format: activeGames.length ? activeGames.join(' + ') : 'No games active',
+      expanded: false,
+      editing: false,
+      payouts: active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}))
+    };
+    this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
   }
   dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
+  toggleHistoryEdit(id){
+    this.setState({history: this.state.history.map(h => h.id===id ? {...h, editing: !h.editing} : h)});
+  }
+  updateHistoryField(id, field, value){
+    this.setState({history: this.state.history.map(h => h.id===id ? {...h, [field]: value} : h)});
+  }
+  deleteHistoryRecord(id){
+    this.setState({history: this.state.history.filter(h => h.id !== id)});
+  }
 
   // Committing a hole means: any player still shown at the default (par, unedited)
   // is actually recording that par score for real — golfers who make par shouldn't
@@ -2298,8 +2318,13 @@ class Component extends DCLogic {
 
     const historyList = s.history.map(h => ({
       id:h.id, title:h.title, date:h.date, course:h.course, format:h.format, expanded:h.expanded,
+      editing: h.editing,
       chev: h.expanded ? '\u2212' : '+',
       onToggle: () => this.toggleHistory(h.id),
+      onToggleEdit: (e) => { e.stopPropagation(); this.toggleHistoryEdit(h.id); },
+      onDelete: (e) => { e.stopPropagation(); this.deleteHistoryRecord(h.id); },
+      onTitleChange: (e) => this.updateHistoryField(h.id, 'title', e.target.value),
+      onCourseChange: (e) => this.updateHistoryField(h.id, 'course', e.target.value),
       payouts: h.payouts.map(p => ({name:p.name, amountLabel: (p.amount>=0?'+$':'-$')+Math.abs(p.amount), color: p.amount>=0 ? '#1e7a3d' : '#c8102e'}))
     }));
 
