@@ -1147,9 +1147,9 @@ class Component extends DCLogic {
     this.setState({
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
-      presses: [], currentHole: 1, screen: 'board',
+      presses: [], currentHole: 1,
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false,
-      activeNotif: null, clearRoundConfirmOpen: false
+      activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true
     });
   }
   openResetAllConfirm(){ this.setState({resetAllConfirmOpen:true}); }
@@ -1351,7 +1351,15 @@ class Component extends DCLogic {
   netLabel(n){ if (n === 0) return 'E'; return (n > 0 ? '+' : '\u2212') + Math.abs(n); }
   netColor(n){ if (n < 0) return '#c8102e'; if (n > 0) return '#1a1a1a'; return '#5a6672'; }
 
-  setScreen(name){ this.setState({screen: name}); }
+  setScreen(name){
+    // Leaving Settle Up after a round has ended means you're done reviewing it —
+    // auto-clear the round (it's already safely logged in History) so Leaderboard
+    // and Scorecard come up blank instead of showing the finished round's old data.
+    if (this.state.eventEnded && this.state.screen === 'settle' && name !== 'settle'){
+      this.clearRound();
+    }
+    this.setState({screen: name});
+  }
 
   selectHole(n){
     if (n !== this.state.currentHole) this.commitDefaultScores(this.state.currentHole);
@@ -1624,7 +1632,10 @@ class Component extends DCLogic {
   }
 
   goSettings(){ this.setState({screen:'settings'}); }
-  goBoard(){ this.setState({screen:'board'}); }
+  goBoard(){
+    if (this.state.eventEnded && this.state.screen === 'settle') this.clearRound();
+    this.setState({screen:'board'});
+  }
   goSettle(){ this.setState({screen:'settle'}); }
 
   segmentNet(p, mode, active, start, end){
