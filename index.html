@@ -276,7 +276,7 @@ input, select, textarea { font-size:16px !important; }
         <sc-if value="{{ currentHoleObj.vegasActive }}" hint-placeholder-val="{{ false }}">
           <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-              <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">T&amp;A / VEGAS TEAMS — tap to cycle blue / orange / none</div>
+              <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">VEGAS TEAMS — tap to cycle blue / orange / none</div>
               <div style="display:flex;align-items:center;gap:6px;cursor:pointer;" onClick="{{ currentHoleObj.onToggleVegasSkip }}">
                 <div style="font:700 9px Archivo,sans-serif;color:{{ currentHoleObj.vegasSkip ? '#c8102e' : '#98928a' }};">NO PARTNERS THIS HOLE</div>
                 <div style="width:32px;height:18px;border-radius:9px;background:{{ currentHoleObj.vegasSkip ? '#c8102e' : '#e9e5dc' }};position:relative;">
@@ -291,6 +291,47 @@ input, select, textarea { font-size:16px !important; }
                 </sc-for>
               </div>
             </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.taActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">T&amp;A — flip on the tee box (tap to cycle T / A / none)</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <sc-for list="{{ currentHoleObj.taChips }}" as="tc_" hint-placeholder-count="4">
+                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ tc_.bg }};color:{{ tc_.color }};" onClick="{{ tc_.onClick }}">{{ tc_.initials }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentHoleObj.bbbActive }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;display:flex;flex-direction:column;gap:8px;">
+            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">BINGO BANGO BONGO — first on, closest once all on, first in</div>
+            <div>
+              <div style="font:700 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BINGO — first on the green</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ currentHoleObj.bingoChips }}" as="bc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ bc_.bg }};color:{{ bc_.color }};" onClick="{{ bc_.onClick }}">{{ bc_.initials }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font:700 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BANGO — closest once everyone's on</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ currentHoleObj.bangoChips }}" as="gc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ gc_.bg }};color:{{ gc_.color }};" onClick="{{ gc_.onClick }}">{{ gc_.initials }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font:700 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BONGO — first in the hole</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ currentHoleObj.bongoChips }}" as="nc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ nc_.bg }};color:{{ nc_.color }};" onClick="{{ nc_.onClick }}">{{ nc_.initials }}</div>
+                </sc-for>
+              </div>
+            </div>
           </div>
         </sc-if>
 
@@ -936,7 +977,9 @@ const GAMES_DEFAULT = {
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
   skins: {active:false, value:2, label:'SKINS', sub:'Per hole', carryover:false},
-  vegas: {active:false, value:2, label:'T&A / VEGAS', sub:'Team score combos'}
+  vegas: {active:false, value:2, label:'VEGAS', sub:'Team score combos'},
+  ta: {active:false, value:2, label:'T&A', sub:'Coin flip on the tee box — same flip = teammates, split flip = pairwise'},
+  bbb: {active:false, value:1, label:'BINGO BANGO BONGO', sub:'First on, closest once all on, first in — 3 points/hole'}
 };
 
 const JUNK_DEFAULT = {
@@ -972,6 +1015,27 @@ const SITE_PASSWORD_STORAGE_KEY = 'hustle_site_password';
 const LOCAL_STATE_KEY = 'hustle_local_state';
 const GROUP_KEY_STORAGE = 'hustle_group_key';
 
+// A saved/synced snapshot can predate a game or junk bet we've since added
+// (e.g. T&A, Bingo Bango Bongo) — merge missing keys back in from today's
+// defaults so an old snapshot can't crash renderVals() by omitting one.
+function mergeKeepingUserPrefs(defaults, saved){
+  const merged = {};
+  Object.keys(defaults).forEach(k => {
+    const d = defaults[k], sVal = saved[k];
+    // Keep the user's own choices (on/off, $ value, carryover, tiebreak), but
+    // always take label/sub copy from the current defaults — old snapshots can
+    // have baked-in text from a game that's since been renamed or split apart.
+    merged[k] = sVal ? {...d, ...sVal, label:d.label, sub:d.sub} : d;
+  });
+  return merged;
+}
+function backfillDefaults(state){
+  const patched = {...state};
+  if (patched.games) patched.games = mergeKeepingUserPrefs(JSON.parse(JSON.stringify(GAMES_DEFAULT)), patched.games);
+  if (patched.junk) patched.junk = mergeKeepingUserPrefs(JSON.parse(JSON.stringify(JUNK_DEFAULT)), patched.junk);
+  return patched;
+}
+
 const USE_LIVE_SYNC = true;
 const SYNC_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/state';
 const COURSE_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/course';
@@ -986,7 +1050,7 @@ const SYNC_KEYS = [
   'scoringMode', 'scores', 'roster', 'games', 'junk', 'history',
   'sweepCandidate', 'sweepCount', 'sweepDead', 'rrcHolder',
   'greenieWinners', 'greenieResolved', 'wolfPicks',
-  'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams',
+  'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses',
   'roundType', 'tournamentDays', 'eventName', 'showHero'
 ];
@@ -1061,6 +1125,8 @@ class Component extends DCLogic {
     barkyFlags: {},
     chippyFlags: {},
     vegasTeams: {}, // { [hole]: { skip: bool, assign: { [playerId]: 'A'|'B' } } }
+    taFlips: {}, // { [hole]: { [playerId]: 'T'|'A' } } — everyone flips fresh each hole
+    bbbPoints: {}, // { [hole]: { bingo: playerId, bango: playerId, bongo: playerId } }
     showEndConfirm: false,
     eventEnded: false,
     pressMode: 'individual',
@@ -1147,6 +1213,7 @@ class Component extends DCLogic {
     this.setState({
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
+      taFlips: {}, bbbPoints: {},
       presses: [], currentHole: 1,
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false,
       activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true
@@ -1163,6 +1230,7 @@ class Component extends DCLogic {
     this.setState({
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
+      taFlips: {}, bbbPoints: {},
       presses: [], currentHole: 1, screen: 'board',
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false, activeNotif: null,
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
@@ -1179,6 +1247,7 @@ class Component extends DCLogic {
     const fresh = {
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
+      taFlips: {}, bbbPoints: {},
       presses: [], history: JSON.parse(JSON.stringify(HISTORY_DEFAULT)),
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected', liveCourses: {}, eventName: '', showHero: true,
@@ -1200,7 +1269,7 @@ class Component extends DCLogic {
     // the shared feed is offline or not yet deployed.
     try {
       const localSaved = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
-      if (localSaved && typeof localSaved === 'object') this.setState(localSaved);
+      if (localSaved && typeof localSaved === 'object') this.setState(backfillDefaults(localSaved));
     } catch(e){}
     // Real device clock, synced to the phone's local time, ticking every 15s
     // (plenty for a minute-resolution display) rather than a hardcoded mockup time.
@@ -1257,7 +1326,7 @@ class Component extends DCLogic {
         const remoteT = json.t || 0;
         if (!this._lastLocalChangeAt || remoteT >= this._lastLocalChangeAt){
           this._applyingRemote = true;
-          this.setState(Object.assign(pickSyncFields(json.data), {syncError:false}), () => { this._applyingRemote = false; });
+          this.setState(Object.assign(backfillDefaults(pickSyncFields(json.data)), {syncError:false}), () => { this._applyingRemote = false; });
         }
       }
     } catch (e) { /* stay on last-known state; retried on next poll */ }
@@ -1450,6 +1519,24 @@ class Component extends DCLogic {
     vegasTeams[hole].skip = !vegasTeams[hole].skip;
     this.setState({vegasTeams});
   }
+  // T&A — a fresh coin flip every hole. Same flip = teammates; a lone flipper
+  // (or a full split) plays every opposite-flip player individually. Cycles
+  // unassigned -> T -> A -> unassigned.
+  cycleTaFlip(hole, playerId){
+    const taFlips = JSON.parse(JSON.stringify(this.state.taFlips));
+    if (!taFlips[hole]) taFlips[hole] = {};
+    const cur = taFlips[hole][playerId];
+    const next = cur === 'T' ? 'A' : (cur === 'A' ? undefined : 'T');
+    if (next) taFlips[hole][playerId] = next;
+    else delete taFlips[hole][playerId];
+    this.setState({taFlips});
+  }
+  toggleBbbPoint(hole, type, playerId){
+    const bbbPoints = JSON.parse(JSON.stringify(this.state.bbbPoints));
+    if (!bbbPoints[hole]) bbbPoints[hole] = {};
+    bbbPoints[hole][type] = bbbPoints[hole][type] === playerId ? null : playerId;
+    this.setState({bbbPoints});
+  }
 
   setGreenieWinner(hole, playerId){
     const greenieWinners = {...this.state.greenieWinners};
@@ -1580,7 +1667,7 @@ class Component extends DCLogic {
     const activeGames = [];
     if (this.state.games.nassau.active) activeGames.push('Nassau');
     if (this.state.games.bestball.active) activeGames.push('Best Ball');
-    ['wolf','sixsixsix','skins','vegas'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
+    ['wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
     const record = {
       id: 'h' + Date.now(),
       title: this.state.eventName.trim() || (this.state.roundType === 'tournament' ? 'Untitled Tournament' : 'Untitled Round'),
@@ -1924,6 +2011,47 @@ class Component extends DCLogic {
           lines.push(`VEGAS #${h}: ${winners.map(p=>p.name).join(' & ')} beat ${losers.map(p=>p.name).join(' & ')}`);
         }
       }
+      // T&A — fresh coin flip every hole. Same-flip players are teammates for
+      // bragging rights only; money is settled pairwise between every T-flip
+      // and A-flip player (covers lone-flipper-vs-everyone and split groups
+      // alike without assuming a combined team score).
+      if (this.state.games.ta.active && this.state.games.ta.value){
+        const val = this.state.games.ta.value;
+        for (let h = 1; h <= 18; h++){
+          const flips = this.state.taFlips[h] || {};
+          const tSide = active.filter(p => flips[p.id] === 'T');
+          const aSide = active.filter(p => flips[p.id] === 'A');
+          if (tSide.length === 0 || aSide.length === 0) continue;
+          const scoreOf = p => (this.state.scores[p.id] || {})[h];
+          tSide.forEach(tp => {
+            aSide.forEach(ap => {
+              const ts = scoreOf(tp), as_ = scoreOf(ap);
+              if (ts == null || as_ == null || ts === as_) return;
+              const winner = ts < as_ ? tp : ap, loser = ts < as_ ? ap : tp;
+              ledger[winner.id] += val; ledger[loser.id] -= val;
+              lines.push(`T&A #${h}: ${winner.name} beat ${loser.name}`);
+            });
+          });
+        }
+      }
+      // Bingo Bango Bongo — 3 points/hole, each point collects from every other player
+      if (this.state.games.bbb.active && this.state.games.bbb.value){
+        const val = this.state.games.bbb.value;
+        const labels = {bingo:'BINGO', bango:'BANGO', bongo:'BONGO'};
+        for (let h = 1; h <= 18; h++){
+          const pts = this.state.bbbPoints[h] || {};
+          ['bingo','bango','bongo'].forEach(type => {
+            const winnerId = pts[type];
+            if (!winnerId) return;
+            const p = active.find(x => String(x.id) === String(winnerId));
+            if (!p) return;
+            const others = active.filter(o => o.id !== p.id);
+            ledger[p.id] += val * others.length;
+            others.forEach(o => { ledger[o.id] -= val; });
+            lines.push(`${labels[type]} #${h}: ${p.name} collects $${val} each from every other player`);
+          });
+        }
+      }
       // Wolf (per-hole rotation + partner pick or lone wolf, best-ball vs the field)
       if (this.state.games.wolf.active && this.state.games.wolf.value){
         const val = this.state.games.wolf.value;
@@ -2135,7 +2263,7 @@ class Component extends DCLogic {
 
     const activeGamesList = [];
     if (s.games.nassau.active) activeGamesList.push(`NASSAU $${s.games.nassau.front}`);
-    ['bestball','wolf','sixsixsix','skins','vegas'].forEach(k => { if (s.games[k].active) activeGamesList.push(`${s.games[k].label} $${s.games[k].value}`); });
+    ['bestball','wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (s.games[k].active) activeGamesList.push(`${s.games[k].label} $${s.games[k].value}`); });
     const gamesChips = activeGamesList.map(text => ({text}));
 
     const holeChips = [];
@@ -2211,6 +2339,25 @@ class Component extends DCLogic {
     }) : [];
     const onToggleVegasSkip = () => this.toggleVegasSkip(n);
 
+    const taActive = !!(s.games.ta && s.games.ta.active);
+    const taHoleFlips = s.taFlips[n] || {};
+    const taChips = taActive ? active.map(p => {
+      const flip = taHoleFlips[p.id];
+      const bg = flip === 'T' ? '#0f2a4a' : (flip === 'A' ? '#ffa62f' : '#f3f1ea');
+      const color = flip === 'T' ? '#fff' : '#1a2733';
+      const label = flip ? `${p.initials} · ${flip}` : p.initials;
+      return {id:p.id, initials:label, bg, color, onClick: () => this.cycleTaFlip(n, p.id)};
+    }) : [];
+
+    const bbbActive = !!(s.games.bbb && s.games.bbb.active);
+    const bbbHole = s.bbbPoints[n] || {};
+    const makeBbbChips = (type) => active.map(p => {
+      const on = bbbHole[type] === p.id;
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleBbbPoint(n, type, p.id)};
+    });
+    const bingoChips = bbbActive ? makeBbbChips('bingo') : [];
+    const bangoChips = bbbActive ? makeBbbChips('bango') : [];
+    const bongoChips = bbbActive ? makeBbbChips('bongo') : [];
     const wolfActive = !!(s.games.wolf && s.games.wolf.active);
     const wolfPlayer = wolfActive ? this.wolfForHole(n, active) : null;
     const wolfPick = s.wolfPicks[n];
@@ -2235,6 +2382,8 @@ class Component extends DCLogic {
       barkyActive, barkyChips,
       chippyActive, chippyChips,
       vegasActive, vegasSkip, vegasChips, onToggleVegasSkip,
+      taActive, taChips,
+      bbbActive, bingoChips, bangoChips, bongoChips,
       wolfActive, wolfPlayerName: wolfPlayer ? wolfPlayer.name : '', wolfSummary,
       wolfPartnerChips, wolfLoneActive,
       onWolfLone: () => this.setWolfLone(n)
@@ -2284,7 +2433,7 @@ class Component extends DCLogic {
         });
       }
     }
-    const simpleGames = ['wolf','skins','vegas'].map(k => ({
+    const simpleGames = ['wolf','skins','vegas','ta','bbb'].map(k => ({
       key:k, label:s.games[k].label, sub:s.games[k].sub, value:s.games[k].value, active:s.games[k].active,
       bg: s.games[k].active ? '#0f2a4a' : '#e9e5dc', knob: s.games[k].active ? '18px' : '2px',
       onToggle: () => this.toggleGame(k),
