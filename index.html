@@ -101,9 +101,16 @@ input, select, textarea { font-size:16px !important; }
           </div>
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;">
             <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
-            <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
-              <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
-            </div>
+            <sc-if value="{{ isOnlineNow }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
+              </div>
+            </sc-if>
+            <sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:5px;background:#5a6672;color:#fff;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;white-space:nowrap;">
+                <span style="width:6px;height:6px;border-radius:50%;background:#fff;"></span>OFFLINE · SAVED ON PHONE
+              </div>
+            </sc-if>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">{{ courseLabel }} · {{ roundTypeLabel }} · THRU {{ overallThru }}</div>
         </div>
@@ -1271,21 +1278,46 @@ class Component extends DCLogic {
       const localSaved = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
       if (localSaved && typeof localSaved === 'object') this.setState(backfillDefaults(localSaved));
     } catch(e){}
+    // Durability: remember across app restarts whether this phone has edits the
+    // server hasn't confirmed yet (e.g. scores entered with no signal), so a reload
+    // never lets older server data overwrite them.
+    try {
+      this._lastLocalChangeAt = parseInt(localStorage.getItem('hustle_last_local_change') || '0', 10) || 0;
+      this._lastConfirmedPushAt = parseInt(localStorage.getItem('hustle_last_confirmed_push') || '0', 10) || 0;
+    } catch(e){}
+    this._flushLocal = () => { try { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(this.state)); } catch(e){} };
+    this._onHide = () => { if (document.visibilityState === 'hidden') { this._flushLocal(); if (this._hasUnsynced()) this.pushState(); } };
+    this._onOnline = () => { this.setState({isOffline:false}); if (this._hasUnsynced()) this.pushState(); else this.loadState(); };
+    this._onOffline = () => this.setState({isOffline:true});
+    document.addEventListener('visibilitychange', this._onHide);
+    window.addEventListener('pagehide', this._flushLocal);
+    window.addEventListener('online', this._onOnline);
+    window.addEventListener('offline', this._onOffline);
+    this.setState({isOffline: typeof navigator !== 'undefined' && navigator.onLine === false});
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+    try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('./sw.js'); } catch(e){}
     // Real device clock, synced to the phone's local time, ticking every 15s
     // (plenty for a minute-resolution display) rather than a hardcoded mockup time.
     this._clockTimer = setInterval(() => this.setState({currentTime: formatClockTime(new Date())}), 15000);
     if (!USE_LIVE_SYNC) return;
-    this.loadState();
-    this._syncTimer = setInterval(() => this.loadState(), SYNC_POLL_MS);
+    // If this phone has unsent edits from before it closed, send them first.
+    if (this._hasUnsynced()) this.pushState(); else this.loadState();
+    this._syncTimer = setInterval(() => {
+      // Keep retrying unsent edits until the server confirms them (covers dead
+      // zones on the course); only pull others' changes once we're caught up.
+      if (this._hasUnsynced()) this.pushState(); else this.loadState();
+    }, SYNC_POLL_MS);
+  }
+  _hasUnsynced(){
+    return !!this._lastLocalChangeAt && this._lastLocalChangeAt > (this._lastConfirmedPushAt || 0);
   }
   componentDidUpdate(){
     // Debounced local + remote autosave on every state change. Local write is
     // synchronous-cheap and unconditional (the safety net); remote push is
     // best-effort and only fires if the shared feed is configured.
-    if (this._localSaveTimer) clearTimeout(this._localSaveTimer);
-    this._localSaveTimer = setTimeout(() => {
-      try { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(this.state)); } catch(e){}
-    }, 300);
+    // Saved to the phone immediately on every change (no delay), so a dead
+    // battery or force-quit right after a tap can't lose it.
+    this._flushLocal();
     // Only count it as a "local change" (for the stale-poll guard below) if a
     // field that actually SYNCS changed — not just any UI interaction (typing in
     // a search box, switching tabs, opening a panel). Otherwise a device that has
@@ -1294,7 +1326,10 @@ class Component extends DCLogic {
     // than the shared data ever could. This was why joining a session code showed
     // no data: any local interaction quietly blocked every future sync forever.
     const curSyncSnap = JSON.stringify(pickSyncFields(this.state));
-    if (!this._applyingRemote && curSyncSnap !== this._lastSyncSnap) this._lastLocalChangeAt = Date.now();
+    if (!this._applyingRemote && this._lastSyncSnap !== undefined && curSyncSnap !== this._lastSyncSnap){
+      this._lastLocalChangeAt = Date.now();
+      try { localStorage.setItem('hustle_last_local_change', String(this._lastLocalChangeAt)); } catch(e){}
+    }
     this._lastSyncSnap = curSyncSnap;
     this.pushStateDebounced();
   }
@@ -1305,6 +1340,10 @@ class Component extends DCLogic {
   }
   componentWillUnmount(){
     if (this._syncTimer) clearInterval(this._syncTimer);
+    document.removeEventListener('visibilitychange', this._onHide);
+    window.removeEventListener('pagehide', this._flushLocal);
+    window.removeEventListener('online', this._onOnline);
+    window.removeEventListener('offline', this._onOffline);
     if (this._clockTimer) clearInterval(this._clockTimer);
   }
   async loadState(force){
@@ -1349,7 +1388,9 @@ class Component extends DCLogic {
       });
       if (res.ok) {
         this._lastConfirmedPushAt = attemptedAt;
+        try { localStorage.setItem('hustle_last_confirmed_push', String(attemptedAt)); } catch(e){}
         this._pushFailCount = 0;
+        if (this.state.isOffline) this.setState({isOffline:false});
         if (this.state.syncError) this.setState({syncError:false});
       } else {
         this._onPushFailed();
@@ -2551,6 +2592,7 @@ class Component extends DCLogic {
     }));
 
     return {
+      isOffline: !!s.isOffline, isOnlineNow: !s.isOffline,
       unlocked: s.unlocked, pwInput: s.pwInput, pwError: s.pwError,
       onPwChange: (e)=>this.onPwChange(e), onPwSubmit: () => this.onPwSubmit(),
       forgotPasswordOpen: s.forgotPasswordOpen, onToggleForgotPassword: () => this.toggleForgotPassword(),
