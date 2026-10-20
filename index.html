@@ -180,6 +180,13 @@ input, select, textarea { font-size:16px !important; }
             <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">ENTER SCORES · HOLE {{ currentHoleObj.n }}</div>
+          <sc-if value="{{ isEditingHistory }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;background:#ffa62f;border-radius:8px;padding:9px 10px;display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;min-width:0;font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">EDITING PAST ROUND · {{ editingHistoryTitle }}</div>
+              <div style="background:#fff;color:#5a6672;font:800 10px Archivo,sans-serif;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onCancelHistoryEdits }}">CANCEL</div>
+              <div style="background:#0f2a4a;color:#fff;font:800 10px Archivo,sans-serif;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onSaveHistoryEdits }}">SAVE &amp; RE-SETTLE</div>
+            </div>
+          </sc-if>
         </div>
 
         <div style="flex:none;display:flex;gap:6px;padding:10px 18px;background:#fbfaf7;border-bottom:1px solid #e9e5dc;">
@@ -540,7 +547,13 @@ input, select, textarea { font-size:16px !important; }
                   <div style="font:700 10px Archivo,sans-serif;color:#c8102e;cursor:pointer;flex:none;" onClick="{{ h.onDelete }}">DELETE</div>
                   <div style="font:700 11px Georgia,serif;color:#98928a;flex:none;">{{ h.chev }}</div>
                 </div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:3px;">{{ h.date }} · {{ h.course }} · {{ h.format }}</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:3px;">{{ h.date }} · {{ h.course }} · {{ h.format }}{{ h.editedLabel }}</div>
+                <sc-if value="{{ h.canEditScores }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:inline-flex;margin-top:8px;background:#0f2a4a;color:#fff;font:800 10px Archivo,sans-serif;padding:6px 10px;border-radius:5px;letter-spacing:.3px;cursor:pointer;" onClick="{{ h.onEditScores }}">EDIT SCORES</div>
+                </sc-if>
+                <sc-if value="{{ h.editBlocked }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:700 10px Archivo,sans-serif;color:#c8102e;margin-top:6px;">A round is in progress. Finish or clear it before editing a past round.</div>
+                </sc-if>
               </div>
               <sc-if value="{{ h.editing }}" hint-placeholder-val="{{ false }}">
                 <div style="border-top:1px solid #e9e5dc;padding:10px 14px;display:flex;flex-direction:column;gap:8px;">
@@ -1059,8 +1072,11 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses',
-  'roundType', 'tournamentDays', 'eventName', 'showHero'
+  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId'
 ];
+// Everything needed to fully rebuild a finished round (scores, flags, bets) so it
+// can be reopened from History, edited, and re-settled.
+const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => k !== 'history' && k !== 'showHero' && k !== 'editingHistoryId');
 function pickSyncFields(obj){
   const out = {};
   SYNC_KEYS.forEach(k => { if (obj[k] !== undefined) out[k] = obj[k]; });
@@ -1136,6 +1152,8 @@ class Component extends DCLogic {
     bbbPoints: {}, // { [hole]: { bingo: playerId, bango: playerId, bongo: playerId } }
     showEndConfirm: false,
     eventEnded: false,
+    editingHistoryId: null,
+    editBlockedId: null,
     pressMode: 'individual',
     pressAssign: {},
     sweepCandidate: null,
@@ -1223,7 +1241,7 @@ class Component extends DCLogic {
       taFlips: {}, bbbPoints: {},
       presses: [], currentHole: 1,
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false,
-      activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true
+      activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true, editingHistoryId: null, editBlockedId: null
     });
   }
   openResetAllConfirm(){ this.setState({resetAllConfirmOpen:true}); }
@@ -1295,7 +1313,7 @@ class Component extends DCLogic {
     window.addEventListener('offline', this._onOffline);
     this.setState({isOffline: typeof navigator !== 'undefined' && navigator.onLine === false});
     try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
-    try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('./sw.js'); } catch(e){}
+    try { if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('./sw.js').catch(() => {}); } catch(e){}
     // Real device clock, synced to the phone's local time, ticking every 15s
     // (plenty for a minute-resolution display) rather than a hardcoded mockup time.
     this._clockTimer = setInterval(() => this.setState({currentTime: formatClockTime(new Date())}), 15000);
@@ -1709,17 +1727,44 @@ class Component extends DCLogic {
     if (this.state.games.nassau.active) activeGames.push('Nassau');
     if (this.state.games.bestball.active) activeGames.push('Best Ball');
     ['wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
+    const payouts = active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}));
+    const snapshot = JSON.parse(JSON.stringify(ROUND_SNAPSHOT_KEYS.reduce((o,k) => { o[k] = this.state[k]; return o; }, {})));
+    const format = activeGames.length ? activeGames.join(' + ') : 'No games active';
+    const editingId = this.state.editingHistoryId;
+    if (editingId){
+      // Re-settling an edited past round: update that record in place.
+      const history = this.state.history.map(h => h.id === editingId ? {...h, course: this.state.courseName, format, payouts, snapshot, edited: true} : h);
+      this.setState({history, showEndConfirm:false, eventEnded:true, editingHistoryId:null, screen:'settle'});
+      return;
+    }
     const record = {
       id: 'h' + Date.now(),
       title: this.state.eventName.trim() || (this.state.roundType === 'tournament' ? 'Untitled Tournament' : 'Untitled Round'),
       date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
       course: this.state.courseName,
-      format: activeGames.length ? activeGames.join(' + ') : 'No games active',
+      format,
       expanded: false,
       editing: false,
-      payouts: active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}))
+      payouts,
+      snapshot
     };
     this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
+  }
+  roundInProgress(){
+    return !this.state.eventEnded && !this.state.editingHistoryId && Object.values(this.state.scores || {}).some(ps => ps && Object.keys(ps).length > 0);
+  }
+  editHistoryScores(id){
+    const rec = this.state.history.find(h => h.id === id);
+    if (!rec || !rec.snapshot) return;
+    if (this.roundInProgress()){ this.setState({editBlockedId: id}); return; }
+    this.setState(Object.assign(backfillDefaults(JSON.parse(JSON.stringify(rec.snapshot))), {
+      editingHistoryId: id, editBlockedId: null, eventEnded: false, showHero: false, currentHole: 1, activeNotif: null, screen: 'card'
+    }));
+  }
+  saveHistoryEdits(){ this.finalizeEndEvent(); }
+  cancelHistoryEdits(){
+    this.clearRound();
+    this.setState({editingHistoryId: null, screen: 'history'});
   }
   dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
   toggleHistoryEdit(id){
@@ -2524,6 +2569,10 @@ class Component extends DCLogic {
       onToggle: () => this.toggleHistory(h.id),
       onToggleEdit: (e) => { e.stopPropagation(); this.toggleHistoryEdit(h.id); },
       onDelete: (e) => { e.stopPropagation(); this.deleteHistoryRecord(h.id); },
+      canEditScores: !!h.snapshot,
+      editedLabel: h.edited ? ' · EDITED' : '',
+      editBlocked: s.editBlockedId === h.id,
+      onEditScores: (e) => { e.stopPropagation(); this.editHistoryScores(h.id); },
       onTitleChange: (e) => this.updateHistoryField(h.id, 'title', e.target.value),
       onCourseChange: (e) => this.updateHistoryField(h.id, 'course', e.target.value),
       payouts: h.payouts.map(p => ({name:p.name, amountLabel: (p.amount>=0?'+$':'-$')+Math.abs(p.amount), color: p.amount>=0 ? '#1e7a3d' : '#c8102e'}))
@@ -2593,6 +2642,10 @@ class Component extends DCLogic {
 
     return {
       isOffline: !!s.isOffline, isOnlineNow: !s.isOffline,
+      isEditingHistory: !!s.editingHistoryId,
+      editingHistoryTitle: ((s.history || []).find(h => h.id === s.editingHistoryId) || {}).title || '',
+      onSaveHistoryEdits: () => this.saveHistoryEdits(),
+      onCancelHistoryEdits: () => this.cancelHistoryEdits(),
       unlocked: s.unlocked, pwInput: s.pwInput, pwError: s.pwError,
       onPwChange: (e)=>this.onPwChange(e), onPwSubmit: () => this.onPwSubmit(),
       forgotPasswordOpen: s.forgotPasswordOpen, onToggleForgotPassword: () => this.toggleForgotPassword(),
