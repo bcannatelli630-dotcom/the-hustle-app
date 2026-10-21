@@ -678,6 +678,41 @@ input, select, textarea { font-size:16px !important; }
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TYPE OF GAME</div>
 
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="flex:1;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. Individual games stay within each group.</div>
+                </div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;margin-top:12px;">
+                  <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
+                    <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <div style="flex:1;">
+                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  </div>
+                  <div style="flex:1;">
+                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  </div>
+                  <div style="flex:1;">
+                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  </div>
+                </div>
+                <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Assign groups on each player in the roster below.</div>
+                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;margin-top:6px;">{{ groupMatch.countsLabel }}</div>
+              </sc-if>
+            </div>
+
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
               <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
                 <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">NASSAU</div>
                 <div style="width:38px;height:22px;border-radius:11px;background:{{ nassau.bg }};position:relative;cursor:pointer;" onClick="{{ nassau.onToggle }}">
@@ -789,6 +824,13 @@ input, select, textarea { font-size:16px !important; }
                 <div style="display:flex;align-items:center;gap:10px;">
                   <div style="width:34px;height:34px;border-radius:50%;background:#eef2f6;display:flex;align-items:center;justify-content:center;font:800 12px Archivo,sans-serif;color:#0f2a4a;flex:none;">{{ p.initials }}</div>
                   <div style="font:700 13px Archivo,sans-serif;color:#1a2733;flex:1;min-width:0;">{{ p.name }}</div>
+                  <sc-if value="{{ p.showGroups }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:4px;flex:none;">
+                      <sc-for list="{{ p.groupChips }}" as="gc" hint-placeholder-count="3">
+                        <div style="width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ gc.bg }};color:{{ gc.color }};" onClick="{{ gc.onClick }}">{{ gc.label }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
                   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none;">
                     <div style="font:700 9px Archivo,sans-serif;color:{{ p.activeColor }};cursor:pointer;white-space:nowrap;" onClick="{{ p.onToggleActive }}">{{ p.activeLabel }}</div>
                     <div style="font:700 9px Archivo,sans-serif;color:#c8102e;cursor:pointer;white-space:nowrap;" onClick="{{ p.onRemove }}">REMOVE</div>
@@ -832,7 +874,7 @@ input, select, textarea { font-size:16px !important; }
               <div style="text-align:center;padding:12px;border:1.5px dashed #d8d2c4;border-radius:10px;font:800 11px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;" onClick="{{ onToggleAddForm }}">{{ addFormToggleLabel }}</div>
             </sc-if>
             <sc-if value="{{ !canAddMore }}" hint-placeholder-val="{{ false }}">
-              <div style="text-align:center;padding:10px;font:600 10px Archivo,sans-serif;color:#98928a;">Roster cap reached (12 players)</div>
+              <div style="text-align:center;padding:10px;font:600 10px Archivo,sans-serif;color:#98928a;">Roster cap reached (15 players)</div>
             </sc-if>
 
             <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:8px;" onClick="{{ onStartEvent }}">START EVENT</div>
@@ -993,6 +1035,7 @@ const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
   nassau: {active:true, front:5, back:5, overall:5},
+  groupmatch: {active:false, label:'GROUP MATCH', format:'best1', front:5, back:5, overall:5},
   bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
@@ -1848,13 +1891,9 @@ class Component extends DCLogic {
     return groups;
   }
 
-  computeSettlement(){
-    const active = this.state.roster.filter(p => p.active);
-    const mode = this.state.scoringMode;
-    const ledger = {};
-    active.forEach(p => { ledger[p.id] = 0; });
-    const lines = [];
-
+  // Individual games/junk for one set of players (a single group when Group Match
+  // is on, otherwise the whole roster).
+  settleIndividualGames(active, ledger, lines, mode){
     if (active.length >= 2){
       // Nassau
       if (this.state.games.nassau.active){
@@ -2179,6 +2218,68 @@ class Component extends DCLogic {
         }
       }
     }
+  }
+
+  // Players grouped for Group Match. With Group Match off everyone is one group,
+  // so individual games behave exactly as before.
+  activeGroups(allActive){
+    const gm = this.state.games.groupmatch;
+    if (!gm || !gm.active) return [{key:'A', players: allActive}];
+    return ['A','B','C'].map(k => ({key:k, players: allActive.filter(p => (p.group || 'A') === k)})).filter(g => g.players.length);
+  }
+
+  // Group vs group, Nassau style (front/back/overall), independent of the
+  // individual games inside each group. Uneven sides count the same number of balls.
+  settleGroupMatch(allActive, ledger, lines, mode){
+    const gm = this.state.games.groupmatch;
+    if (!gm || !gm.active) return;
+    const groups = this.activeGroups(allActive);
+    if (groups.length < 2) return;
+    const segs = [
+      {label:'FRONT 9', start:1, end:9, value: gm.front},
+      {label:'BACK 9', start:10, end:18, value: gm.back},
+      {label:'OVERALL', start:1, end:18, value: gm.overall}
+    ];
+    for (let i = 0; i < groups.length; i++) for (let j = i+1; j < groups.length; j++){
+      const A = groups[i], B = groups[j];
+      const balls = gm.format === 'best1' ? 1 : gm.format === 'best2' ? 2 : Math.min(A.players.length, B.players.length);
+      if (A.players.length < balls || B.players.length < balls) continue;
+      const sideScore = (side, h) => {
+        const vals = side.players.map(p => this.netToParAt(p, h, mode, allActive)).filter(v => v != null).sort((a,b) => a-b);
+        if (vals.length < balls) return null;
+        return vals.slice(0, balls).reduce((t,v) => t+v, 0);
+      };
+      segs.forEach(seg => {
+        if (!seg.value) return;
+        let totA = 0, totB = 0, holes = 0;
+        for (let h = seg.start; h <= seg.end; h++){
+          const a = sideScore(A, h), b = sideScore(B, h);
+          if (a == null || b == null) continue;
+          totA += a; totB += b; holes++;
+        }
+        if (!holes || totA === totB) return; // ties push
+        const win = totA < totB ? A : B, lose = totA < totB ? B : A;
+        const share = seg.value * lose.players.length / win.players.length;
+        lose.players.forEach(p => { ledger[p.id] -= seg.value; });
+        win.players.forEach(p => { ledger[p.id] += share; });
+        lines.push(`GROUP MATCH · ${seg.label}: Group ${win.key} beats Group ${lose.key} — each Group ${lose.key} player pays $${seg.value}`);
+      });
+    }
+  }
+
+  computeSettlement(){
+    const active = this.state.roster.filter(p => p.active);
+    const mode = this.state.scoringMode;
+    const ledger = {};
+    active.forEach(p => { ledger[p.id] = 0; });
+    const lines = [];
+    const groups = this.activeGroups(active);
+    groups.forEach(g => {
+      const sub = [];
+      this.settleIndividualGames(g.players, ledger, sub, mode);
+      sub.forEach(l => lines.push(groups.length > 1 ? `GROUP ${g.key} · ${l}` : l));
+    });
+    this.settleGroupMatch(active, ledger, lines, mode);
 
     const netRows = active.map(p => ({id:p.id, name:p.name, amount: ledger[p.id] || 0}))
       .sort((a,b) => b.amount - a.amount);
@@ -2291,12 +2392,22 @@ class Component extends DCLogic {
     const roster = this.state.roster.map(p => p.id === id ? {...p, active: !p.active} : p);
     this.setState({roster});
   }
+  setPlayerGroup(id, key){
+    const count = this.state.roster.filter(p => p.id !== id && (p.group || 'A') === key).length;
+    if (count >= 5) return; // max five per group
+    this.setState({roster: this.state.roster.map(p => p.id === id ? {...p, group:key} : p)});
+  }
+  setGroupMatchFormat(fmt){
+    const games = JSON.parse(JSON.stringify(this.state.games));
+    games.groupmatch.format = fmt;
+    this.setState({games});
+  }
   removePlayer(id){
     const roster = this.state.roster.filter(p => p.id !== id);
     this.setState({roster});
   }
   addPlayer(){
-    if (this.state.roster.length >= 12) return;
+    if (this.state.roster.length >= 15) return;
     if (!this.state.newName.trim()) return;
     const id = Math.max(0, ...this.state.roster.map(p=>p.id)) + 1;
     const name = this.state.newName.trim();
@@ -2475,6 +2586,24 @@ class Component extends DCLogic {
       onWolfLone: () => this.setWolfLone(n)
     };
 
+    const gmState = s.games.groupmatch || {active:false, format:'best1', front:5, back:5, overall:5};
+    const gmCounts = {A:0, B:0, C:0};
+    s.roster.forEach(p => { gmCounts[p.group || 'A']++; });
+    const groupMatch = {
+      active: !!gmState.active,
+      bg: gmState.active ? '#0f2a4a' : '#e9e5dc',
+      knob: gmState.active ? '18px' : '2px',
+      onToggle: () => this.toggleGame('groupmatch'),
+      front: gmState.front, back: gmState.back, overall: gmState.overall,
+      onFront: (e)=>this.setGameValue('groupmatch','front',e.target.value),
+      onBack: (e)=>this.setGameValue('groupmatch','back',e.target.value),
+      onOverall: (e)=>this.setGameValue('groupmatch','overall',e.target.value),
+      formats: [['best1','BEST BALL'],['best2','BEST 2 BALLS'],['all','ALL SCORES']].map(([k,l]) => ({
+        label:l, bg: gmState.format === k ? '#0f2a4a' : '#f3f1ea', color: gmState.format === k ? '#fff' : '#1a2733',
+        onClick: () => this.setGroupMatchFormat(k)
+      })),
+      countsLabel: `A: ${gmCounts.A} · B: ${gmCounts.B} · C: ${gmCounts.C}  (max 5 each)`
+    };
     const nassau = {
       active: s.games.nassau.active,
       bg: s.games.nassau.active ? '#0f2a4a' : '#e9e5dc',
@@ -2585,6 +2714,12 @@ class Component extends DCLogic {
       activeColor: p.active ? '#1e7a3d' : '#98928a',
       onToggleActive: () => this.toggleActive(p.id),
       onRemove: () => this.removePlayer(p.id),
+      showGroups: !!gmState.active,
+      groupChips: ['A','B','C'].map(k => {
+        const on = (p.group || 'A') === k;
+        const full = !on && gmCounts[k] >= 5;
+        return {label:k, bg: on ? '#0f2a4a' : '#f3f1ea', color: on ? '#fff' : (full ? '#c9c3b6' : '#1a2733'), onClick: () => this.setPlayerGroup(p.id, k)};
+      }),
       onIndexChange: (e)=>this.updatePlayerIndex(p.id, e.target.value),
       onTeeChange: (e)=>this.updatePlayerTee(p.id, e.target.value)
     }));
@@ -2730,14 +2865,14 @@ class Component extends DCLogic {
       onTeamACallsPress: () => this.callAssignedTeamPress('A'),
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
-      nassau, simpleGames, bestBall, junkList, historyList,
+      nassau, groupMatch, simpleGames, bestBall, junkList, historyList,
       sixSix, sixSixGroups,
       newJunkLabel,
       onNewJunkLabelChange: (e)=>this.setState({newJunkLabel:e.target.value}),
       onAddJunk: () => this.addCustomJunk(),
       rosterList,
       rosterCountLabel: `${s.roster.filter(p=>p.active).length} ACTIVE / ${s.roster.length} TOTAL`,
-      canAddMore: s.roster.length < 12,
+      canAddMore: s.roster.length < 15,
       showAddForm: s.showAddForm,
       addFormToggleLabel: s.showAddForm ? 'CANCEL' : '+ ADD PLAYER',
       onToggleAddForm: () => this.setState({showAddForm:!s.showAddForm, newTee: Object.keys(this.course.tees)[0] || 'White'}),
