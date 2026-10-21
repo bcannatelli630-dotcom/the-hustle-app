@@ -127,7 +127,7 @@ input, select, textarea { font-size:16px !important; }
           </sc-for>
         </div>
 
-        <sc-if value="{{ showHero }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ heroOnBoard }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;margin:8px 10px 8px;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,74,.06);min-height:0;">
             <img src="./assets/course-photo.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center 62%;display:block;"/>
           </div>
@@ -143,7 +143,7 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </sc-if>
 
-        <sc-if value="{{ !showHero }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ showBoardRows }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
             <sc-for list="{{ leaderboardRows }}" as="r" hint-placeholder-count="6">
               <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);border-left:3px solid {{ r.rankBorder }};">
@@ -161,6 +161,84 @@ input, select, textarea { font-size:16px !important; }
                 <div style="font:700 22px Georgia,serif;color:{{ r.netColor }};">{{ r.netLabel }}</div>
               </div>
             </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isScoreboardView }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;padding:12px 14px 16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
+            <sc-if value="{{ sbEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">Add players and enter scores to see net standings.</div>
+            </sc-if>
+
+            <sc-for list="{{ sbMatchups }}" as="m" hint-placeholder-count="1">
+              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ m.label }}</div>
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin-top:10px;">
+                  <div style="text-align:center;min-width:0;">
+                    <div style="font:800 11px Archivo,sans-serif;color:#1a2733;letter-spacing:.3px;overflow-wrap:anywhere;">{{ m.aName }}</div>
+                    <div style="font:900 44px 'Archivo Black',sans-serif;color:{{ m.aColor }};line-height:1;margin-top:6px;">{{ m.aNet }}</div>
+                  </div>
+                  <div style="font:800 11px Archivo,sans-serif;color:#98928a;">VS</div>
+                  <div style="text-align:center;min-width:0;">
+                    <div style="font:800 11px Archivo,sans-serif;color:#1a2733;letter-spacing:.3px;overflow-wrap:anywhere;">{{ m.bName }}</div>
+                    <div style="font:900 44px 'Archivo Black',sans-serif;color:{{ m.bColor }};line-height:1;margin-top:6px;">{{ m.bNet }}</div>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:14px;">
+                  <sc-for list="{{ m.segs }}" as="sg" hint-placeholder-count="3">
+                    <div style="background:#f3f1ea;border-radius:6px;padding:7px 4px;text-align:center;">
+                      <div style="font:800 9px Archivo,sans-serif;color:#98928a;">{{ sg.label }}</div>
+                      <div style="font:800 11px Archivo,sans-serif;color:#0f2a4a;margin-top:2px;overflow-wrap:anywhere;">{{ sg.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{ sbHasGroups }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:{{ sbGridCols }};gap:10px;align-items:start;">
+                <sc-for list="{{ sbGroups }}" as="g" hint-placeholder-count="2">
+                  <div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,74,.06);min-width:0;">
+                    <div style="background:{{ g.bg }};color:{{ g.fg }};font:800 10px Archivo,sans-serif;padding:7px 10px;letter-spacing:.4px;overflow-wrap:anywhere;">{{ g.name }}</div>
+                    <sc-for list="{{ g.players }}" as="p" hint-placeholder-count="4">
+                      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid #f3f1ea;">
+                        <div style="min-width:0;">
+                          <div style="font:700 12px Archivo,sans-serif;color:#1a2733;overflow-wrap:anywhere;">{{ p.name }}</div>
+                          <div style="font:600 9px Archivo,sans-serif;color:#98928a;">THRU {{ p.thru }}</div>
+                        </div>
+                        <div style="font:700 16px Georgia,serif;color:{{ p.color }};flex:none;">{{ p.net }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sbShowIndividuals }}" hint-placeholder-val="{{ false }}">
+              <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">INDIVIDUAL · NET</div>
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+                <sc-for list="{{ sbIndividuals }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid #f3f1ea;">
+                    <div style="width:18px;font:900 12px 'Archivo Black',sans-serif;color:#98928a;">{{ p.pos }}</div>
+                    <div style="flex:1;min-width:0;font:700 13px Archivo,sans-serif;color:#1a2733;">{{ p.name }}</div>
+                    <div style="font:600 10px Archivo,sans-serif;color:#98928a;">THRU {{ p.thru }}</div>
+                    <div style="width:36px;text-align:right;font:700 16px Georgia,serif;color:{{ p.color }};">{{ p.net }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ hasRules }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">RULES FOR THE ROUND</div>
+                <sc-for list="{{ rulesList }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;gap:8px;align-items:baseline;padding:4px 0;">
+                    <div style="width:5px;height:5px;border-radius:50%;background:#ffa62f;flex:none;transform:translateY(-2px);"></div>
+                    <div style="font:700 12px Archivo,sans-serif;color:#1a2733;line-height:1.4;">{{ r.text }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
           </div>
         </sc-if>
       </div>
@@ -708,7 +786,16 @@ input, select, textarea { font-size:16px !important; }
                   </div>
                 </div>
                 <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Assign groups on each player in the roster below.</div>
-                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;margin-top:6px;">{{ groupMatch.countsLabel }}</div>
+                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-top:12px;margin-bottom:6px;">TEAM NAMES</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <sc-for list="{{ groupMatch.nameRows }}" as="nr" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:26px;height:26px;border-radius:6px;background:{{ nr.bg }};color:{{ nr.fg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;flex:none;">{{ nr.key }}</div>
+                      <input value="{{ nr.value }}" placeholder="{{ nr.placeholder }}" onChange="{{ nr.onChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+                      <div style="font:700 10px Archivo,sans-serif;color:#98928a;flex:none;">{{ nr.count }}/5</div>
+                    </div>
+                  </sc-for>
+                </div>
               </sc-if>
             </div>
 
@@ -813,6 +900,20 @@ input, select, textarea { font-size:16px !important; }
                   <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:{{ m.bg }};color:{{ m.color }};" onClick="{{ m.onClick }}">{{ m.label }}</div>
                 </sc-for>
               </div>
+            </div>
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">RULES FOR THE ROUND</div>
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ rulePresets }}" as="rp" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ rp.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ rp.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ rp.check }}</div>
+                  <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ rp.label }}</div>
+                </div>
+              </sc-for>
+              <sc-for list="{{ ruleCustoms }}" as="rc" hint-placeholder-count="3">
+                <input value="{{ rc.value }}" placeholder="Add another rule" onChange="{{ rc.onChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+              </sc-for>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Checked rules and anything typed here show on the Scoreboard.</div>
             </div>
 
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
@@ -1035,7 +1136,7 @@ const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
   nassau: {active:true, front:5, back:5, overall:5},
-  groupmatch: {active:false, label:'GROUP MATCH', format:'best1', front:5, back:5, overall:5},
+  groupmatch: {active:false, label:'GROUP MATCH', format:'best1', front:5, back:5, overall:5, names:{A:'', B:'', C:''}},
   bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
@@ -1115,8 +1216,17 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses',
-  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId'
+  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules'
 ];
+const RULE_PRESETS = [
+  ['breakfast', 'Breakfast ball'],
+  ['lcp', 'Lift, clean, and place'],
+  ['bump', 'Bump in your own fairway only'],
+  ['twoputt', 'Two-putt max'],
+  ['bunker', 'Lift, clean, place in bunkers']
+];
+const RULES_DEFAULT = {preset:{}, custom:['','','']};
+const GROUP_COLORS = {A:{bg:'#0f2a4a', fg:'#fff'}, B:{bg:'#ffa62f', fg:'#0f2a4a'}, C:{bg:'#1e7a3d', fg:'#fff'}};
 // Everything needed to fully rebuild a finished round (scores, flags, bets) so it
 // can be reopened from History, edited, and re-settled.
 const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => k !== 'history' && k !== 'showHero' && k !== 'editingHistoryId');
@@ -1197,6 +1307,7 @@ class Component extends DCLogic {
     eventEnded: false,
     editingHistoryId: null,
     editBlockedId: null,
+    rules: JSON.parse(JSON.stringify(RULES_DEFAULT)),
     pressMode: 'individual',
     pressAssign: {},
     sweepCandidate: null,
@@ -1304,7 +1415,8 @@ class Component extends DCLogic {
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected', liveCourses: {},
       roundType: '18', tournamentDays: 2, eventName: '',
-      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false
+      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false,
+      rules: JSON.parse(JSON.stringify(RULES_DEFAULT))
     });
   }
   clearAllSavedData(){
@@ -2262,7 +2374,7 @@ class Component extends DCLogic {
         const share = seg.value * lose.players.length / win.players.length;
         lose.players.forEach(p => { ledger[p.id] -= seg.value; });
         win.players.forEach(p => { ledger[p.id] += share; });
-        lines.push(`GROUP MATCH · ${seg.label}: Group ${win.key} beats Group ${lose.key} — each Group ${lose.key} player pays $${seg.value}`);
+        lines.push(`GROUP MATCH · ${seg.label}: ${this.groupName(win.key)} beats ${this.groupName(lose.key)} — each ${this.groupName(lose.key)} player pays $${seg.value}`);
       });
     }
   }
@@ -2277,7 +2389,7 @@ class Component extends DCLogic {
     groups.forEach(g => {
       const sub = [];
       this.settleIndividualGames(g.players, ledger, sub, mode);
-      sub.forEach(l => lines.push(groups.length > 1 ? `GROUP ${g.key} · ${l}` : l));
+      sub.forEach(l => lines.push(groups.length > 1 ? `${this.groupName(g.key).toUpperCase()} · ${l}` : l));
     });
     this.settleGroupMatch(active, ledger, lines, mode);
 
@@ -2396,6 +2508,90 @@ class Component extends DCLogic {
     const count = this.state.roster.filter(p => p.id !== id && (p.group || 'A') === key).length;
     if (count >= 5) return; // max five per group
     this.setState({roster: this.state.roster.map(p => p.id === id ? {...p, group:key} : p)});
+  }
+  groupName(k){
+    const gm = this.state.games.groupmatch || {};
+    const n = ((gm.names || {})[k] || '').trim();
+    return n || `Group ${k}`;
+  }
+  setGroupName(k, v){
+    const games = JSON.parse(JSON.stringify(this.state.games));
+    games.groupmatch.names = {...(games.groupmatch.names || {}), [k]: v};
+    this.setState({games});
+  }
+  toggleRulePreset(key){
+    const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+    rules.preset = rules.preset || {};
+    rules.preset[key] = !rules.preset[key];
+    this.setState({rules});
+  }
+  setCustomRule(i, v){
+    const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+    rules.custom = (rules.custom || ['','','']).slice(); rules.custom[i] = v;
+    this.setState({rules});
+  }
+  fmtNet(n){ return n < 0 ? String(n) : (n === 0 ? 'E' : '+' + n); }
+  netColorSB(n){ return n < 0 ? '#c8102e' : '#1a2733'; }
+  // Scoreboard data: per-player net to par, per-group lists, and group matchups.
+  buildScoreboard(){
+    const allActive = this.state.roster.filter(p => p.active);
+    const mode = this.state.scoringMode;
+    const groups = this.activeGroups(allActive);
+    const playerRow = (p, field) => {
+      let net = 0, thru = 0;
+      for (let h = 1; h <= 18; h++){ const v = this.netToParAt(p, h, mode, field); if (v != null){ net += v; thru++; } }
+      return {id:p.id, name:p.name, net, thru};
+    };
+    const gm = this.state.games.groupmatch;
+    const gmOn = !!(gm && gm.active && groups.length >= 2);
+    const fmtRow = r => ({...r, net: this.fmtNet(r.net), color: this.netColorSB(r.net)});
+    const sortRows = rows => rows.filter(r => r.thru > 0).sort((a,b) => a.net - b.net).concat(rows.filter(r => r.thru === 0));
+    const sbGroups = gmOn ? groups.map(g => ({
+      key:g.key, name:this.groupName(g.key).toUpperCase(), bg:GROUP_COLORS[g.key].bg, fg:GROUP_COLORS[g.key].fg,
+      players: sortRows(g.players.map(p => playerRow(p, g.players))).map(fmtRow)
+    })) : [];
+    const indiv = sortRows(allActive.map(p => playerRow(p, allActive)));
+    const sbIndividuals = indiv.map((r,i) => ({...fmtRow(r), pos: r.thru ? i+1 : '–'}));
+    const sbMatchups = [];
+    if (gmOn){
+      for (let i = 0; i < groups.length; i++) for (let j = i+1; j < groups.length; j++){
+        const A = groups[i], B = groups[j];
+        const balls = gm.format === 'best1' ? 1 : gm.format === 'best2' ? 2 : Math.min(A.players.length, B.players.length);
+        if (A.players.length < balls || B.players.length < balls) continue;
+        const side = (S, h) => {
+          const vals = S.players.map(p => this.netToParAt(p, h, mode, allActive)).filter(v => v != null).sort((a,b) => a-b);
+          return vals.length < balls ? null : vals.slice(0, balls).reduce((t,v) => t+v, 0);
+        };
+        const seg = (s, e) => {
+          let a = 0, b = 0, n = 0;
+          for (let h = s; h <= e; h++){ const x = side(A,h), y = side(B,h); if (x == null || y == null) continue; a += x; b += y; n++; }
+          return {a, b, n};
+        };
+        const status = r => {
+          if (!r.n) return '—';
+          if (r.a === r.b) return 'TIED';
+          const d = Math.abs(r.a - r.b);
+          return `${(r.a < r.b ? this.groupName(A.key) : this.groupName(B.key)).toUpperCase()} BY ${d}`;
+        };
+        const fr = seg(1,9), bk = seg(10,18), ov = seg(1,18);
+        sbMatchups.push({
+          label: `${this.groupName(A.key).toUpperCase()} VS ${this.groupName(B.key).toUpperCase()} · THRU ${ov.n}`,
+          aName: this.groupName(A.key).toUpperCase(), bName: this.groupName(B.key).toUpperCase(),
+          aNet: this.fmtNet(ov.a), bNet: this.fmtNet(ov.b), aColor: this.netColorSB(ov.a), bColor: this.netColorSB(ov.b),
+          segs: [{label:'FRONT', status: status(fr)}, {label:'BACK', status: status(bk)}, {label:'OVERALL', status: status(ov)}]
+        });
+      }
+    }
+    const rules = this.state.rules || RULES_DEFAULT;
+    const rulesList = RULE_PRESETS.filter(([k]) => (rules.preset || {})[k]).map(([,l]) => ({text:l}))
+      .concat((rules.custom || []).filter(t => t && t.trim()).map(t => ({text:t.trim()})));
+    return {
+      sbEmpty: allActive.length === 0,
+      sbMatchups, sbGroups, sbHasGroups: gmOn,
+      sbGridCols: sbGroups.length === 2 ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,1fr)',
+      sbIndividuals, sbShowIndividuals: !gmOn && allActive.length > 0,
+      rulesList, hasRules: rulesList.length > 0
+    };
   }
   setGroupMatchFormat(fmt){
     const games = JSON.parse(JSON.stringify(this.state.games));
@@ -2602,7 +2798,11 @@ class Component extends DCLogic {
         label:l, bg: gmState.format === k ? '#0f2a4a' : '#f3f1ea', color: gmState.format === k ? '#fff' : '#1a2733',
         onClick: () => this.setGroupMatchFormat(k)
       })),
-      countsLabel: `A: ${gmCounts.A} · B: ${gmCounts.B} · C: ${gmCounts.C}  (max 5 each)`
+      nameRows: ['A','B','C'].map(k => ({
+        key:k, bg: GROUP_COLORS[k].bg, fg: GROUP_COLORS[k].fg, count: gmCounts[k],
+        value: ((gmState.names || {})[k]) || '', placeholder: `Group ${k} name (optional)`,
+        onChange: (e) => this.setGroupName(k, e.target.value)
+      }))
     };
     const nassau = {
       active: s.games.nassau.active,
@@ -2768,7 +2968,8 @@ class Component extends DCLogic {
 
     const viewTabs = [
       {key:'board', label:'LEADERBOARD'},
-      {key:'card', label:'SCORECARD'}
+      {key:'card', label:'SCORECARD'},
+      {key:'scoreboard', label:'SCOREBOARD'}
     ].map(it => ({
       ...it, onClick: () => this.setScreen(it.key),
       bg: s.screen===it.key ? '#0f2a4a' : '#f3f1ea',
@@ -2805,7 +3006,16 @@ class Component extends DCLogic {
       onGroupKeyInputChange: (e)=>this.onGroupKeyInputChange(e), onJoinGroupKey: () => this.joinGroupKey(),
       syncError: s.syncError,
       currentTime: s.currentTime,
-      isBoard: s.screen==='board', isCard: s.screen==='card', isGames: s.screen==='games',
+      ...this.buildScoreboard(),
+      rulePresets: RULE_PRESETS.map(([k,l]) => {
+        const on = !!(((s.rules || RULES_DEFAULT).preset || {})[k]);
+        return {label:l, bg: on ? '#0f2a4a' : '#fff', check: on ? '✓' : '', onToggle: () => this.toggleRulePreset(k)};
+      }),
+      ruleCustoms: [0,1,2].map(i => ({value: (((s.rules || RULES_DEFAULT).custom || [])[i]) || '', onChange: (e) => this.setCustomRule(i, e.target.value)})),
+      isScoreboardView: s.screen==='scoreboard',
+      heroOnBoard: !!s.showHero && s.screen==='board',
+      showBoardRows: !s.showHero && s.screen==='board',
+      isBoard: s.screen==='board' || s.screen==='scoreboard', isCard: s.screen==='card', isGames: s.screen==='games',
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(),
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
