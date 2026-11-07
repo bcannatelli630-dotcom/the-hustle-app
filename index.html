@@ -727,6 +727,9 @@ input, select, textarea { font-size:16px !important; }
                 <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ courseName }}</div>
                 <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;" onClick="{{ onToggleCourseSearch }}">{{ courseChangeLabel }}</div>
               </div>
+              <sc-if value="{{ hasCourseMissingNote }}" hint-placeholder-val="{{ false }}">
+                <div style="font:700 10px Archivo,sans-serif;color:#c8102e;line-height:1.4;margin-top:8px;">{{ courseMissingNote }}</div>
+              </sc-if>
             </div>
 
             <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
@@ -2466,8 +2469,21 @@ class Component extends DCLogic {
     if (!COURSE_DB[name]) return;
     this.setState({courseName:name, courseSearchOpen:false, courseSearch:''});
   }
+  // A course record can come back missing pars, stroke index, or tees. Fill any
+  // gaps with safe defaults (par 4, SI 1-18, a 72/113 tee) so the scorecard
+  // always loads, and remember what was missing so Settings can say so.
   selectLiveCourse(courseObj){
-    const liveCourses = {...this.state.liveCourses, [courseObj.name]: courseObj};
+    const par = Array.isArray(courseObj.par) ? courseObj.par.slice(0, 18) : [];
+    const si = Array.isArray(courseObj.si) ? courseObj.si.slice(0, 18) : [];
+    const missing = [];
+    if (par.length < 18 || par.some(p => !p)) missing.push('pars');
+    if (si.length < 18 || si.some(x => !x)) missing.push('stroke index');
+    const fullPar = Array.from({length:18}, (_, i) => par[i] || 4);
+    const fullSi = Array.from({length:18}, (_, i) => si[i] || (i + 1));
+    let tees = courseObj.tees && Object.keys(courseObj.tees).length ? courseObj.tees : null;
+    if (!tees){ missing.push('tees'); tees = {'Default': {rating: 72, slope: 113}}; }
+    const fixed = {...courseObj, par: fullPar, si: fullSi, tees, missing};
+    const liveCourses = {...this.state.liveCourses, [courseObj.name]: fixed};
     this.setState({liveCourses, courseName: courseObj.name, courseSearchOpen:false, courseSearch:'', courseSearchResults:[]});
   }
   onCourseSearchChange(e){
@@ -3116,6 +3132,11 @@ class Component extends DCLogic {
       onEventNameChange: (e)=>this.setState({eventName:e.target.value}),
       onStartEvent: () => this.startEvent(),
       showHero: s.showHero,
+      courseMissingNote: (() => {
+        const m = ((s.liveCourses || {})[s.courseName] || {}).missing || [];
+        return m.length ? `GolfCourseAPI didn't return ${m.join(', ')} for this course. Defaults are filled in (par 4, 72/113); check them before you start.` : '';
+      })(),
+      hasCourseMissingNote: !!((((s.liveCourses || {})[s.courseName] || {}).missing || []).length),
       navItems,
       dismissNotif: () => this.dismissNotif(),
       showStrokeToast: !!s.activeNotif && s.activeNotif.kind==='stroke',
