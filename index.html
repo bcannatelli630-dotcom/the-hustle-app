@@ -99,6 +99,7 @@ input, select, textarea { font-size:16px !important; }
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
           </div>
+          <sc-if value="{{ isLiveRound }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;">
             <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
             <sc-if value="{{ isOnlineNow }}" hint-placeholder-val="{{ true }}">
@@ -113,6 +114,7 @@ input, select, textarea { font-size:16px !important; }
             </sc-if>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">{{ courseLabel }} · {{ roundTypeLabel }} · THRU {{ overallThru }}</div>
+          </sc-if>
         </div>
 
         <sc-if value="{{ showViewTabs }}" hint-placeholder-val="{{ true }}">
@@ -123,11 +125,13 @@ input, select, textarea { font-size:16px !important; }
         </div>
         </sc-if>
 
+        <sc-if value="{{ isLiveRound }}" hint-placeholder-val="{{ false }}">
         <div style="flex:none;display:flex;gap:6px;padding:10px 18px;overflow-x:auto;border-bottom:1px solid #e9e5dc;">
           <sc-for list="{{ gamesChips }}" as="g" hint-placeholder-count="3">
             <span style="background:#fff;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;white-space:nowrap;border:1.5px solid #0f2a4a;flex:none;">{{ g.text }}</span>
           </sc-for>
         </div>
+        </sc-if>
 
         <sc-if value="{{ heroOnBoard }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;margin:8px 10px 8px;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,74,.06);min-height:0;">
@@ -3638,8 +3642,9 @@ class Component extends DCLogic {
       }),
       ruleCustoms: [0,1,2].map(i => ({value: (((s.rules || RULES_DEFAULT).custom || [])[i]) || '', onChange: (e) => this.setCustomRule(i, e.target.value)})),
       isScoreboardView: s.screen==='scoreboard',
-      heroOnBoard: !!s.showHero && s.screen==='board',
-      showBoardRows: !s.showHero && s.screen==='board',
+      isLiveRound: this.isRoundLive(),
+      heroOnBoard: !this.isRoundLive() && s.screen==='board',
+      showBoardRows: this.isRoundLive() && s.screen==='board',
       ...this.buildStrokesView(),
       ...this.buildWizardVals(),
       isStrokesView: s.screen==='strokes',
@@ -3690,7 +3695,7 @@ class Component extends DCLogic {
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
-      showViewTabs: s.screen === 'board' || s.screen === 'scoreboard',
+      showViewTabs: this.isRoundLive() && (s.screen === 'board' || s.screen === 'scoreboard'),
       menuOpen: !!s.menuOpen, menuItems: this.buildMenuItems(),
       onOpenMenu: () => this.setState({menuOpen: true}),
       onCloseMenu: () => this.setState({menuOpen: false}),
