@@ -499,10 +499,141 @@ input, select, textarea { font-size:16px !important; }
               <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             </div>
           </div>
-          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">WAGERING · TODAY'S VALUES</div>
+          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">WAGERING · GAMES &amp; JUNK</div>
         </div>
 
         <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+
+          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">GAMES</div>
+
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="flex:1;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. Individual games stay within each group.</div>
+              </div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
+              </div>
+            </div>
+            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;margin-top:12px;">
+                <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
+                  <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                </div>
+              </div>
+              <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Name the teams and assign players in Let's Play.</div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
+              <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">NASSAU</div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ nassau.bg }};position:relative;cursor:pointer;" onClick="{{ nassau.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ nassau.knob }};transition:left .15s;"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;">
+                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              </div>
+              <div style="flex:1;">
+                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              </div>
+              <div style="flex:1;">
+                <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="flex:1;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">BEST BALL</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ bestBall.sub }}</div>
+              </div>
+              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ bestBall.value }}" onChange="{{ bestBall.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ bestBall.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ bestBall.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ bestBall.knob }};transition:left .15s;"></div>
+              </div>
+            </div>
+            <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div style="flex:1;">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
+                </div>
+                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
+                </div>
+              </div>
+              <sc-if value="{{ g.showCarryover }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ g.onToggleCarryover }}">
+                  <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ g.carryoverBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ g.carryoverCheck }}</div>
+                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Carryover on Ties</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="flex:1;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">6-6-6</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ sixSix.sub }}</div>
+              </div>
+              <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ sixSix.value }}" onChange="{{ sixSix.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ sixSix.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ sixSix.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ sixSix.knob }};transition:left .15s;"></div>
+              </div>
+            </div>
+            <sc-if value="{{ sixSix.active }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;margin-top:6px;" onClick="{{ sixSix.onTogglePairings }}">{{ sixSix.pairingsLabel }}</div>
+              <sc-if value="{{ sixSix.pairingsOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
+                  <sc-for list="{{ sixSixGroups }}" as="grp" hint-placeholder-count="1">
+                    <div style="background:#fbfaf7;border-radius:8px;padding:10px;">
+                      <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-bottom:6px;">{{ grp.groupLabel }}</div>
+                      <sc-for list="{{ grp.segments }}" as="seg" hint-placeholder-count="3">
+                        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
+                          <div style="font:700 9px Georgia,serif;color:#a4750f;width:70px;flex:none;">{{ seg.range }}</div>
+                          <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ seg.a }} <span style="color:#98928a;font:600 10px Archivo,sans-serif;">vs</span> {{ seg.b }}</div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+          </div>
+
 
           <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">JUNK</div>
 
@@ -600,6 +731,59 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <!-- ============ CLUB DIRECTORY ============ -->
+    <sc-if value="{{ isClubs }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
+        <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;position:relative;">
+          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
+            <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
+          </div>
+          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">CLUB DIRECTORY · {{ clubCountLabel }}</div>
+        </div>
+        <div style="flex:1;padding:14px 16px 80px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+          <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.5;">Every course you've downloaded, with its tees, ratings and slopes. Saved on this phone and backed up for everyone, so they work with no signal. Add courses from Let's Play → Course → Change.</div>
+          <sc-if value="{{ noClubs }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">No clubs yet. Search for a course in Let's Play and it will be saved here.</div>
+          </sc-if>
+          <sc-for list="{{ clubList }}" as="cl" hint-placeholder-count="3">
+            <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+              <div style="padding:13px 14px;display:flex;align-items:flex-start;gap:10px;">
+                <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ cl.onToggle }}">
+                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ cl.name }}</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:3px;">{{ cl.sub }}</div>
+                </div>
+                <sc-if value="{{ cl.isCurrent }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;padding-top:3px;flex:none;">PLAYING</div>
+                </sc-if>
+                <div style="cursor:pointer;padding:2px;flex:none;" onClick="{{ cl.onAskDelete }}" title="Delete club">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c8102e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;padding:0 14px 13px;">
+                <div style="flex:1;text-align:center;background:#0f2a4a;color:#fff;font:800 10px Archivo,sans-serif;padding:9px;border-radius:6px;letter-spacing:.3px;cursor:pointer;" onClick="{{ cl.onPlay }}">PLAY THIS COURSE</div>
+                <div style="flex:1;text-align:center;background:#f3f1ea;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:9px;border-radius:6px;letter-spacing:.3px;cursor:pointer;" onClick="{{ cl.onToggle }}">{{ cl.teesLabel }}</div>
+              </div>
+              <sc-if value="{{ cl.expanded }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #f3f1ea;padding:10px 14px 13px;display:flex;flex-direction:column;gap:6px;">
+                  <sc-for list="{{ cl.tees }}" as="tt" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ tt.tee }}</div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">RATING</span><input type="number" step="0.1" value="{{ tt.rating }}" onChange="{{ tt.onRating }}" style="border:none;background:transparent;width:40px;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">SLOPE</span><input type="number" value="{{ tt.slope }}" onChange="{{ tt.onSlope }}" style="border:none;background:transparent;width:34px;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ============ HISTORY ============ -->
     <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
@@ -666,7 +850,7 @@ input, select, textarea { font-size:16px !important; }
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;display:flex;align-items:center;gap:10px;">
           <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
-          <div style="font:900 16px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;flex:1;">SETTINGS</div>
+          <div style="font:900 16px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;flex:1;">LET'S PLAY</div>
           <div style="cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </div>
@@ -748,27 +932,25 @@ input, select, textarea { font-size:16px !important; }
             </div>
 
             <sc-if value="{{ hasSavedCourses }}" hint-placeholder-val="{{ false }}">
-              <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-top:2px;">SAVED COURSES · WORK WITHOUT SIGNAL</div>
-              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px;">
-                <sc-for list="{{ savedCourses }}" as="sc_" hint-placeholder-count="2">
-                  <div style="display:flex;align-items:center;gap:8px;background:{{ sc_.bg }};border-radius:8px;padding:10px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);cursor:pointer;" onClick="{{ sc_.onSelect }}">
-                    <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:{{ sc_.color }};">{{ sc_.name }}</div>
-                    <div style="font:800 14px Archivo,sans-serif;color:#c8102e;padding:0 4px;cursor:pointer;flex:none;" onClick="{{ sc_.onRemove }}">×</div>
-                  </div>
-                </sc-for>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:10px;padding:11px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);cursor:pointer;margin-bottom:6px;" onClick="{{ goClubs }}">
+                <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">Pick from Club Directory · {{ clubCountLabel }}</div>
+                <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">→</div>
               </div>
             </sc-if>
 
             <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
-              <input placeholder="Search for your course by name" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
+              <input placeholder="Club name, then city or state (e.g. san jose ca)" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
               <sc-if value="{{ courseSearchLoading }}" hint-placeholder-val="{{ false }}">
                 <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">Searching GolfCourseAPI…</div>
               </sc-if>
               <sc-if value="{{ courseSearchError }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check the feed is deployed and connected.</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check your connection and try again.</div>
+              </sc-if>
+              <sc-if value="{{ courseSearchRateLimited }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;line-height:1.4;">GolfCourseAPI's daily search limit is used up. Courses in the Club Directory still work; new searches will work again tomorrow.</div>
               </sc-if>
               <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">No courses found.</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;line-height:1.4;">No courses found. Start with a word from the club's name (e.g. "cordevalle", "pebble"), then add the city or state to narrow it.</div>
               </sc-if>
               <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
                 <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
@@ -779,149 +961,28 @@ input, select, textarea { font-size:16px !important; }
                   <sc-if value="{{ c.isCurrent }}" hint-placeholder-val="{{ false }}">
                     <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;">CURRENT</div>
                   </sc-if>
+                  <sc-if value="{{ c.inDirectory }}" hint-placeholder-val="{{ false }}">
+                    <div style="font:800 9px Archivo,sans-serif;color:#0f2a4a;background:#f3f1ea;padding:3px 6px;border-radius:4px;flex:none;">IN DIRECTORY</div>
+                  </sc-if>
                 </div>
               </sc-for>
             </sc-if>
 
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TYPE OF GAME</div>
-
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="flex:1;">
-                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
-                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. Individual games stay within each group.</div>
-                </div>
-                <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
-                </div>
-              </div>
-              <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;gap:6px;margin-top:12px;">
-                  <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
-                    <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
-                  </sc-for>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:10px;">
-                  <div style="flex:1;">
-                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                  </div>
-                  <div style="flex:1;">
-                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                  </div>
-                  <div style="flex:1;">
-                    <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                  </div>
-                </div>
-                <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Assign groups on each player in the roster below.</div>
-                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-top:12px;margin-bottom:6px;">TEAM NAMES</div>
-                <div style="display:flex;flex-direction:column;gap:6px;">
-                  <sc-for list="{{ groupMatch.nameRows }}" as="nr" hint-placeholder-count="3">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <div style="width:26px;height:26px;border-radius:6px;background:{{ nr.bg }};color:{{ nr.fg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;flex:none;">{{ nr.key }}</div>
-                      <input value="{{ nr.value }}" placeholder="{{ nr.placeholder }}" onChange="{{ nr.onChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
-                      <div style="font:700 10px Archivo,sans-serif;color:#98928a;flex:none;">{{ nr.count }}/5</div>
-                    </div>
-                  </sc-for>
-                </div>
-              </sc-if>
-            </div>
-
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">NASSAU</div>
-                <div style="width:38px;height:22px;border-radius:11px;background:{{ nassau.bg }};position:relative;cursor:pointer;" onClick="{{ nassau.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ nassau.knob }};transition:left .15s;"></div>
-                </div>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <div style="flex:1;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                </div>
-                <div style="flex:1;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                </div>
-                <div style="flex:1;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                </div>
-              </div>
-            </div>
-
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                <div style="flex:1;">
-                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">BEST BALL</div>
-                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ bestBall.sub }}</div>
-                </div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ bestBall.value }}" onChange="{{ bestBall.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                <div style="width:38px;height:22px;border-radius:11px;background:{{ bestBall.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ bestBall.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ bestBall.knob }};transition:left .15s;"></div>
-                </div>
-              </div>
-              <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
-                  <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
-                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
-                </div>
-              </sc-if>
-            </div>
-
-            <sc-for list="{{ simpleGames }}" as="g" hint-placeholder-count="3">
+            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TEAM NAMES</div>
               <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="flex:1;">
-                    <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ g.label }}</div>
-                    <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ g.sub }}</div>
-                  </div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ g.value }}" onChange="{{ g.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                  <div style="width:38px;height:22px;border-radius:11px;background:{{ g.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ g.onToggle }}">
-                    <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ g.knob }};transition:left .15s;"></div>
-                  </div>
-                </div>
-                <sc-if value="{{ g.showCarryover }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ g.onToggleCarryover }}">
-                    <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ g.carryoverBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ g.carryoverCheck }}</div>
-                    <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Carryover on Ties</div>
-                  </div>
-                </sc-if>
-              </div>
-            </sc-for>
-
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                <div style="flex:1;">
-                  <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">6-6-6</div>
-                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ sixSix.sub }}</div>
-                </div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;margin-right:10px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ sixSix.value }}" onChange="{{ sixSix.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                <div style="width:38px;height:22px;border-radius:11px;background:{{ sixSix.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ sixSix.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ sixSix.knob }};transition:left .15s;"></div>
-                </div>
-              </div>
-              <sc-if value="{{ sixSix.active }}" hint-placeholder-val="{{ false }}">
-                <div style="text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;margin-top:6px;" onClick="{{ sixSix.onTogglePairings }}">{{ sixSix.pairingsLabel }}</div>
-                <sc-if value="{{ sixSix.pairingsOpen }}" hint-placeholder-val="{{ false }}">
-                  <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px;">
-                    <sc-for list="{{ sixSixGroups }}" as="grp" hint-placeholder-count="1">
-                      <div style="background:#fbfaf7;border-radius:8px;padding:10px;">
-                        <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;margin-bottom:6px;">{{ grp.groupLabel }}</div>
-                        <sc-for list="{{ grp.segments }}" as="seg" hint-placeholder-count="3">
-                          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-                            <div style="font:700 9px Georgia,serif;color:#a4750f;width:70px;flex:none;">{{ seg.range }}</div>
-                            <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ seg.a }} <span style="color:#98928a;font:600 10px Archivo,sans-serif;">vs</span> {{ seg.b }}</div>
-                          </div>
-                        </sc-for>
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <sc-for list="{{ groupMatch.nameRows }}" as="nr" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="width:26px;height:26px;border-radius:6px;background:{{ nr.bg }};color:{{ nr.fg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;flex:none;">{{ nr.key }}</div>
+                        <input value="{{ nr.value }}" placeholder="{{ nr.placeholder }}" onChange="{{ nr.onChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+                        <div style="font:700 10px Archivo,sans-serif;color:#98928a;flex:none;">{{ nr.count }}/5</div>
                       </div>
                     </sc-for>
                   </div>
-                </sc-if>
-              </sc-if>
-            </div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:8px;">Assign each player to A, B or C in the roster below.</div>
+              </div>
+            </sc-if>
 
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
@@ -1054,6 +1115,24 @@ input, select, textarea { font-size:16px !important; }
                 </svg>
               </div>
             </sc-if>
+            <sc-if value="{{ n.isTee }}" hint-placeholder-val="{{ false }}">
+              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
+                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ n.color }}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="7" r="5"></circle>
+                  <path d="M8 14h8"></path>
+                  <path d="M10.5 14l1 7h1l1-7"></path>
+                </svg>
+              </div>
+            </sc-if>
+            <sc-if value="{{ n.isFlag }}" hint-placeholder-val="{{ false }}">
+              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
+                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ n.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 21V3"></path>
+                  <path d="M12 4h7l-2.5 3.5L19 11h-7"></path>
+                  <ellipse cx="12" cy="21" rx="4" ry="1"></ellipse>
+                </svg>
+              </div>
+            </sc-if>
             <sc-if value="{{ n.icon }}" hint-placeholder-val="{{ false }}">
               <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
                 <img src="{{ n.icon }}" style="width:{{ n.iconSize }}px;height:{{ n.iconSize }}px;object-fit:contain;filter:brightness(0) invert(1);display:block;"/>
@@ -1062,6 +1141,42 @@ input, select, textarea { font-size:16px !important; }
             <span>{{ n.label }}</span>
           </div>
         </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ clubDeleteAsk }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:45;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Delete this club?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ clubDeleteName }} will be removed from the Club Directory, along with its tees, ratings and slopes. You'll have 30 seconds to restore it.</div>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onCancelClubDelete }}">CANCEL</div>
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onConfirmClubDelete }}">DELETE</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ clubUndoActive }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:44;display:flex;justify-content:center;">
+        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);">
+          <div style="flex:1;min-width:0;font:700 11px Archivo,sans-serif;line-height:1.4;">{{ clubUndoText }}</div>
+          <div style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onRestoreClub }}">RESTORE · {{ clubUndoSeconds }}s</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ clubDupAsk }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:45;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Already in your Club Directory</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ clubDupName }} is already saved. Use the saved version, or download it again to replace the saved tees, ratings and slopes with GolfCourseAPI's current data.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#0f2a4a;color:#fff;" onClick="{{ onUseSavedClub }}">USE SAVED VERSION</div>
+            <div style="text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#fff;color:#c8102e;border:1.5px solid #c8102e;" onClick="{{ onReplaceClub }}">DOWNLOAD &amp; REPLACE</div>
+            <div style="text-align:center;padding:9px;font:800 11px Archivo,sans-serif;cursor:pointer;color:#5a6672;" onClick="{{ onCancelClubDup }}">CANCEL</div>
+          </div>
+        </div>
       </div>
     </sc-if>
 
@@ -1231,6 +1346,16 @@ function backfillDefaults(state){
   return patched;
 }
 
+const US_STATES = {AL:'alabama',AK:'alaska',AZ:'arizona',AR:'arkansas',CA:'california',CO:'colorado',CT:'connecticut',DE:'delaware',FL:'florida',GA:'georgia',HI:'hawaii',ID:'idaho',IL:'illinois',IN:'indiana',IA:'iowa',KS:'kansas',KY:'kentucky',LA:'louisiana',ME:'maine',MD:'maryland',MA:'massachusetts',MI:'michigan',MN:'minnesota',MS:'mississippi',MO:'missouri',MT:'montana',NE:'nebraska',NV:'nevada',NH:'new hampshire',NJ:'new jersey',NM:'new mexico',NY:'new york',NC:'north carolina',ND:'north dakota',OH:'ohio',OK:'oklahoma',OR:'oregon',PA:'pennsylvania',RI:'rhode island',SC:'south carolina',SD:'south dakota',TN:'tennessee',TX:'texas',UT:'utah',VT:'vermont',VA:'virginia',WA:'washington',WV:'west virginia',WI:'wisconsin',WY:'wyoming'};
+// Text a course can be matched against: name, city, state abbreviation and full state name.
+function courseHaystack(c){
+  let h = `${c.name || ''} ${c.location || ''}`.toLowerCase();
+  const m = (c.location || '').match(/,\s*([A-Za-z]{2})$/);
+  if (m && US_STATES[m[1].toUpperCase()]) h += ' ' + US_STATES[m[1].toUpperCase()];
+  return h.replace(/[^a-z0-9 ]/g, ' ');
+}
+function queryTokens(q){ return q.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(Boolean); }
+
 const USE_LIVE_SYNC = true;
 const SYNC_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/state';
 const COURSE_ENDPOINT = 'https://the-hustle-feed.vercel.app/api/course';
@@ -1356,13 +1481,110 @@ class Component extends DCLogic {
     courseSearchLoading: false,
     courseSearchError: false,
     liveCourses: {},
+    courseLibrary: (() => { try { return JSON.parse(localStorage.getItem('hustle_course_library') || '{}') || {}; } catch(e){ return {}; } })(),
+    clubTombstones: (() => { try { return JSON.parse(localStorage.getItem('hustle_club_tombstones') || '{}') || {}; } catch(e){ return {}; } })(),
+    clubDeleteName: null, clubUndo: null, clubDup: null, clubExpanded: {},
     roundType: '18',
     tournamentDays: 2,
     eventName: '',
     showHero: true
   };
 
-  get course(){ return this.state.liveCourses[this.state.courseName] || COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
+  get course(){ return (this.state.liveCourses || {})[this.state.courseName] || (this.state.courseLibrary || {})[this.state.courseName] || COURSE_DB[this.state.courseName] || COURSE_DB['No Course Selected']; }
+  // Permanent per-device course library. Lives outside the round data, so clearing
+  // rounds, resets, and switching session codes never remove a downloaded course.
+  // The directory is kept on this phone (localStorage) and backed up to Supabase
+  // under one shared row, so every phone has every club and clearing a browser
+  // never loses them. Deletes are recorded with a timestamp so a phone that still
+  // has an old copy can't bring a deleted club back.
+  persistLibrary(courseLibrary, clubTombstones){
+    try {
+      localStorage.setItem('hustle_course_library', JSON.stringify(courseLibrary));
+      localStorage.setItem('hustle_club_tombstones', JSON.stringify(clubTombstones));
+    } catch(e){}
+    this.setState({courseLibrary, clubTombstones}, () => this.pushDirectory());
+  }
+  saveToLibrary(name, course){
+    const courseLibrary = {...(this.state.courseLibrary || {}), [name]: {...course, _savedAt: Date.now()}};
+    const clubTombstones = {...(this.state.clubTombstones || {})};
+    delete clubTombstones[name];
+    this.persistLibrary(courseLibrary, clubTombstones);
+  }
+  removeFromLibrary(name){
+    const courseLibrary = {...(this.state.courseLibrary || {})};
+    delete courseLibrary[name];
+    const clubTombstones = {...(this.state.clubTombstones || {}), [name]: Date.now()};
+    this.persistLibrary(courseLibrary, clubTombstones);
+  }
+  mergeDirectories(a, aDead, b, bDead){
+    const lib = {}, dead = {...(aDead || {})};
+    Object.entries(bDead || {}).forEach(([n,t]) => { if (!dead[n] || t > dead[n]) dead[n] = t; });
+    [a || {}, b || {}].forEach(src => Object.entries(src).forEach(([n,c]) => {
+      if (!lib[n] || (c._savedAt || 0) > (lib[n]._savedAt || 0)) lib[n] = c;
+    }));
+    Object.keys(lib).forEach(n => { if (dead[n] && dead[n] >= (lib[n]._savedAt || 0)) delete lib[n]; });
+    Object.keys(dead).forEach(n => { if (lib[n]) delete dead[n]; });
+    return {lib, dead};
+  }
+  async loadDirectory(){
+    if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
+    try {
+      const res = await fetch(`${SYNC_ENDPOINT}?group=club-directory`);
+      const json = await res.json();
+      const remote = (json && json.data) || {};
+      const {lib, dead} = this.mergeDirectories(this.state.courseLibrary, this.state.clubTombstones, remote.courseLibrary, remote.clubTombstones);
+      this.persistLibrary(lib, dead);
+    } catch(e){ /* offline: local copy still works */ }
+  }
+  async pushDirectory(){
+    if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
+    if (this._dirPushTimer) clearTimeout(this._dirPushTimer);
+    this._dirPushTimer = setTimeout(async () => {
+      try {
+        await fetch(`${SYNC_ENDPOINT}?group=club-directory`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({key: SYNC_WRITE_KEY, group: 'club-directory', payload: {t: Date.now(), data: {courseLibrary: this.state.courseLibrary || {}, clubTombstones: this.state.clubTombstones || {}}}})
+        });
+      } catch(e){}
+    }, 800);
+  }
+  askDeleteClub(name){ this.setState({clubDeleteName: name}); }
+  confirmDeleteClub(){
+    const name = this.state.clubDeleteName;
+    const course = (this.state.courseLibrary || {})[name];
+    if (!course){ this.setState({clubDeleteName: null}); return; }
+    this.removeFromLibrary(name);
+    if (this._clubUndoTimer) clearInterval(this._clubUndoTimer);
+    const expires = Date.now() + 30000;
+    this.setState({clubDeleteName: null, clubUndo: {name, course, expires}});
+    this._clubUndoTimer = setInterval(() => {
+      if (!this.state.clubUndo || Date.now() >= this.state.clubUndo.expires){
+        clearInterval(this._clubUndoTimer); this._clubUndoTimer = null;
+        this.setState({clubUndo: null});
+      } else this.forceUpdate();
+    }, 1000);
+  }
+  restoreClub(){
+    const u = this.state.clubUndo;
+    if (!u) return;
+    if (this._clubUndoTimer){ clearInterval(this._clubUndoTimer); this._clubUndoTimer = null; }
+    this.setState({clubUndo: null});
+    this.saveToLibrary(u.name, u.course);
+  }
+  setLibraryTee(name, tee, field, val){
+    const lib = (this.state.courseLibrary || {})[name];
+    if (!lib || !lib.tees || !lib.tees[tee]) return;
+    const course = JSON.parse(JSON.stringify(lib));
+    const n = parseFloat(val);
+    course.tees[tee][field] = isNaN(n) ? val : n;
+    this.saveToLibrary(name, course);
+    if ((this.state.liveCourses || {})[name]) this.setState({liveCourses: {...this.state.liveCourses, [name]: course}});
+  }
+  findInDirectory(c){
+    const lib = this.state.courseLibrary || {};
+    if (lib[c.name]) return c.name;
+    return Object.keys(lib).find(n => c.id && lib[n].id === c.id) || null;
+  }
 
   onPwChange(e){ this.setState({pwInput: e.target.value, pwError:false}); }
   onPwSubmit(){
@@ -1504,6 +1726,7 @@ class Component extends DCLogic {
     // (plenty for a minute-resolution display) rather than a hardcoded mockup time.
     this._clockTimer = setInterval(() => this.setState({currentTime: formatClockTime(new Date())}), 15000);
     if (!USE_LIVE_SYNC) return;
+    this.loadDirectory();
     // If this phone has unsent edits from before it closed, send them first.
     if (this._hasUnsynced()) this.pushState(); else this.loadState();
     this._syncTimer = setInterval(() => {
@@ -1543,6 +1766,7 @@ class Component extends DCLogic {
     this._pushTimer = setTimeout(() => this.pushState(), 600);
   }
   componentWillUnmount(){
+    if (this._clubUndoTimer) clearInterval(this._clubUndoTimer);
     if (this._syncTimer) clearInterval(this._syncTimer);
     document.removeEventListener('visibilitychange', this._onHide);
     window.removeEventListener('pagehide', this._flushLocal);
@@ -1612,8 +1836,19 @@ class Component extends DCLogic {
     if (!USE_LIVE_SYNC || !COURSE_ENDPOINT) return null;
     try {
       const res = await fetch(`${COURSE_ENDPOINT}?q=${encodeURIComponent(query)}`);
+      if (res.status === 429) return {rateLimited: true};
+      if (!res.ok) return null;
       const json = await res.json();
       return json.courses || [];
+    } catch (e) { return null; }
+  }
+  async fetchCourseDetail(id, refresh){
+    try {
+      const res = await fetch(`${COURSE_ENDPOINT}?id=${encodeURIComponent(id)}${refresh ? '&refresh=1' : ''}`);
+      if (res.status === 429) return {rateLimited: true};
+      if (!res.ok) return null;
+      const json = await res.json();
+      return json.course || null;
     } catch (e) { return null; }
   }
 
@@ -1640,23 +1875,28 @@ class Component extends DCLogic {
     return this.state.roster.map(p => names.includes(p.tee) ? p : {...p, tee: names[0]});
   }
   selectSavedCourse(name){
-    const course = (this.state.liveCourses || {})[name];
+    const course = (this.state.liveCourses || {})[name] || (this.state.courseLibrary || {})[name];
     if (!course) return;
-    this.setState({courseName: name, roster: this.remapRosterTees(course), courseSearchOpen:false, courseSearch:''});
+    // Put it in the round data too, so every phone on the session code gets it.
+    const liveCourses = {...(this.state.liveCourses || {}), [name]: course};
+    this.setState({liveCourses, courseName: name, roster: this.remapRosterTees(course), courseSearchOpen:false, courseSearch:''});
   }
   removeSavedCourse(name){
     const liveCourses = {...(this.state.liveCourses || {})};
     delete liveCourses[name];
     const patch = {liveCourses};
     if (this.state.courseName === name) patch.courseName = 'No Course Selected';
+    this.removeFromLibrary(name);
     this.setState(patch);
   }
   setTeeRating(tee, field, val){
     const name = this.state.courseName;
     const liveCourses = JSON.parse(JSON.stringify(this.state.liveCourses || {}));
+    if (!liveCourses[name] && (this.state.courseLibrary || {})[name]) liveCourses[name] = JSON.parse(JSON.stringify(this.state.courseLibrary[name]));
     if (!liveCourses[name] || !liveCourses[name].tees || !liveCourses[name].tees[tee]) return;
     const n = parseFloat(val);
     liveCourses[name].tees[tee][field] = isNaN(n) ? val : n;
+    if ((this.state.courseLibrary || {})[name]) this.saveToLibrary(name, liveCourses[name]);
     this.setState({liveCourses});
   }
 
@@ -2549,27 +2789,75 @@ class Component extends DCLogic {
     if (!tees){ missing.push('tees'); tees = {'Default': {rating: 72, slope: 113}}; }
     const fixed = {...courseObj, par: fullPar, si: fullSi, tees, missing};
     const liveCourses = {...this.state.liveCourses, [courseObj.name]: fixed};
+    this.saveToLibrary(courseObj.name, fixed);
     this.setState({liveCourses, courseName: courseObj.name, roster: this.remapRosterTees(fixed), courseSearchOpen:false, courseSearch:'', courseSearchResults:[]});
   }
+  // GolfCourseAPI has a daily request limit, so typing doesn't search on every
+  // keystroke. The first word (3+ letters) triggers one search; every word after
+  // that (more of the name, a city, a state) narrows those results on the phone.
+  // A new search only happens if the first word changes, or if narrowing leaves
+  // nothing and the full phrase hasn't been tried yet.
   onCourseSearchChange(e){
     const val = e.target.value;
     this.setState({courseSearch: val});
     if (this._courseSearchTimer) clearTimeout(this._courseSearchTimer);
-    if (val.trim().length < 2){ this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false}); return; }
-    this.setState({courseSearchLoading:true, courseSearchError:false});
-    this._courseSearchTimer = setTimeout(() => this.runCourseSearch(val), 400);
+    const tokens = queryTokens(val);
+    const first = tokens[0] || '';
+    if (first.length < 3){ this._courseSearchKey = null; this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false}); return; }
+    this._courseSearchTried = this._courseSearchTried || {};
+    const sameBase = this._courseSearchKey === first;
+    if (sameBase){
+      const narrowed = this.state.courseSearchResults.filter(c => tokens.every(t => courseHaystack(c).includes(t)));
+      const phrase = tokens.join(' ');
+      if (narrowed.length || this._courseSearchTried[phrase] || tokens.length < 2) return;
+      this.setState({courseSearchLoading:true, courseSearchError:false});
+      this._courseSearchTimer = setTimeout(() => this.runCourseSearch(phrase, first, true), 700);
+      return;
+    }
+    this.setState({courseSearchLoading:true, courseSearchError:false, courseSearchRateLimited:false});
+    this._courseSearchTimer = setTimeout(() => this.runCourseSearch(first, first, false), 700);
   }
-  async runCourseSearch(query){
+  async runCourseSearch(query, baseKey, merge){
     if (!USE_LIVE_SYNC || !COURSE_ENDPOINT){
       this.setState({courseSearchLoading:false, courseSearchError:true});
       return;
     }
+    this._courseSearchTried = this._courseSearchTried || {};
+    this._courseSearchTried[query] = true;
     const results = await this.searchCoursesLive(query);
+    if (results && results.rateLimited){
+      this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:true});
+      return;
+    }
     if (results == null){
       this.setState({courseSearchLoading:false, courseSearchError:true});
       return;
     }
-    this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchResults: results});
+    this._courseSearchKey = baseKey;
+    let list = results;
+    if (merge){
+      const seen = new Set(this.state.courseSearchResults.map(c => c.id));
+      list = this.state.courseSearchResults.concat(results.filter(c => !seen.has(c.id)));
+    }
+    this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchResults: list});
+  }
+  // Search results are summaries; full tees/holes are fetched only for the course picked.
+  async pickSearchResult(c, force){
+    if (!force){
+      const existing = this.findInDirectory(c);
+      if (existing){ this.setState({clubDup: {c, name: existing}}); return; }
+    }
+    if (!force && c.par && c.par.length && c.tees && Object.keys(c.tees).length){ this.selectLiveCourse(c); return; }
+    if (!c.id){ this.selectLiveCourse(c); return; }
+    this.setState({courseDetailLoadingId: c.id, courseSearchError:false});
+    const d = await this.fetchCourseDetail(c.id, force);
+    this.setState({courseDetailLoadingId: null});
+    if (d && d.rateLimited){ this.setState({courseSearchRateLimited:true}); return; }
+    if (!d){ this.setState({courseSearchError:true}); return; }
+    const replacing = this.state.clubDupReplaceName;
+    if (replacing && replacing !== (d.name || c.name)) this.removeFromLibrary(replacing);
+    this.setState({clubDupReplaceName: null});
+    this.selectLiveCourse({...d, name: d.name || c.name});
   }
 
   updatePlayerIndex(id, val){
@@ -3007,18 +3295,19 @@ class Component extends DCLogic {
     }));
 
     const courseQuery = s.courseSearch.trim();
-    const courseResults = courseQuery.length < 2 ? [] : s.courseSearchResults.map(c => {
-      const teeNames = Object.keys(c.tees || {});
-      const primaryTee = teeNames.length ? c.tees[teeNames[0]] : {rating:'—', slope:'—'};
-      return {
+    const qTokens = queryTokens(courseQuery);
+    const courseResults = (qTokens[0] || '').length < 3 ? [] : s.courseSearchResults
+      .filter(c => qTokens.every(t => courseHaystack(c).includes(t)))
+      .slice(0, 15)
+      .map(c => ({
         name: c.name, isCurrent: c.name === s.courseName,
-        sub: `${c.location ? c.location.toUpperCase() + ' · ' : ''}PAR ${(c.par||[]).reduce((a,b)=>a+b,0)} · ${teeNames.join('/') || 'no tee data'} · RATING ${primaryTee.rating} / SLOPE ${primaryTee.slope}`,
-        onSelect: () => this.selectLiveCourse(c)
-      };
-    });
+        inDirectory: !!this.findInDirectory(c),
+        sub: s.courseDetailLoadingId && s.courseDetailLoadingId === c.id ? 'LOADING TEES & HOLES…' : (c.location ? c.location.toUpperCase() : 'TAP TO LOAD'),
+        onSelect: () => this.pickSearchResult(c)
+      }));
     const courseSearchLoading = s.courseSearchLoading;
     const courseSearchError = s.courseSearchError;
-    const showNoResults = !courseSearchLoading && !courseSearchError && courseQuery.length >= 2 && courseResults.length === 0;
+    const showNoResults = !courseSearchLoading && !courseSearchError && !s.courseSearchRateLimited && (qTokens[0] || '').length >= 3 && courseResults.length === 0;
     const currentCourseTees = Object.keys(this.course.tees).map(t => ({
       tee:t, rating:this.course.tees[t].rating, slope:this.course.tees[t].slope
     }));
@@ -3038,8 +3327,9 @@ class Component extends DCLogic {
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
     const navItems = [
+      {key:'settings', label:"LET'S PLAY", onClick: ()=>this.setScreen('settings'), isTee:true},
       {key:'games', label:'WAGERING', onClick: ()=>this.setScreen('games'), icon:'./icons/wagering-white.png', iconSize:31},
-      {key:'settings', label:'SETTINGS', onClick: ()=>this.setScreen('settings'), isCog:true},
+      {key:'clubs', label:'CLUBS', onClick: ()=>this.setScreen('clubs'), isFlag:true},
       {key:'history', label:'HISTORY', onClick: ()=>this.setScreen('history'), icon:'./icons/history-white.png'}
     ].map(it => ({
       ...it,
@@ -3098,6 +3388,47 @@ class Component extends DCLogic {
       heroOnBoard: !!s.showHero && s.screen==='board',
       showBoardRows: !s.showHero && s.screen==='board',
       isBoard: s.screen==='board' || s.screen==='scoreboard', isCard: s.screen==='card', isGames: s.screen==='games',
+      isClubs: s.screen==='clubs',
+      goClubs: () => this.setScreen('clubs'),
+      ...(() => {
+        const lib = s.courseLibrary || {};
+        const names = Object.keys(lib).sort((a,b) => a.localeCompare(b));
+        const clubList = names.map(name => {
+          const c = lib[name];
+          const teeNames = Object.keys(c.tees || {});
+          const parTotal = (c.par || []).reduce((a,b) => a + (b || 0), 0);
+          const expanded = !!(s.clubExpanded || {})[name];
+          return {
+            name, isCurrent: name === s.courseName,
+            sub: [c.location ? c.location.toUpperCase() : null, parTotal ? `PAR ${parTotal}` : null, `${teeNames.length} TEE${teeNames.length === 1 ? '' : 'S'}`].filter(Boolean).join(' · '),
+            expanded, teesLabel: expanded ? 'HIDE TEES' : 'TEES, RATINGS & SLOPES',
+            onToggle: () => this.setState({clubExpanded: {...(s.clubExpanded || {}), [name]: !expanded}}),
+            onPlay: () => { this.selectSavedCourse(name); this.setScreen('settings'); },
+            onAskDelete: () => this.askDeleteClub(name),
+            tees: teeNames.map(t => ({
+              tee: t, rating: c.tees[t].rating, slope: c.tees[t].slope,
+              onRating: (e) => this.setLibraryTee(name, t, 'rating', e.target.value),
+              onSlope: (e) => this.setLibraryTee(name, t, 'slope', e.target.value)
+            }))
+          };
+        });
+        const undo = s.clubUndo;
+        const secs = undo ? Math.max(0, Math.ceil((undo.expires - Date.now()) / 1000)) : 0;
+        return {
+          clubList, noClubs: names.length === 0,
+          clubCountLabel: `${names.length} CLUB${names.length === 1 ? '' : 'S'}`,
+          clubDeleteAsk: !!s.clubDeleteName, clubDeleteName: s.clubDeleteName || '',
+          onCancelClubDelete: () => this.setState({clubDeleteName: null}),
+          onConfirmClubDelete: () => this.confirmDeleteClub(),
+          clubUndoActive: !!undo && secs > 0, clubUndoSeconds: secs,
+          clubUndoText: undo ? `${undo.name} deleted` : '',
+          onRestoreClub: () => this.restoreClub(),
+          clubDupAsk: !!s.clubDup, clubDupName: s.clubDup ? s.clubDup.name : '',
+          onUseSavedClub: () => { const n = s.clubDup.name; this.setState({clubDup: null}); this.selectSavedCourse(n); },
+          onReplaceClub: () => { const d = s.clubDup; this.setState({clubDup: null, clubDupReplaceName: d.name}); this.pickSearchResult(d.c, true); },
+          onCancelClubDup: () => this.setState({clubDup: null})
+        };
+      })(),
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(),
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
@@ -3186,19 +3517,19 @@ class Component extends DCLogic {
       courseSearchOpen: s.courseSearchOpen,
       onToggleCourseSearch: () => this.setState({courseSearchOpen: !s.courseSearchOpen, courseSearch:''}),
       courseChangeLabel: s.courseSearchOpen ? 'CANCEL' : 'CHANGE',
-      savedCourses: Object.keys(s.liveCourses || {}).map(name => ({
+      savedCourses: [...new Set([...Object.keys(s.courseLibrary || {}), ...Object.keys(s.liveCourses || {})])].sort().map(name => ({
         name, isCurrent: name === s.courseName,
         bg: name === s.courseName ? '#0f2a4a' : '#fff', color: name === s.courseName ? '#fff' : '#1a2733',
         onSelect: () => this.selectSavedCourse(name),
         onRemove: (e) => { e.stopPropagation(); this.removeSavedCourse(name); }
       })),
-      hasSavedCourses: Object.keys(s.liveCourses || {}).length > 0,
+      hasSavedCourses: Object.keys(s.courseLibrary || {}).length > 0,
       teeRatingsOpen: !!s.teeRatingsOpen,
       teeRatingsLabel: s.teeRatingsOpen ? 'HIDE TEE RATINGS' : 'CHECK TEE RATINGS',
       onToggleTeeRatings: () => this.setState({teeRatingsOpen: !s.teeRatingsOpen}),
-      hasTeeRatings: !!((s.liveCourses || {})[s.courseName]),
+      hasTeeRatings: !!((s.liveCourses || {})[s.courseName] || (s.courseLibrary || {})[s.courseName]),
       teeRatingRows: (() => {
-        const live = (s.liveCourses || {})[s.courseName];
+        const live = (s.liveCourses || {})[s.courseName] || (s.courseLibrary || {})[s.courseName];
         if (!live || !live.tees) return [];
         const used = [...new Set(s.roster.map(p => this.resolveTee(p.tee)))];
         const names = used.length ? used : Object.keys(live.tees);
@@ -3211,6 +3542,7 @@ class Component extends DCLogic {
       courseSearch: s.courseSearch,
       onCourseSearchChange: (e)=>this.onCourseSearchChange(e),
       courseSearchLoading, courseSearchError, showNoResults,
+      courseSearchRateLimited: !!s.courseSearchRateLimited,
       courseResults, currentCourseTees,
       roundTypes,
       isTournament: s.roundType === 'tournament',
