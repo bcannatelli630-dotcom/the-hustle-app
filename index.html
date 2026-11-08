@@ -164,6 +164,56 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </sc-if>
 
+        <sc-if value="{{ isStrokesView }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;padding:12px 14px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;">
+            <sc-if value="{{ stHasMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;line-height:1.5;">{{ stMsg }}</div>
+            </sc-if>
+            <sc-if value="{{ stHasData }}" hint-placeholder-val="{{ false }}">
+              <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">{{ stUpLabel }}</div>
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+                <sc-for list="{{ stUpcoming }}" as="u" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #f3f1ea;">
+                    <div style="width:34px;font:900 14px 'Archivo Black',sans-serif;color:#0f2a4a;flex:none;">{{ u.hole }}</div>
+                    <div style="font:700 9px Archivo,sans-serif;color:#98928a;flex:none;white-space:nowrap;">{{ u.info }}</div>
+                    <div style="flex:1;min-width:0;text-align:right;font:800 11px Archivo,sans-serif;color:{{ u.color }};">{{ u.who }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px;">
+                <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">BY PLAYER · {{ stModeLabel }}</div>
+                <div style="display:flex;gap:10px;align-items:center;font:700 9px Archivo,sans-serif;color:#98928a;">
+                  <div style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#ffa62f;"></div>TO COME</div>
+                  <div style="display:flex;align-items:center;gap:4px;"><div style="width:9px;height:9px;border-radius:2px;background:#e9e5dc;"></div>PLAYED</div>
+                </div>
+              </div>
+              <sc-for list="{{ stPlayers }}" as="sp" hint-placeholder-count="3">
+                <div style="background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                    <div style="font:800 12px Archivo,sans-serif;color:#1a2733;flex:1;min-width:0;">{{ sp.name }}</div>
+                    <div style="font:800 11px Archivo,sans-serif;color:#0f2a4a;white-space:nowrap;flex:none;line-height:1;">{{ sp.counter }}</div>
+                  </div>
+                  <sc-if value="{{ sp.hasStrokes }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;">
+                      <sc-for list="{{ sp.front }}" as="c" hint-placeholder-count="9">
+                        <div style="height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font:800 10px Archivo,sans-serif;background:{{ c.bg }};color:{{ c.color }};text-decoration:{{ c.deco }};border:{{ c.border }};box-sizing:border-box;">{{ c.label }}</div>
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ sp.hasBack }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;">
+                        <sc-for list="{{ sp.back }}" as="c" hint-placeholder-count="9">
+                          <div style="height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font:800 10px Archivo,sans-serif;background:{{ c.bg }};color:{{ c.color }};text-decoration:{{ c.deco }};border:{{ c.border }};box-sizing:border-box;">{{ c.label }}</div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <div style="font:700 9px Archivo,sans-serif;color:#98928a;">{{ sp.nextText }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ isScoreboardView }}" hint-placeholder-val="{{ false }}">
           <div style="flex:1;padding:12px 14px 16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;">
             <sc-if value="{{ sbEmpty }}" hint-placeholder-val="{{ false }}">
@@ -501,8 +551,28 @@ input, select, textarea { font-size:16px !important; }
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">WAGERING · GAMES &amp; JUNK</div>
         </div>
+        <div style="flex:none;background:#0f2a4a;padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;">
+            <sc-for list="{{ wizardBars }}" as="wb" hint-placeholder-count="4">
+              <div style="height:4px;border-radius:2px;background:{{ wb.bg }};cursor:pointer;" onClick="{{ wb.onClick }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+            <div style="font:800 12px Archivo,sans-serif;color:#fff;letter-spacing:.4px;">{{ wizardTitle }}</div>
+            <div style="font:700 10px Archivo,sans-serif;color:#a9bdd4;white-space:nowrap;">STEP {{ setupStep }} OF 4</div>
+          </div>
+        </div>
 
-        <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+        <div data-setup-scroll="1" style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ scoringModes }}" as="m" hint-placeholder-count="3">
+                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:{{ m.bg }};color:{{ m.color }};" onClick="{{ m.onClick }}">{{ m.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+
 
           <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">GAMES</div>
 
@@ -663,6 +733,17 @@ input, select, textarea { font-size:16px !important; }
             <div style="background:#0f2a4a;color:#fff;padding:9px 16px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onAddJunk }}">ADD</div>
           </div>
 
+        </div>
+        <div style="flex:none;padding:10px 16px 12px;display:flex;gap:8px;border-top:1px solid #e9e5dc;background:#fbfaf7;">
+          <sc-if value="{{ wizardHasBack }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:13px 18px;border-radius:8px;background:#f3f1ea;color:#5a6672;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ wizardBack }}">←</div>
+          </sc-if>
+          <sc-if value="{{ wizardHasNext }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#0f2a4a;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ wizardNext }}">{{ wizardNextLabel }}</div>
+          </sc-if>
+          <sc-if value="{{ wizardIsLast }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">START ROUND</div>
+          </sc-if>
         </div>
       </div>
     </sc-if>
@@ -855,11 +936,23 @@ input, select, textarea { font-size:16px !important; }
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           </div>
         </div>
+        <div style="flex:none;background:#0f2a4a;padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;">
+            <sc-for list="{{ wizardBars }}" as="wb" hint-placeholder-count="4">
+              <div style="height:4px;border-radius:2px;background:{{ wb.bg }};cursor:pointer;" onClick="{{ wb.onClick }}"></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;">
+            <div style="font:800 12px Archivo,sans-serif;color:#fff;letter-spacing:.4px;">{{ wizardTitle }}</div>
+            <div style="font:700 10px Archivo,sans-serif;color:#a9bdd4;white-space:nowrap;">STEP {{ setupStep }} OF 4</div>
+          </div>
+        </div>
 
         <!-- roster management -->
         <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
-          <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+          <div data-setup-scroll="1" style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
 
+<sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">SESSION CODE</div>
             <sc-if value="{{ syncError }}" hint-placeholder-val="{{ false }}">
               <div style="background:#fdecec;border:1px solid #f3c6c6;border-radius:10px;padding:10px 12px;margin-bottom:6px;">
@@ -968,45 +1061,8 @@ input, select, textarea { font-size:16px !important; }
               </sc-for>
             </sc-if>
 
-            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
-              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TEAM NAMES</div>
-              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-                  <div style="display:flex;flex-direction:column;gap:6px;">
-                    <sc-for list="{{ groupMatch.nameRows }}" as="nr" hint-placeholder-count="3">
-                      <div style="display:flex;align-items:center;gap:8px;">
-                        <div style="width:26px;height:26px;border-radius:6px;background:{{ nr.bg }};color:{{ nr.fg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;flex:none;">{{ nr.key }}</div>
-                        <input value="{{ nr.value }}" placeholder="{{ nr.placeholder }}" onChange="{{ nr.onChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
-                        <div style="font:700 10px Archivo,sans-serif;color:#98928a;flex:none;">{{ nr.count }}/5</div>
-                      </div>
-                    </sc-for>
-                  </div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:8px;">Assign each player to A, B or C in the roster below.</div>
-              </div>
-            </sc-if>
-
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;gap:6px;">
-                <sc-for list="{{ scoringModes }}" as="m" hint-placeholder-count="3">
-                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:{{ m.bg }};color:{{ m.color }};" onClick="{{ m.onClick }}">{{ m.label }}</div>
-                </sc-for>
-              </div>
-            </div>
-
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">RULES FOR THE ROUND</div>
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;display:flex;flex-direction:column;gap:10px;">
-              <sc-for list="{{ rulePresets }}" as="rp" hint-placeholder-count="5">
-                <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ rp.onToggle }}">
-                  <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ rp.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ rp.check }}</div>
-                  <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ rp.label }}</div>
-                </div>
-              </sc-for>
-              <sc-for list="{{ ruleCustoms }}" as="rc" hint-placeholder-count="3">
-                <input value="{{ rc.value }}" placeholder="Add another rule" onChange="{{ rc.onChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
-              </sc-for>
-              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Checked rules and anything typed here show on the Scoreboard.</div>
-            </div>
-
+</sc-if>
+<sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">ROSTER · {{ rosterCountLabel }}</div>
             </div>
@@ -1070,7 +1126,49 @@ input, select, textarea { font-size:16px !important; }
               <div style="text-align:center;padding:10px;font:600 10px Archivo,sans-serif;color:#98928a;">Roster cap reached (15 players)</div>
             </sc-if>
 
-            <div style="background:#c8102e;color:#fff;text-align:center;padding:14px;border-radius:10px;font:800 13px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:8px;" onClick="{{ onStartEvent }}">START EVENT</div>
+            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">TEAM NAMES</div>
+              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+                  <div style="display:flex;flex-direction:column;gap:6px;">
+                    <sc-for list="{{ groupMatch.nameRows }}" as="nr" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="width:26px;height:26px;border-radius:6px;background:{{ nr.bg }};color:{{ nr.fg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;flex:none;">{{ nr.key }}</div>
+                        <input value="{{ nr.value }}" placeholder="{{ nr.placeholder }}" onChange="{{ nr.onChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+                        <div style="font:700 10px Archivo,sans-serif;color:#98928a;flex:none;">{{ nr.count }}/5</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:8px;">Assign each player to A, B or C in the roster below.</div>
+              </div>
+            </sc-if>
+
+</sc-if>
+<sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">SUMMARY</div>
+            <sc-for list="{{ reviewCards }}" as="rv" hint-placeholder-count="3">
+              <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                <div style="min-width:0;">
+                  <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ rv.label }}</div>
+                  <div style="font:700 12px Archivo,sans-serif;color:{{ rv.color }};margin-top:3px;line-height:1.4;">{{ rv.text }}</div>
+                </div>
+                <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;flex:none;padding:4px;" onClick="{{ rv.onEdit }}">EDIT</div>
+              </div>
+            </sc-for>
+
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">RULES FOR THE ROUND</div>
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ rulePresets }}" as="rp" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ rp.onToggle }}">
+                  <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ rp.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ rp.check }}</div>
+                  <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ rp.label }}</div>
+                </div>
+              </sc-for>
+              <sc-for list="{{ ruleCustoms }}" as="rc" hint-placeholder-count="3">
+                <input value="{{ rc.value }}" placeholder="Add another rule" onChange="{{ rc.onChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+              </sc-for>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Checked rules and anything typed here show on the Scoreboard.</div>
+            </div>
+
 
             <sc-if value="{{ !clearRoundConfirmOpen }}" hint-placeholder-val="{{ true }}">
               <div style="text-align:center;padding:11px;border-radius:10px;font:800 11px Archivo,sans-serif;color:#c8102e;border:1.5px solid #c8102e;cursor:pointer;margin-top:4px;" onClick="{{ onOpenClearRoundConfirm }}">CLEAR ROUND</div>
@@ -1097,8 +1195,20 @@ input, select, textarea { font-size:16px !important; }
                 </div>
               </div>
             </sc-if>
+</sc-if>
           </div>
         </sc-if>
+        <div style="flex:none;padding:10px 16px 12px;display:flex;gap:8px;border-top:1px solid #e9e5dc;background:#fbfaf7;">
+          <sc-if value="{{ wizardHasBack }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:13px 18px;border-radius:8px;background:#f3f1ea;color:#5a6672;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ wizardBack }}">←</div>
+          </sc-if>
+          <sc-if value="{{ wizardHasNext }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#0f2a4a;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ wizardNext }}">{{ wizardNextLabel }}</div>
+          </sc-if>
+          <sc-if value="{{ wizardIsLast }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">START ROUND</div>
+          </sc-if>
+        </div>
       </div>
     </sc-if>
 
@@ -1463,6 +1573,7 @@ class Component extends DCLogic {
     eventEnded: false,
     editingHistoryId: null,
     editBlockedId: null,
+    setupStep: 1,
     rules: JSON.parse(JSON.stringify(RULES_DEFAULT)),
     pressMode: 'individual',
     pressAssign: {},
@@ -1949,7 +2060,10 @@ class Component extends DCLogic {
     if (this.state.eventEnded && this.state.screen === 'settle' && name !== 'settle'){
       this.clearRound();
     }
-    this.setState({screen: name});
+    const patch = {screen: name};
+    if (name === 'games') patch.setupStep = 3;
+    else if (name === 'settings' && (this.state.setupStep || 1) === 3) patch.setupStep = 1;
+    this.setState(patch, () => this.scrollSetupTop());
   }
 
   selectHole(n){
@@ -2764,7 +2878,108 @@ class Component extends DCLogic {
   lockSettings(){ this.setState({settingsUnlocked:false}); }
 
   setRoundType(t){ this.setState({roundType:t}); }
-  startEvent(){ this.setState({screen:'board', currentHole:1}); }
+  // Round setup runs in four steps: Round, Players, Bets (the Wagering screen), Review.
+  scrollSetupTop(){
+    setTimeout(() => { const el = document.querySelector('[data-setup-scroll]'); if (el) el.scrollTop = 0; }, 0);
+  }
+  goSetupStep(n){
+    n = Math.max(1, Math.min(4, n));
+    this.setState({setupStep: n, screen: n === 3 ? 'games' : 'settings'}, () => this.scrollSetupTop());
+  }
+  buildWizardVals(){
+    const s = this.state;
+    const step = s.screen === 'games' ? 3 : ((s.setupStep || 1) === 3 ? 1 : (s.setupStep || 1));
+    const active = s.roster.filter(p => p.active);
+    const mode = s.scoringMode;
+    const modeLabel = {gross:'GROSS', full:'FULL HDCP', low:'LOW HDCP'}[mode] || '';
+    const rt = s.roundType === '9' ? '9 holes' : (s.roundType === '18' ? '18 holes' : 'Tournament');
+    const noCourse = !s.courseName || s.courseName === 'No Course Selected';
+    const roundText = [rt, (s.eventName || '').trim(), noCourse ? 'No course picked yet' : s.courseName].filter(Boolean).join(' · ');
+    const playersText = active.length ? active.map(p => {
+      const c = mode === 'gross' ? 0 : this.getScoringCH(p, mode, active);
+      return c > 0 ? `${p.name} (+${c})` : p.name;
+    }).join(', ') : 'No players yet';
+    const games = Object.entries(s.games || {}).filter(([k,g]) => g && g.active).map(([k,g]) => {
+      const name = k === 'nassau' ? 'Nassau' : (g.label || k);
+      if (k === 'nassau') return `Nassau $${g.front}/$${g.back}/$${g.overall}`;
+      return g.value != null ? `${name} $${g.value}` : name;
+    });
+    const junkCount = Object.values(s.junk || {}).filter(j => j && j.active).length;
+    const betsParts = games.concat(junkCount ? [`${junkCount} junk`] : []);
+    return {
+      setupStep: step,
+      isStep1: step === 1, isStep2: step === 2, isStep4: step === 4,
+      wizardTitle: ['THE ROUND', 'PLAYERS', 'BETS', 'REVIEW & RULES'][step - 1],
+      wizardBars: [1,2,3,4].map(n => ({bg: n <= step ? '#ffa62f' : 'rgba(255,255,255,.2)', onClick: () => this.goSetupStep(n)})),
+      wizardHasBack: step > 1, wizardBack: () => this.goSetupStep(step - 1),
+      wizardHasNext: step < 4, wizardNext: () => this.goSetupStep(step + 1),
+      wizardNextLabel: ['NEXT: PLAYERS →', 'NEXT: BETS →', 'NEXT: REVIEW →', ''][step - 1],
+      wizardIsLast: step === 4,
+      reviewCards: [
+        {label:'ROUND', text: roundText, color: noCourse ? '#c8102e' : '#1a2733', onEdit: () => this.goSetupStep(1)},
+        {label:'PLAYERS', text: playersText, color: active.length ? '#1a2733' : '#c8102e', onEdit: () => this.goSetupStep(2)},
+        {label:`BETS · ${modeLabel}`, text: betsParts.length ? betsParts.join(' · ') : 'No bets on', color:'#1a2733', onEdit: () => this.goSetupStep(3)}
+      ]
+    };
+  }
+  // Strokes tab: which holes each player gets strokes on, and which are still to come.
+  buildStrokesView(){
+    const s = this.state;
+    const blank = {stHasMsg:false, stMsg:'', stHasData:false, stUpcoming:[], stPlayers:[], stModeLabel:'', stUpLabel:''};
+    const active = s.roster.filter(p => p.active);
+    const mode = s.scoringMode;
+    if (!active.length) return {...blank, stHasMsg:true, stMsg:'Add players to see stroke holes.'};
+    if (mode === 'gross') return {...blank, stHasMsg:true, stMsg:"Scoring is set to Gross, so nobody gets strokes. Switch to Full or Low HDCP in Let's Play → Bets."};
+    const course = this.course;
+    const si = course.si || [];
+    const par = course.par || [];
+    const total = this.totalHolesForRound();
+    const alloc = active.map(p => {
+      const ch = this.getScoringCH(p, mode, active);
+      const per = {};
+      for (let h = 1; h <= total; h++) per[h] = si[h-1] != null ? this.strokesAllocated(ch, si[h-1]) : 0;
+      return {p, per};
+    });
+    const scored = (p, h) => ((s.scores[p.id] || {})[h]) != null;
+    const stPlayers = alloc.map(({p, per}) => {
+      let tot = 0, left = 0, next = null;
+      const chip = h => {
+        const n = per[h] || 0, done = scored(p, h);
+        if (n){ tot += n; if (!done){ left += n; if (next == null) next = h; } }
+        return {
+          label: n > 1 ? `${h}·${n}` : String(h),
+          bg: n ? (done ? '#e9e5dc' : '#ffa62f') : '#fff',
+          color: n ? (done ? '#98928a' : '#0f2a4a') : '#c9c3b6',
+          deco: n && done ? 'line-through' : 'none',
+          border: n ? '1px solid transparent' : '1px solid #efebe3'
+        };
+      };
+      const front = []; for (let h = 1; h <= Math.min(9, total); h++) front.push(chip(h));
+      const back = []; if (total > 9) for (let h = 10; h <= 18; h++) back.push(chip(h));
+      return {
+        name: p.name, total: tot, hasStrokes: tot > 0, front, back, hasBack: back.length > 0,
+        counter: tot > 0 ? `${left} OF ${tot} LEFT` : (mode === 'low' ? 'LOW MAN · NO STROKES' : 'NO STROKES'),
+        nextText: next ? `NEXT STROKE: #${next}` : 'ALL STROKES USED'
+      };
+    }).sort((a,b) => b.total - a.total);
+    const start = Math.max(1, Math.min(total, s.currentHole || 1));
+    const stUpcoming = [];
+    for (let h = start; h <= Math.min(start + 2, total); h++){
+      const list = alloc.filter(a => a.per[h] > 0).map(a => ({first: a.p.name.split(' ')[0], n: a.per[h]}));
+      let who = 'No strokes';
+      if (list.length){
+        const same = list.every(x => x.n === list[0].n);
+        who = same ? `${list.map(x => x.first).join(', ')} ${list.length === 1 ? 'gets' : 'get'} ${list[0].n}` : list.map(x => `${x.first} ${x.n}`).join(', ');
+      }
+      stUpcoming.push({hole: `#${h}`, info: `PAR ${par[h-1] ?? '–'} · SI ${si[h-1] ?? '–'}`, who, color: list.length ? '#1a2733' : '#c9c3b6'});
+    }
+    return {
+      ...blank, stHasData: true, stPlayers, stUpcoming,
+      stModeLabel: {full:'FULL HDCP', low:'LOW HDCP'}[mode] || '',
+      stUpLabel: stUpcoming.length === 1 ? 'THIS HOLE' : `NEXT ${stUpcoming.length} HOLES`
+    };
+  }
+  startEvent(){ this.setState({screen:'board', currentHole:1, setupStep:1}); }
   setTournamentDays(val){
     const n = parseInt(val, 10);
     this.setState({tournamentDays: isNaN(n) ? 2 : Math.max(2, n)});
@@ -3341,7 +3556,8 @@ class Component extends DCLogic {
     const viewTabs = [
       {key:'board', label:'LEADERBOARD'},
       {key:'card', label:'SCORECARD'},
-      {key:'scoreboard', label:'SCOREBOARD'}
+      {key:'scoreboard', label:'SCOREBOARD'},
+      {key:'strokes', label:'STROKES'}
     ].map(it => ({
       ...it, onClick: () => this.setScreen(it.key),
       bg: s.screen===it.key ? '#0f2a4a' : '#f3f1ea',
@@ -3387,7 +3603,10 @@ class Component extends DCLogic {
       isScoreboardView: s.screen==='scoreboard',
       heroOnBoard: !!s.showHero && s.screen==='board',
       showBoardRows: !s.showHero && s.screen==='board',
-      isBoard: s.screen==='board' || s.screen==='scoreboard', isCard: s.screen==='card', isGames: s.screen==='games',
+      ...this.buildStrokesView(),
+      ...this.buildWizardVals(),
+      isStrokesView: s.screen==='strokes',
+      isBoard: s.screen==='board' || s.screen==='scoreboard' || s.screen==='strokes', isCard: s.screen==='card', isGames: s.screen==='games',
       isClubs: s.screen==='clubs',
       goClubs: () => this.setScreen('clubs'),
       ...(() => {
