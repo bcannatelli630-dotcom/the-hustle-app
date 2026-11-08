@@ -828,15 +828,15 @@ input, select, textarea { font-size:16px !important; }
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
+            <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ onClubsBack }}">←</div>
             <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">CLUB DIRECTORY · {{ clubCountLabel }}</div>
         </div>
         <div style="flex:1;padding:14px 16px 80px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
-          <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.5;">Every course you've downloaded, with its tees, ratings and slopes. Saved on this phone and backed up for everyone, so they work with no signal. Add courses from Let's Play → Course → Change.</div>
+          <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.5;">Every course you've downloaded, with its tees, ratings and slopes. Saved on this phone and backed up for everyone, so they work with no signal. To add one, pick a course in Round and tap SAVE next to its name.</div>
           <sc-if value="{{ noClubs }}" hint-placeholder-val="{{ false }}">
-            <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">No clubs yet. Search for a course in Let's Play and it will be saved here.</div>
+            <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">No clubs yet. Pick a course in Round and tap SAVE to keep it here.</div>
           </sc-if>
           <sc-for list="{{ clubList }}" as="cl" hint-placeholder-count="3">
             <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
@@ -1008,9 +1008,15 @@ input, select, textarea { font-size:16px !important; }
             </div>
 
             <div style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ courseName }}</div>
-                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;" onClick="{{ onToggleCourseSearch }}">{{ courseChangeLabel }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="font:700 13px Archivo,sans-serif;color:#1a2733;flex:1;min-width:0;">{{ courseName }}</div>
+                <sc-if value="{{ canSaveCourse }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:800 10px Archivo,sans-serif;background:#0f2a4a;color:#fff;padding:6px 11px;border-radius:5px;cursor:pointer;flex:none;letter-spacing:.3px;" onClick="{{ onSaveCourse }}">SAVE</div>
+                </sc-if>
+                <sc-if value="{{ courseSaved }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;flex:none;">SAVED ✓</div>
+                </sc-if>
+                <div style="font:700 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;flex:none;" onClick="{{ onToggleCourseSearch }}">{{ courseChangeLabel }}</div>
               </div>
               <sc-if value="{{ hasTeeRatings }}" hint-placeholder-val="{{ false }}">
                 <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;cursor:pointer;margin-top:10px;letter-spacing:.3px;" onClick="{{ onToggleTeeRatings }}">{{ teeRatingsLabel }}</div>
@@ -1032,9 +1038,9 @@ input, select, textarea { font-size:16px !important; }
               </sc-if>
             </div>
 
-            <sc-if value="{{ hasSavedCourses }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:10px;padding:11px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);cursor:pointer;margin-bottom:6px;" onClick="{{ goClubs }}">
-                <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">Pick from Club Directory · {{ clubCountLabel }}</div>
+                <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">Club Directory · {{ clubCountLabel }}</div>
                 <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">→</div>
               </div>
             </sc-if>
@@ -1253,7 +1259,7 @@ input, select, textarea { font-size:16px !important; }
           <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ setupConfirmBody }}</div>
           <div style="display:flex;gap:8px;">
             <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onCancelSetupConfirm }}">CANCEL</div>
-            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onDoSetupConfirm }}">CLEAR</div>
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onDoSetupConfirm }}">{{ setupConfirmAction }}</div>
           </div>
         </div>
       </div>
@@ -3078,6 +3084,14 @@ class Component extends DCLogic {
     if (target >= 3 && players < 2) return {step:2, title:'Add players first', body:'Add at least two players before setting up bets.'};
     return null;
   }
+  saveCurrentCourse(confirmed){
+    const name = this.state.courseName;
+    const course = (this.state.liveCourses || {})[name];
+    if (!course) return;
+    if (!confirmed && (this.state.courseLibrary || {})[name]){ this.setState({setupConfirm: 'replaceClub'}); return; }
+    this.saveToLibrary(name, course);
+    this.setState({setupConfirm: null});
+  }
   clearRoundInfo(){
     this.setState({roundType:'18', tournamentDays:2, eventName:'', courseName:'No Course Selected', courseSearch:'', courseSearchOpen:false, setupConfirm:null});
   }
@@ -3251,7 +3265,7 @@ class Component extends DCLogic {
   // A course record can come back missing pars, stroke index, or tees. Fill any
   // gaps with safe defaults (par 4, SI 1-18, a 72/113 tee) so the scorecard
   // always loads, and remember what was missing so Settings can say so.
-  selectLiveCourse(courseObj){
+  selectLiveCourse(courseObj, saveToDirectory){
     const par = Array.isArray(courseObj.par) ? courseObj.par.slice(0, 18) : [];
     const si = Array.isArray(courseObj.si) ? courseObj.si.slice(0, 18) : [];
     const missing = [];
@@ -3263,7 +3277,7 @@ class Component extends DCLogic {
     if (!tees){ missing.push('tees'); tees = {'Default': {rating: 72, slope: 113}}; }
     const fixed = {...courseObj, par: fullPar, si: fullSi, tees, missing};
     const liveCourses = {...this.state.liveCourses, [courseObj.name]: fixed};
-    this.saveToLibrary(courseObj.name, fixed);
+    if (saveToDirectory) this.saveToLibrary(courseObj.name, fixed);
     this.setState({liveCourses, courseName: courseObj.name, roster: this.remapRosterTees(fixed), courseSearchOpen:false, courseSearch:'', courseSearchResults:[]});
   }
   // GolfCourseAPI has a daily request limit, so typing doesn't search on every
@@ -3331,7 +3345,7 @@ class Component extends DCLogic {
     const replacing = this.state.clubDupReplaceName;
     if (replacing && replacing !== (d.name || c.name)) this.removeFromLibrary(replacing);
     this.setState({clubDupReplaceName: null});
-    this.selectLiveCourse({...d, name: d.name || c.name});
+    this.selectLiveCourse({...d, name: d.name || c.name}, !!replacing);
   }
 
   updatePlayerIndex(id, val){
@@ -3881,7 +3895,7 @@ class Component extends DCLogic {
             sub: [c.location ? c.location.toUpperCase() : null, parTotal ? `PAR ${parTotal}` : null, `${teeNames.length} TEE${teeNames.length === 1 ? '' : 'S'}`].filter(Boolean).join(' · '),
             expanded, teesLabel: expanded ? 'HIDE TEES' : 'TEES, RATINGS & SLOPES',
             onToggle: () => this.setState({clubExpanded: {...(s.clubExpanded || {}), [name]: !expanded}}),
-            onPlay: () => { this.selectSavedCourse(name); this.setScreen('settings'); },
+            onPlay: () => { this.selectSavedCourse(name); this.goSetupStep(1); },
             onAskDelete: () => this.askDeleteClub(name),
             tees: teeNames.map(t => ({
               tee: t, rating: c.tees[t].rating, slope: c.tees[t].slope,
@@ -3917,12 +3931,22 @@ class Component extends DCLogic {
       setupNoticeTitle: s.setupNotice ? s.setupNotice.title : '', setupNoticeBody: s.setupNotice ? s.setupNotice.body : '',
       onDismissSetupNotice: () => this.setState({setupNotice: null}),
       hasSetupConfirm: !!s.setupConfirm,
-      setupConfirmTitle: s.setupConfirm === 'round' ? 'Clear round info?' : 'Clear all players?',
-      setupConfirmBody: s.setupConfirm === 'round' ? 'This clears the round type, tournament name and course for this round. Your Club Directory is not affected.' : 'This removes everyone from the player list. They stay saved, so their names fill in when you type them.',
+      setupConfirmTitle: s.setupConfirm === 'replaceClub' ? 'Replace saved club?' : (s.setupConfirm === 'round' ? 'Clear round info?' : 'Clear all players?'),
+      setupConfirmBody: s.setupConfirm === 'replaceClub' ? `${s.courseName} is already in your Club Directory. Saving replaces its saved tees, ratings and slopes with this version.` : (s.setupConfirm === 'round' ? 'This clears the round type, tournament name and course for this round. Your Club Directory is not affected.' : 'This removes everyone from the player list. They stay saved, so their names fill in when you type them.'),
+      setupConfirmAction: s.setupConfirm === 'replaceClub' ? 'REPLACE' : 'CLEAR',
+      ...(() => {
+        const live = (s.liveCourses || {})[s.courseName];
+        const saved = (s.courseLibrary || {})[s.courseName];
+        const strip = c => { const o = {...c}; delete o._savedAt; return stableStr(o); };
+        const same = !!live && !!saved && strip(live) === strip(saved);
+        return {canSaveCourse: !!live && !same, courseSaved: same || (!live && !!saved),
+          onSaveCourse: () => this.saveCurrentCourse(false),
+          onClubsBack: () => this.isRoundLive() ? this.setScreen('board') : this.goSetupStep(1)};
+      })(),
       onAskClearRoundInfo: () => this.setState({setupConfirm: 'round'}),
       onAskClearPlayers: () => this.setState({setupConfirm: 'players'}),
       onCancelSetupConfirm: () => this.setState({setupConfirm: null}),
-      onDoSetupConfirm: () => s.setupConfirm === 'round' ? this.clearRoundInfo() : this.clearAllPlayers(),
+      onDoSetupConfirm: () => s.setupConfirm === 'replaceClub' ? this.saveCurrentCourse(true) : (s.setupConfirm === 'round' ? this.clearRoundInfo() : this.clearAllPlayers()),
       showViewTabs: this.isRoundLive() && (s.screen === 'board' || s.screen === 'scoreboard'),
       menuOpen: !!s.menuOpen, menuItems: this.buildMenuItems(),
       onOpenMenu: () => this.setState({menuOpen: true}),
