@@ -1303,10 +1303,10 @@ input, select, textarea { font-size:16px !important; }
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
         <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
           <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">End the round?</div>
-          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">Go back and finish editing or end the round.</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">The round will be saved to History, and you can still edit scores there afterward. Bets and Settle Up update automatically.</div>
           <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onDismissEndConfirm }}">GO BACK TO SCORECARD</div>
-            <div style="background:#fff;color:#c8102e;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #c8102e;" onClick="{{ onForceEndEvent }}">END ROUND ANYWAY</div>
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onForceEndEvent }}">END ROUND</div>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onDismissEndConfirm }}">BACK TO SCORECARD</div>
           </div>
         </div>
       </div>
@@ -2172,7 +2172,8 @@ class Component extends DCLogic {
   computeGreenieSweep(){
     const course = this.course;
     const par3Holes = [];
-    for (let h = 1; h <= 18; h++){ if (course.par[h-1] === 3) par3Holes.push(h); }
+    // Only par 3s in the holes being played (a 9-hole round has fewer).
+    for (let h = 1; h <= this.totalHolesForRound(); h++){ if (course.par[h-1] === 3) par3Holes.push(h); }
     let candidate = null, count = 0, dead = false, lastResolvedHole = null, lastResolvedWinner = null;
     for (const h of par3Holes){
       const winnerId = this.state.greenieWinners[h];
@@ -2470,13 +2471,20 @@ class Component extends DCLogic {
           lines.push(`GREENIE #${hole}: ${winner.name} collects $${val} each from every other player`);
         });
       }
-      // Greenie Sweep — bragging-rights acknowledgment (no separate $ value; the individual
-      // greenie payouts above already cover it since a sweep is just winning every par-3)
-      if (this.state.junk.greenies && this.state.junk.greenies.active){
+      // Greenie Sweep: one player wins (and pars) every par 3, so his greenie payout
+      // doubles. The single greenies are already paid above; this pays them a second time.
+      // e.g. 4 par 3s at $2: $8 from each player, plus $8 more = $16 from each player.
+      if (this.state.junk.greenies && this.state.junk.greenies.active && this.state.junk.greenies.value){
         const sweep = this.computeGreenieSweep();
         if (!sweep.dead && sweep.candidate && sweep.totalPar3 > 0 && sweep.count === sweep.totalPar3){
           const sweeper = active.find(p => p.id === sweep.candidate);
-          if (sweeper) lines.push(`GREENIE SWEEP: ${sweeper.name} won all ${sweep.totalPar3} par-3s`);
+          if (sweeper){
+            const bonus = this.state.junk.greenies.value * sweep.totalPar3;
+            const others = active.filter(o => o.id !== sweeper.id);
+            ledger[sweeper.id] += bonus * others.length;
+            others.forEach(o => { ledger[o.id] -= bonus; });
+            lines.push(`GREENIE SWEEP: ${sweeper.name} won all ${sweep.totalPar3} par 3s — greenies double, $${bonus} more from every other player`);
+          }
         }
       }
       // RRC — priceless bragging rights only, no dollar value
@@ -2994,9 +3002,9 @@ class Component extends DCLogic {
       item('START', inSetup && step === 4, () => this.goSetupStep(4), true)
     ];
     return [
+      item('STROKES', s.screen === 'strokes', () => this.setScreen('strokes')),
       item('SCORECARD', s.screen === 'card', () => this.setScreen('card')),
       item('LEADERBOARD', s.screen === 'board' || s.screen === 'scoreboard', () => this.setScreen('board')),
-      item('STROKES', s.screen === 'strokes', () => this.setScreen('strokes')),
       item('SETTLE', s.screen === 'settle', () => this.goSettle())
     ];
   }
