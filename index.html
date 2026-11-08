@@ -1069,6 +1069,7 @@ input, select, textarea { font-size:16px !important; }
               </sc-for>
             </sc-if>
 
+            <div style="text-align:center;padding:11px;border-radius:10px;font:800 11px Archivo,sans-serif;color:#c8102e;border:1.5px solid #c8102e;cursor:pointer;margin-top:10px;" onClick="{{ onAskClearRoundInfo }}">CLEAR ROUND INFO</div>
 </sc-if>
 <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
@@ -1150,6 +1151,7 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </sc-if>
 
+            <div style="text-align:center;padding:11px;border-radius:10px;font:800 11px Archivo,sans-serif;color:#c8102e;border:1.5px solid #c8102e;cursor:pointer;margin-top:10px;" onClick="{{ onAskClearPlayers }}">CLEAR ALL PLAYERS</div>
 </sc-if>
 <sc-if value="{{ isStep4 }}" hint-placeholder-val="{{ false }}">
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">SUMMARY</div>
@@ -1183,7 +1185,7 @@ input, select, textarea { font-size:16px !important; }
             </sc-if>
             <sc-if value="{{ clearRoundConfirmOpen }}" hint-placeholder-val="{{ false }}">
               <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-top:4px;">
-                <div style="font:700 11px Archivo,sans-serif;color:#c8102e;line-height:1.5;margin-bottom:10px;">This clears all scores and every bet on the table (games, junk, presses, RRC, greenie sweep) for the current round. Roster, course, and settings stay put. Sure?</div>
+                <div style="font:700 11px Archivo,sans-serif;color:#c8102e;line-height:1.5;margin-bottom:10px;">This clears all scores and every bet on the table (games, junk, presses, RRC, greenie sweep) and the player list. Players stay saved, so their names fill in as you type them next time. Course and bet settings stay put. Sure?</div>
                 <div style="display:flex;gap:8px;">
                   <div style="flex:1;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onDismissClearRoundConfirm }}">CANCEL</div>
                   <div style="flex:1;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onClearRound }}">YES, CLEAR ROUND</div>
@@ -1226,6 +1228,29 @@ input, select, textarea { font-size:16px !important; }
           <sc-for list="{{ menuItems }}" as="mi" hint-placeholder-count="4">
             <div style="padding:13px 16px;font:700 13px Archivo,sans-serif;color:{{ mi.color }};border-bottom:1px solid #f3f1ea;cursor:pointer;" onClick="{{ mi.onClick }}">{{ mi.label }}</div>
           </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasSetupNotice }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:47;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">{{ setupNoticeTitle }}</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ setupNoticeBody }}</div>
+          <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onDismissSetupNotice }}">OK</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasSetupConfirm }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:47;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">{{ setupConfirmTitle }}</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ setupConfirmBody }}</div>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onCancelSetupConfirm }}">CANCEL</div>
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onDoSetupConfirm }}">CLEAR</div>
+          </div>
         </div>
       </div>
     </sc-if>
@@ -1379,7 +1404,7 @@ const DEFAULT_ROSTER = [];
 const DEFAULT_SCORES = {};
 
 const GAMES_DEFAULT = {
-  nassau: {active:true, front:5, back:5, overall:5},
+  nassau: {active:false, front:5, back:5, overall:5},
   groupmatch: {active:false, label:'GROUP MATCH', format:'best1', front:5, back:5, overall:5, names:{A:'', B:'', C:''}},
   bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
@@ -1391,12 +1416,12 @@ const GAMES_DEFAULT = {
 };
 
 const JUNK_DEFAULT = {
-  birdies: {active:true, value:2, label:'BIRDIES', sub:'For birdie or better.'},
-  greenies: {active:true, value:2, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
-  sandies: {active:true, value:2, label:'SANDIES', sub:'Par or better from a bunker'},
-  polies: {active:true, value:2, label:'POLIES', sub:'Made putt longer than the flagstick.'},
-  barkies: {active:true, value:2, label:'BARKIES', sub:'Par or better after hitting a tree'},
-  chippies: {active:true, value:2, label:'CHIPPIES', sub:'Up-and-down from off the green with a chip-in'},
+  birdies: {active:false, value:2, label:'BIRDIES', sub:'For birdie or better.'},
+  greenies: {active:false, value:2, label:'GREENIES', sub:'Closest on the par 3s — must also par the hole.'},
+  sandies: {active:false, value:2, label:'SANDIES', sub:'Par or better from a bunker'},
+  polies: {active:false, value:2, label:'POLIES', sub:'Made putt longer than the flagstick.'},
+  barkies: {active:false, value:2, label:'BARKIES', sub:'Par or better after hitting a tree'},
+  chippies: {active:false, value:2, label:'CHIPPIES', sub:'Up-and-down from off the green with a chip-in'},
   rrc: {active:false, value:2, label:'RRC', sub:'Rolling card — awarded for a gross birdie'}
 };
 
@@ -1742,8 +1767,23 @@ class Component extends DCLogic {
   // greenie sweep, presses, Vegas teams, etc.) — but keeps the roster, course,
   // scoring mode, and wager settings exactly as configured, so you can tee off
   // again without resetting your whole setup.
+  // Saves everyone on the roster (latest index and tee) to this phone's player list,
+  // so their names autofill next time, including players added on another phone.
+  rememberRoster(){
+    let known = (this.state.knownPlayers || []).slice();
+    this.state.roster.forEach(p => {
+      if (!p.name) return;
+      known = known.filter(k => k.name.toLowerCase() !== p.name.toLowerCase());
+      known.unshift({name: p.name, index: p.index, tee: p.tee});
+    });
+    known = known.slice(0, 80);
+    try { localStorage.setItem('hustle_known_players', JSON.stringify(known)); } catch(e){}
+    this.setState({knownPlayers: known});
+  }
   clearRound(){
+    this.rememberRoster();
     this.setState({
+      roster: [],
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2880,8 +2920,32 @@ class Component extends DCLogic {
   scrollSetupTop(){
     setTimeout(() => { const el = document.querySelector('[data-setup-scroll]'); if (el) el.scrollTop = 0; }, 0);
   }
+  // Moving forward is blocked only when something critical is missing.
+  setupBlocker(target){
+    const s = this.state;
+    const noCourse = !s.courseName || s.courseName === 'No Course Selected';
+    const players = s.roster.filter(p => p.active).length;
+    if (target >= 2 && noCourse) return {step:1, title:'Pick a course first', body:'Choose the course in Round before adding players, so their strokes come from the right tees.'};
+    if (target >= 3 && players < 2) return {step:2, title:'Add players first', body:'Add at least two players before setting up bets.'};
+    return null;
+  }
+  clearRoundInfo(){
+    this.setState({roundType:'18', tournamentDays:2, eventName:'', courseName:'No Course Selected', courseSearch:'', courseSearchOpen:false, setupConfirm:null});
+  }
+  clearAllPlayers(){
+    this.rememberRoster();
+    this.setState({roster: [], setupConfirm:null});
+  }
   goSetupStep(n){
     n = Math.max(1, Math.min(4, n));
+    const cur = this.state.screen === 'games' ? 3 : (this.state.setupStep || 1);
+    if (n > cur || (this.state.screen !== 'settings' && this.state.screen !== 'games')){
+      const block = this.setupBlocker(n);
+      if (block && n > block.step){
+        this.setState({setupNotice: block, setupStep: block.step, screen: block.step === 3 ? 'games' : 'settings'}, () => this.scrollSetupTop());
+        return;
+      }
+    }
     this.setState({setupStep: n, screen: n === 3 ? 'games' : 'settings'}, () => this.scrollSetupTop());
   }
   buildWizardVals(){
@@ -2979,7 +3043,10 @@ class Component extends DCLogic {
     };
   }
   startEvent(){
+    this.rememberRoster();
     if (this.isRoundLive()){ this.setState({screen:'board', setupStep:1}); return; }
+    const block = this.setupBlocker(3);
+    if (block){ this.setState({setupNotice: block, setupStep: block.step, screen:'settings'}); return; }
     this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true});
   }
   // A round counts as live once Start Round is tapped, or if scores already exist
@@ -3695,6 +3762,16 @@ class Component extends DCLogic {
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
+      hasSetupNotice: !!s.setupNotice,
+      setupNoticeTitle: s.setupNotice ? s.setupNotice.title : '', setupNoticeBody: s.setupNotice ? s.setupNotice.body : '',
+      onDismissSetupNotice: () => this.setState({setupNotice: null}),
+      hasSetupConfirm: !!s.setupConfirm,
+      setupConfirmTitle: s.setupConfirm === 'round' ? 'Clear round info?' : 'Clear all players?',
+      setupConfirmBody: s.setupConfirm === 'round' ? 'This clears the round type, tournament name and course for this round. Your Club Directory is not affected.' : 'This removes everyone from the player list. They stay saved, so their names fill in when you type them.',
+      onAskClearRoundInfo: () => this.setState({setupConfirm: 'round'}),
+      onAskClearPlayers: () => this.setState({setupConfirm: 'players'}),
+      onCancelSetupConfirm: () => this.setState({setupConfirm: null}),
+      onDoSetupConfirm: () => s.setupConfirm === 'round' ? this.clearRoundInfo() : this.clearAllPlayers(),
       showViewTabs: this.isRoundLive() && (s.screen === 'board' || s.screen === 'scoreboard'),
       menuOpen: !!s.menuOpen, menuItems: this.buildMenuItems(),
       onOpenMenu: () => this.setState({menuOpen: true}),
@@ -3770,10 +3847,10 @@ class Component extends DCLogic {
         const q = s.newName.trim().toLowerCase();
         if (!s.showNameSuggestions || !q) return [];
         const rosterNames = new Set(s.roster.map(p => p.name.toLowerCase()));
-        return s.knownPlayers
+        return (s.knownPlayers || [])
           .filter(k => k.name.toLowerCase().includes(q) && k.name.toLowerCase() !== q && !rosterNames.has(k.name.toLowerCase()))
           .slice(0, 5)
-          .map(k => ({name:k.name, onSelect: () => this.selectKnownPlayer(k)}));
+          .map(k => ({name: k.index != null && k.index !== '' ? `${k.name} · ${k.index} index` : k.name, onSelect: () => this.selectKnownPlayer(k)}));
       })(),
       onNewIndex: (e)=>this.setState({newIndex:e.target.value}),
       onNewTee: (e)=>this.setState({newTee:e.target.value}),
