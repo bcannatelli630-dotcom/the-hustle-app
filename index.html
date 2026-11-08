@@ -93,8 +93,8 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ true }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:14px 18px 14px;background:#0f2a4a;position:relative;">
-          <div style="position:absolute;top:12px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="position:absolute;top:12px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
@@ -115,11 +115,13 @@ input, select, textarea { font-size:16px !important; }
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">{{ courseLabel }} · {{ roundTypeLabel }} · THRU {{ overallThru }}</div>
         </div>
 
+        <sc-if value="{{ showViewTabs }}" hint-placeholder-val="{{ true }}">
         <div style="flex:none;display:flex;gap:6px;padding:10px 18px;background:#fbfaf7;border-bottom:1px solid #e9e5dc;">
           <sc-for list="{{ viewTabs }}" as="m" hint-placeholder-count="2">
             <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:{{ m.bg }};color:{{ m.color }};" style-hover="opacity:.85" onClick="{{ m.onClick }}">{{ m.label }}</div>
           </sc-for>
         </div>
+        </sc-if>
 
         <div style="flex:none;display:flex;gap:6px;padding:10px 18px;overflow-x:auto;border-bottom:1px solid #e9e5dc;">
           <sc-for list="{{ gamesChips }}" as="g" hint-placeholder-count="3">
@@ -298,8 +300,8 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ isCard }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:14px 18px 14px;background:#0f2a4a;position:relative;">
-          <div style="position:absolute;top:12px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="position:absolute;top:12px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
@@ -317,11 +319,13 @@ input, select, textarea { font-size:16px !important; }
           </sc-if>
         </div>
 
+        <sc-if value="{{ showViewTabs }}" hint-placeholder-val="{{ true }}">
         <div style="flex:none;display:flex;gap:6px;padding:10px 18px;background:#fbfaf7;border-bottom:1px solid #e9e5dc;">
           <sc-for list="{{ viewTabs }}" as="m" hint-placeholder-count="2">
             <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:{{ m.bg }};color:{{ m.color }};" style-hover="opacity:.85" onClick="{{ m.onClick }}">{{ m.label }}</div>
           </sc-for>
         </div>
+        </sc-if>
 
         <div style="flex:none;display:flex;flex-direction:column;gap:6px;padding:10px 18px;border-bottom:1px solid #e9e5dc;background:#fff;">
           <div style="display:flex;gap:6px;">
@@ -540,8 +544,8 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ isGames }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;position:relative;">
-          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -742,7 +746,7 @@ input, select, textarea { font-size:16px !important; }
             <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#0f2a4a;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ wizardNext }}">{{ wizardNextLabel }}</div>
           </sc-if>
           <sc-if value="{{ wizardIsLast }}" hint-placeholder-val="{{ false }}">
-            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">START ROUND</div>
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">{{ wizardStartLabel }}</div>
           </sc-if>
         </div>
       </div>
@@ -816,8 +820,8 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ isClubs }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;position:relative;">
-          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
@@ -869,8 +873,8 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
       <div style="flex:1;display:flex;flex-direction:column;min-height:0;">
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;position:relative;">
-          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="position:absolute;top:14px;right:14px;cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -932,8 +936,8 @@ input, select, textarea { font-size:16px !important; }
         <div style="flex:none;padding:16px 18px 14px;background:#0f2a4a;display:flex;align-items:center;gap:10px;">
           <div style="color:#fff;font:700 16px sans-serif;cursor:pointer;" onClick="{{ goBoard }}">←</div>
           <div style="font:900 16px 'Archivo Black',sans-serif;color:#fff;letter-spacing:.4px;flex:1;">LET'S PLAY</div>
-          <div style="cursor:pointer;padding:2px;" onClick="{{ onLogout }}" title="Log out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a9bdd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <div style="cursor:pointer;padding:2px;" onClick="{{ onOpenMenu }}" title="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
           </div>
         </div>
         <div style="flex:none;background:#0f2a4a;padding:0 18px 14px;display:flex;flex-direction:column;gap:8px;">
@@ -1206,8 +1210,18 @@ input, select, textarea { font-size:16px !important; }
             <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#0f2a4a;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ wizardNext }}">{{ wizardNextLabel }}</div>
           </sc-if>
           <sc-if value="{{ wizardIsLast }}" hint-placeholder-val="{{ false }}">
-            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">START ROUND</div>
+            <div style="flex:1;text-align:center;padding:13px;border-radius:8px;background:#c8102e;color:#fff;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onStartEvent }}">{{ wizardStartLabel }}</div>
           </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;z-index:46;" onClick="{{ onCloseMenu }}">
+        <div style="position:absolute;top:50px;right:12px;width:210px;background:#fff;border-radius:10px;box-shadow:0 12px 28px rgba(15,42,74,.28);overflow:hidden;">
+          <sc-for list="{{ menuItems }}" as="mi" hint-placeholder-count="4">
+            <div style="padding:13px 16px;font:700 13px Archivo,sans-serif;color:{{ mi.color }};border-bottom:1px solid #f3f1ea;cursor:pointer;" onClick="{{ mi.onClick }}">{{ mi.label }}</div>
+          </sc-for>
         </div>
       </div>
     </sc-if>
@@ -1215,40 +1229,10 @@ input, select, textarea { font-size:16px !important; }
     <!-- bottom nav -->
     <sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
       <div style="flex:none;height:60px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #0a2038;background:#0f2a4a;">
-        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="3">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ n.color }};font:700 9px Archivo,sans-serif;opacity:{{ n.opacity }};" onClick="{{ n.onClick }}">
-            <sc-if value="{{ n.isCog }}" hint-placeholder-val="{{ false }}">
-              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
-                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ n.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-              </div>
-            </sc-if>
-            <sc-if value="{{ n.isTee }}" hint-placeholder-val="{{ false }}">
-              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
-                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ n.color }}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="7" r="5"></circle>
-                  <path d="M8 14h8"></path>
-                  <path d="M10.5 14l1 7h1l1-7"></path>
-                </svg>
-              </div>
-            </sc-if>
-            <sc-if value="{{ n.isFlag }}" hint-placeholder-val="{{ false }}">
-              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
-                <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ n.color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 21V3"></path>
-                  <path d="M12 4h7l-2.5 3.5L19 11h-7"></path>
-                  <ellipse cx="12" cy="21" rx="4" ry="1"></ellipse>
-                </svg>
-              </div>
-            </sc-if>
-            <sc-if value="{{ n.icon }}" hint-placeholder-val="{{ false }}">
-              <div style="width:23px;height:23px;display:flex;align-items:center;justify-content:center;">
-                <img src="{{ n.icon }}" style="width:{{ n.iconSize }}px;height:{{ n.iconSize }}px;object-fit:contain;filter:brightness(0) invert(1);display:block;"/>
-              </div>
-            </sc-if>
-            <span>{{ n.label }}</span>
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;opacity:{{ n.opacity }};" onClick="{{ n.onClick }}">
+            <div style="width:20px;height:20px;border-radius:50%;box-sizing:border-box;background:{{ n.fill }};border:1.6px solid {{ n.ring }};"></div>
+            <div style="font:800 9px Archivo,sans-serif;color:#fff;letter-spacing:.3px;white-space:nowrap;">{{ n.label }}</div>
           </div>
         </sc-for>
       </div>
@@ -1482,7 +1466,7 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses',
-  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules'
+  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive'
 ];
 const RULE_PRESETS = [
   ['breakfast', 'Breakfast ball'],
@@ -1542,6 +1526,8 @@ class Component extends DCLogic {
     clearRoundConfirmOpen: false,
     currentTime: formatClockTime(new Date()),
     resetAllConfirmOpen: false,
+    roundLive: false,
+    menuOpen: false,
     screen: 'board',
     scoringMode: 'low',
     currentHole: 15,
@@ -1759,7 +1745,7 @@ class Component extends DCLogic {
       taFlips: {}, bbbPoints: {},
       presses: [], currentHole: 1,
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false,
-      activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true, editingHistoryId: null, editBlockedId: null
+      activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true, editingHistoryId: null, editBlockedId: null, roundLive: false, setupStep: 1
     });
   }
   openResetAllConfirm(){ this.setState({resetAllConfirmOpen:true}); }
@@ -1779,7 +1765,7 @@ class Component extends DCLogic {
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected',
       roundType: '18', tournamentDays: 2, eventName: '',
-      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false,
+      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false, roundLive: false, setupStep: 1,
       rules: JSON.parse(JSON.stringify(RULES_DEFAULT))
     });
   }
@@ -2915,6 +2901,7 @@ class Component extends DCLogic {
       wizardHasNext: step < 4, wizardNext: () => this.goSetupStep(step + 1),
       wizardNextLabel: ['NEXT: PLAYERS →', 'NEXT: BETS →', 'NEXT: REVIEW →', ''][step - 1],
       wizardIsLast: step === 4,
+      wizardStartLabel: this.isRoundLive() ? 'BACK TO ROUND' : 'START ROUND',
       reviewCards: [
         {label:'ROUND', text: roundText, color: noCourse ? '#c8102e' : '#1a2733', onEdit: () => this.goSetupStep(1)},
         {label:'PLAYERS', text: playersText, color: active.length ? '#1a2733' : '#c8102e', onEdit: () => this.goSetupStep(2)},
@@ -2979,7 +2966,50 @@ class Component extends DCLogic {
       stUpLabel: stUpcoming.length === 1 ? 'THIS HOLE' : `NEXT ${stUpcoming.length} HOLES`
     };
   }
-  startEvent(){ this.setState({screen:'board', currentHole:1, setupStep:1}); }
+  startEvent(){
+    if (this.isRoundLive()){ this.setState({screen:'board', setupStep:1}); return; }
+    this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true});
+  }
+  // A round counts as live once Start Round is tapped, or if scores already exist
+  // (covers rounds that were in progress before this update).
+  isRoundLive(){
+    const s = this.state;
+    return !!s.roundLive || Object.values(s.scores || {}).some(o => o && Object.keys(o).length);
+  }
+  buildNavItems(){
+    const s = this.state;
+    const live = this.isRoundLive();
+    const step = s.screen === 'games' ? 3 : ((s.setupStep || 1) === 3 ? 1 : (s.setupStep || 1));
+    const inSetup = s.screen === 'settings' || s.screen === 'games';
+    const item = (label, active, onClick, red) => ({
+      label, onClick,
+      fill: red ? '#c8102e' : (active ? '#ffffff' : 'transparent'),
+      ring: red ? (active ? '#ffffff' : '#c8102e') : '#ffffff',
+      opacity: active || red ? 1 : .55
+    });
+    if (!live) return [
+      item('ROUND', inSetup && step === 1, () => this.goSetupStep(1)),
+      item('PLAYERS', inSetup && step === 2, () => this.goSetupStep(2)),
+      item('BETS', inSetup && step === 3, () => this.goSetupStep(3)),
+      item('START', inSetup && step === 4, () => this.goSetupStep(4), true)
+    ];
+    return [
+      item('SCORECARD', s.screen === 'card', () => this.setScreen('card')),
+      item('LEADERBOARD', s.screen === 'board' || s.screen === 'scoreboard', () => this.setScreen('board')),
+      item('STROKES', s.screen === 'strokes', () => this.setScreen('strokes')),
+      item('SETTLE', s.screen === 'settle', () => this.goSettle())
+    ];
+  }
+  buildMenuItems(){
+    const live = this.isRoundLive();
+    const go = fn => () => { this.setState({menuOpen:false}); fn(); };
+    return [
+      {label: live ? 'Round setup' : 'Home', color:'#1a2733', onClick: go(() => live ? this.goSetupStep(1) : this.setScreen('board'))},
+      {label:'Club Directory', color:'#1a2733', onClick: go(() => this.setScreen('clubs'))},
+      {label:'History', color:'#1a2733', onClick: go(() => this.setScreen('history'))},
+      {label:'Log out', color:'#c8102e', onClick: go(() => this.logout())}
+    ];
+  }
   setTournamentDays(val){
     const n = parseInt(val, 10);
     this.setState({tournamentDays: isNaN(n) ? 2 : Math.max(2, n)});
@@ -3541,7 +3571,8 @@ class Component extends DCLogic {
     const settleGrossTotals = standingsForGross.map(r => ({name:r.name, gross:r.gross})).sort((a,b)=>a.gross-b.gross);
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
-    const navItems = [
+    const navItems = this.buildNavItems();
+    const navItemsOld = [
       {key:'settings', label:"LET'S PLAY", onClick: ()=>this.setScreen('settings'), isTee:true},
       {key:'games', label:'WAGERING', onClick: ()=>this.setScreen('games'), icon:'./icons/wagering-white.png', iconSize:31},
       {key:'clubs', label:'CLUBS', onClick: ()=>this.setScreen('clubs'), isFlag:true},
@@ -3555,9 +3586,7 @@ class Component extends DCLogic {
 
     const viewTabs = [
       {key:'board', label:'LEADERBOARD'},
-      {key:'card', label:'SCORECARD'},
-      {key:'scoreboard', label:'SCOREBOARD'},
-      {key:'strokes', label:'STROKES'}
+      {key:'scoreboard', label:'SCOREBOARD'}
     ].map(it => ({
       ...it, onClick: () => this.setScreen(it.key),
       bg: s.screen===it.key ? '#0f2a4a' : '#f3f1ea',
@@ -3653,6 +3682,10 @@ class Component extends DCLogic {
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
+      showViewTabs: s.screen === 'board' || s.screen === 'scoreboard',
+      menuOpen: !!s.menuOpen, menuItems: this.buildMenuItems(),
+      onOpenMenu: () => this.setState({menuOpen: true}),
+      onCloseMenu: () => this.setState({menuOpen: false}),
       goSettings: () => this.goSettings(), goBoard: () => this.goBoard(),
       overallThru, courseLabel,
       roundTypeLabel: s.roundType==='9' ? '9-HOLE ROUND' : (s.roundType==='18' ? '18-HOLE ROUND' : `TOURNAMENT · DAY 1 OF ${s.tournamentDays}`),
