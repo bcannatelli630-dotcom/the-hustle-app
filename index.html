@@ -1232,6 +1232,10 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <sc-if value="{{ storageError }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;top:0;left:0;right:0;z-index:48;background:#c8102e;color:#fff;font:800 11px Archivo,sans-serif;padding:9px 12px;text-align:center;line-height:1.4;">Phone storage is full, so this round is not being saved on this phone. Free up space on the phone or delete old rounds in History.</div>
+    </sc-if>
+
     <sc-if value="{{ hasSetupNotice }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:47;padding:24px;">
         <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
@@ -1495,7 +1499,7 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses',
-  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive'
+  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt'
 ];
 const RULE_PRESETS = [
   ['breakfast', 'Breakfast ball'],
@@ -1508,10 +1512,91 @@ const RULES_DEFAULT = {preset:{}, custom:['','','']};
 const GROUP_COLORS = {A:{bg:'#0f2a4a', fg:'#fff'}, B:{bg:'#ffa62f', fg:'#0f2a4a'}, C:{bg:'#1e7a3d', fg:'#fff'}};
 // Everything needed to fully rebuild a finished round (scores, flags, bets) so it
 // can be reopened from History, edited, and re-settled.
-const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => k !== 'history' && k !== 'showHero' && k !== 'editingHistoryId');
+const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => !['history','showHero','editingHistoryId','cellStamps','roundId','roundIdAt'].includes(k));
 function pickSyncFields(obj){
   const out = {};
   SYNC_KEYS.forEach(k => { if (obj[k] !== undefined) out[k] = obj[k]; });
+  return out;
+}
+
+// ---- Cell-level merge, so two phones never overwrite each other ----
+// Every score, junk flag, greenie, team pick, player and History round is stamped
+// with the time it was last changed on the phone that changed it. When phones
+// sync, each cell keeps whichever phone changed it most recently, instead of one
+// phone's whole round replacing the other's. Clearing a round starts a new round
+// id; the newer round wins outright so an old round can't come back.
+const MERGE_KEYS = ['scores','greenieWinners','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history'];
+const LEAF_DEPTH = {liveCourses:1, roster:1, history:1};
+const isPlainObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+function newRoundId(){ return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function stableStr(v){
+  if (Array.isArray(v)) return '[' + v.map(stableStr).join(',') + ']';
+  if (isPlainObj(v)) return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stableStr(v[k])).join(',') + '}';
+  return JSON.stringify(v === undefined ? null : v);
+}
+function keyedList(arr){
+  const o = {};
+  (arr || []).forEach(x => { o[(x && x.id != null) ? 'id' + x.id : 'jx' + stableStr(x)] = x; });
+  return o;
+}
+function flattenKey(k, v){
+  const out = {};
+  const base = (k === 'roster' || k === 'history') ? keyedList(v) : v;
+  const max = LEAF_DEPTH[k] || 99;
+  const walk = (val, path, depth) => {
+    if (isPlainObj(val) && depth < max && Object.keys(val).length) Object.keys(val).forEach(c => walk(val[c], path + '|' + c, depth + 1));
+    else out[path] = stableStr(val);
+  };
+  if (isPlainObj(base)) Object.keys(base).forEach(c => walk(base[c], k + '|' + c, 1));
+  return out;
+}
+function unflattenKey(k, flat, orderRef){
+  const root = {};
+  Object.keys(flat).sort((a,b) => a.split('|').length - b.split('|').length).forEach(p => {
+    const parts = p.split('|').slice(1);
+    let o = root;
+    for (let i = 0; i < parts.length - 1; i++){ if (!isPlainObj(o[parts[i]])) o[parts[i]] = {}; o = o[parts[i]]; }
+    const last = parts[parts.length - 1];
+    const val = JSON.parse(flat[p]);
+    if (isPlainObj(o[last]) && isPlainObj(val) && !Object.keys(val).length) return;
+    o[last] = val;
+  });
+  if (k === 'roster' || k === 'history'){
+    const ref = Object.keys(keyedList(orderRef));
+    const keys = Object.keys(root);
+    const ordered = ref.filter(x => x in root);
+    const extra = keys.filter(x => !ref.includes(x));
+    return (k === 'history' ? extra.concat(ordered) : ordered.concat(extra)).map(x => root[x]);
+  }
+  return root;
+}
+function mergeStates(L, R, preferLocal){
+  const sameRound = (L.roundId || '') === (R.roundId || '');
+  const roundWinner = sameRound ? null : ((L.roundIdAt || 0) >= (R.roundIdAt || 0) ? 'L' : 'R');
+  const baseSide = roundWinner ? (roundWinner === 'L' ? L : R) : (preferLocal ? L : R);
+  const out = pickSyncFields(baseSide);
+  const Ls = L.cellStamps || {}, Rs = R.cellStamps || {};
+  const keys = roundWinner ? ['history'] : MERGE_KEYS;
+  const stamps = {};
+  if (roundWinner){
+    Object.entries(baseSide.cellStamps || {}).forEach(([p,t]) => { if (!p.startsWith('history|')) stamps[p] = t; });
+  }
+  keys.forEach(k => {
+    const lf = flattenKey(k, L[k]), rf = flattenKey(k, R[k]);
+    const res = {};
+    new Set([...Object.keys(lf), ...Object.keys(rf)]).forEach(p => {
+      const lt = Ls[p] || 0, rt = Rs[p] || 0;
+      const useLocal = lt > rt || (lt === rt && preferLocal);
+      const src = useLocal ? lf : rf;
+      if (p in src) res[p] = src[p];
+      else if (!(useLocal ? lt : rt)) res[p] = (p in lf) ? lf[p] : rf[p];
+    });
+    out[k] = unflattenKey(k, res, preferLocal ? L[k] : R[k]);
+    Object.keys(Ls).concat(Object.keys(Rs)).forEach(p => {
+      if (p.startsWith(k + '|')) stamps[p] = Math.max(Ls[p] || 0, Rs[p] || 0);
+    });
+  });
+  out.cellStamps = stamps;
   return out;
 }
 
@@ -1666,10 +1751,26 @@ class Component extends DCLogic {
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
     if (this._dirPushTimer) clearTimeout(this._dirPushTimer);
     this._dirPushTimer = setTimeout(async () => {
+      let lib = this.state.courseLibrary || {}, dead = this.state.clubTombstones || {};
+      try {
+        // Merge with clubs other phones added, so pushing never drops theirs.
+        const r = await fetch(`${SYNC_ENDPOINT}?group=club-directory`);
+        const j = await r.json();
+        const rem = (j && j.data) || {};
+        const m = this.mergeDirectories(lib, dead, rem.courseLibrary, rem.clubTombstones);
+        lib = m.lib; dead = m.dead;
+        if (stableStr(lib) !== stableStr(this.state.courseLibrary || {})){
+          try {
+            localStorage.setItem('hustle_course_library', JSON.stringify(lib));
+            localStorage.setItem('hustle_club_tombstones', JSON.stringify(dead));
+          } catch(e){}
+          this.setState({courseLibrary: lib, clubTombstones: dead});
+        }
+      } catch(e){}
       try {
         await fetch(`${SYNC_ENDPOINT}?group=club-directory`, {
           method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({key: SYNC_WRITE_KEY, group: 'club-directory', payload: {t: Date.now(), data: {courseLibrary: this.state.courseLibrary || {}, clubTombstones: this.state.clubTombstones || {}}}})
+          body: JSON.stringify({key: SYNC_WRITE_KEY, group: 'club-directory', payload: {t: Date.now(), data: {courseLibrary: lib, clubTombstones: dead}}})
         });
       } catch(e){}
     }, 800);
@@ -1783,6 +1884,7 @@ class Component extends DCLogic {
   clearRound(){
     this.rememberRoster();
     this.setState({
+      roundId: newRoundId(), roundIdAt: Date.now(), cellStamps: {},
       roster: [],
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
@@ -1809,7 +1911,7 @@ class Component extends DCLogic {
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected',
       roundType: '18', tournamentDays: 2, eventName: '',
-      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false, roundLive: false, setupStep: 1,
+      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false, roundLive: false, setupStep: 1, roundId: newRoundId(), roundIdAt: Date.now(), cellStamps: {},
       rules: JSON.parse(JSON.stringify(RULES_DEFAULT))
     });
   }
@@ -1843,7 +1945,11 @@ class Component extends DCLogic {
     // the shared feed is offline or not yet deployed.
     try {
       const localSaved = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
-      if (localSaved && typeof localSaved === 'object') this.setState(backfillDefaults(localSaved));
+      if (localSaved && typeof localSaved === 'object'){
+        const restore = pickSyncFields(localSaved);
+        ['screen','setupStep','currentHole'].forEach(k => { if (localSaved[k] !== undefined) restore[k] = localSaved[k]; });
+        this.setState(backfillDefaults(restore));
+      }
     } catch(e){}
     // Durability: remember across app restarts whether this phone has edits the
     // server hasn't confirmed yet (e.g. scores entered with no signal), so a reload
@@ -1852,7 +1958,12 @@ class Component extends DCLogic {
       this._lastLocalChangeAt = parseInt(localStorage.getItem('hustle_last_local_change') || '0', 10) || 0;
       this._lastConfirmedPushAt = parseInt(localStorage.getItem('hustle_last_confirmed_push') || '0', 10) || 0;
     } catch(e){}
-    this._flushLocal = () => { try { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(this.state)); } catch(e){} };
+    this._flushLocal = () => {
+      let ok = true;
+      try { localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(this.state)); } catch(e){ ok = false; }
+      if (!ok && !this.state.storageError) this.setState({storageError: true});
+      if (ok && this.state.storageError) this.setState({storageError: false});
+    };
     this._onHide = () => { if (document.visibilityState === 'hidden') { this._flushLocal(); if (this._hasUnsynced()) this.pushState(); } };
     this._onOnline = () => { this.setState({isOffline:false}); if (this._hasUnsynced()) this.pushState(); else this.loadState(); };
     this._onOffline = () => this.setState({isOffline:true});
@@ -1898,8 +2009,21 @@ class Component extends DCLogic {
       this._lastLocalChangeAt = Date.now();
       try { localStorage.setItem('hustle_last_local_change', String(this._lastLocalChangeAt)); } catch(e){}
     }
+    if (curSyncSnap !== this._lastSyncSnap || !this._prevMaps) this._stampCells();
     this._lastSyncSnap = curSyncSnap;
     this.pushStateDebounced();
+  }
+  _stampCells(){
+    const cur = {};
+    MERGE_KEYS.forEach(k => Object.assign(cur, flattenKey(k, this.state[k])));
+    const prev = this._prevMaps;
+    this._prevMaps = cur;
+    if (!prev || this._applyingRemote) return;
+    const now = Date.now();
+    let changed = null;
+    for (const p in cur) if (prev[p] !== cur[p]) (changed = changed || {})[p] = now;
+    for (const p in prev) if (!(p in cur)) (changed = changed || {})[p] = now;
+    if (changed) this.setState(s => ({cellStamps: {...(s.cellStamps || {}), ...changed}}));
   }
   pushStateDebounced(){
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
@@ -1932,9 +2056,20 @@ class Component extends DCLogic {
         // etc.) this correctly keeps refusing stale remote data instead of
         // reverting your edit — and flips on a visible sync warning below.
         const remoteT = json.t || 0;
-        if (!this._lastLocalChangeAt || remoteT >= this._lastLocalChangeAt){
+        if (force){
+          // Switching session codes: take that session as-is, never blend two sessions.
           this._applyingRemote = true;
           this.setState(Object.assign(backfillDefaults(pickSyncFields(json.data)), {syncError:false}), () => { this._applyingRemote = false; });
+        } else {
+          const localNewer = !!this._lastLocalChangeAt && remoteT < this._lastLocalChangeAt;
+          const merged = mergeStates(this.state, json.data, localNewer);
+          const mergedStr = stableStr(merged);
+          if (mergedStr !== stableStr(pickSyncFields(this.state))){
+            this._applyingRemote = true;
+            this.setState(Object.assign(backfillDefaults(merged), {syncError:false}), () => { this._applyingRemote = false; });
+          }
+          // This phone has scores the server is missing: send them up.
+          if (mergedStr !== stableStr(pickSyncFields(json.data))) this.pushStateDebounced();
         }
       }
     } catch (e) { /* stay on last-known state; retried on next poll */ }
@@ -1942,6 +2077,20 @@ class Component extends DCLogic {
   async pushState(){
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
     const attemptedAt = Date.now();
+    let payloadData = pickSyncFields(this.state);
+    try {
+      // Blend in anything another phone saved since we last looked, so this push
+      // never wipes their scores.
+      const cur = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`);
+      const cj = await cur.json();
+      if (cj && !cj.empty && cj.data){
+        payloadData = mergeStates(this.state, cj.data, true);
+        if (stableStr(payloadData) !== stableStr(pickSyncFields(this.state))){
+          this._applyingRemote = true;
+          this.setState(backfillDefaults(payloadData), () => { this._applyingRemote = false; });
+        }
+      }
+    } catch(e){ /* offline: push what we have, the next sync merges */ }
     try {
       // Group is sent BOTH in the URL and the body — the feed's write endpoint
       // resolves it from either, but sending both means a write and a read always
@@ -1952,7 +2101,7 @@ class Component extends DCLogic {
         body: JSON.stringify({
           key: SYNC_WRITE_KEY,
           group: this.state.groupKey,
-          payload: {t: attemptedAt, data: pickSyncFields(this.state)}
+          payload: {t: attemptedAt, data: payloadData}
         })
       });
       if (res.ok) {
@@ -3047,7 +3196,8 @@ class Component extends DCLogic {
     if (this.isRoundLive()){ this.setState({screen:'board', setupStep:1}); return; }
     const block = this.setupBlocker(3);
     if (block){ this.setState({setupNotice: block, setupStep: block.step, screen:'settings'}); return; }
-    this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true});
+    this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true,
+      roundId: this.state.roundId || newRoundId(), roundIdAt: this.state.roundId ? this.state.roundIdAt : Date.now()});
   }
   // A round counts as live once Start Round is tapped, or if scores already exist
   // (covers rounds that were in progress before this update).
@@ -3762,6 +3912,7 @@ class Component extends DCLogic {
       settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
+      storageError: !!s.storageError,
       hasSetupNotice: !!s.setupNotice,
       setupNoticeTitle: s.setupNotice ? s.setupNotice.title : '', setupNoticeBody: s.setupNotice ? s.setupNotice.body : '',
       onDismissSetupNotice: () => this.setState({setupNotice: null}),
