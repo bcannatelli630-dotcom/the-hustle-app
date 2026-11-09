@@ -859,10 +859,11 @@ input, select, textarea { font-size:16px !important; }
               <sc-if value="{{ cl.expanded }}" hint-placeholder-val="{{ false }}">
                 <div style="border-top:1px solid #f3f1ea;padding:10px 14px 13px;display:flex;flex-direction:column;gap:6px;">
                   <sc-for list="{{ cl.tees }}" as="tt" hint-placeholder-count="3">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                      <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ tt.tee }}</div>
-                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">RATING</span><input type="number" step="0.1" value="{{ tt.rating }}" onChange="{{ tt.onRating }}" style="border:none;background:transparent;width:40px;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
-                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">SLOPE</span><input type="number" value="{{ tt.slope }}" onChange="{{ tt.onSlope }}" style="border:none;background:transparent;width:34px;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <div style="flex:1 1 100%;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ tt.tee }}</div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">RATING</span><input type="text" inputMode="decimal" value="{{ tt.rating }}" onChange="{{ tt.onRating }}" style="border:none;background:transparent;width:5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">SLOPE</span><input type="text" inputMode="numeric" value="{{ tt.slope }}" onChange="{{ tt.onSlope }}" style="border:none;background:transparent;width:4ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">YDS</span><input type="text" inputMode="numeric" value="{{ tt.yards }}" placeholder="—" onChange="{{ tt.onYards }}" style="border:none;background:transparent;width:5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
                     </div>
                   </sc-for>
                 </div>
@@ -3900,12 +3901,13 @@ class Component extends DCLogic {
           return {
             name, isCurrent: name === s.courseName,
             sub: [c.location ? c.location.toUpperCase() : null, parTotal ? `PAR ${parTotal}` : null, `${teeNames.length} TEE${teeNames.length === 1 ? '' : 'S'}`].filter(Boolean).join(' · '),
-            expanded, teesLabel: expanded ? 'HIDE TEES' : 'TEES, RATINGS & SLOPES',
+            expanded, teesLabel: expanded ? 'HIDE TEES' : 'TEES, RATINGS & YARDS',
             onToggle: () => this.setState({clubExpanded: {...(s.clubExpanded || {}), [name]: !expanded}}),
             onPlay: () => { this.selectSavedCourse(name); this.goSetupStep(1); },
             onAskDelete: () => this.askDeleteClub(name),
             tees: teeNames.map(t => ({
-              tee: t, rating: c.tees[t].rating, slope: c.tees[t].slope,
+              tee: t, rating: c.tees[t].rating, slope: c.tees[t].slope, yards: c.tees[t].yards || '',
+              onYards: (e) => this.setLibraryTee(name, t, 'yards', e.target.value),
               onRating: (e) => this.setLibraryTee(name, t, 'rating', e.target.value),
               onSlope: (e) => this.setLibraryTee(name, t, 'slope', e.target.value)
             }))
