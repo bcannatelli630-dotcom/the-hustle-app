@@ -1040,9 +1040,9 @@ input, select, textarea { font-size:16px !important; }
             </div>
 
             <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border-radius:10px;padding:11px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);cursor:pointer;margin-bottom:6px;" onClick="{{ goClubs }}">
-                <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">Club Directory · {{ clubCountLabel }}</div>
-                <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">→</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#c8102e;border-radius:10px;padding:12px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);cursor:pointer;margin-bottom:6px;" onClick="{{ goClubs }}">
+                <div style="font:800 12px Archivo,sans-serif;color:#fff;letter-spacing:.3px;">CLUB DIRECTORY · {{ clubCountLabel }}</div>
+                <div style="font:800 13px Archivo,sans-serif;color:#fff;">→</div>
               </div>
             </sc-if>
 
@@ -1136,6 +1136,30 @@ input, select, textarea { font-size:16px !important; }
                 </div>
                 <div style="background:#0f2a4a;color:#fff;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;" onClick="{{ onAddPlayer }}">ADD PLAYER</div>
               </div>
+            </sc-if>
+
+            <sc-if value="{{ hasSavedPlayers }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:4px;" onClick="{{ onToggleSavedPlayers }}">
+                <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">SAVED PLAYERS · {{ savedPlayerCount }}</div>
+                <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;">{{ savedPlayersToggleLabel }}</div>
+              </div>
+              <sc-if value="{{ savedPlayersOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fff;border-radius:10px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+                  <sc-for list="{{ savedPlayerRows }}" as="sp" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #f3f1ea;">
+                      <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ sp.name }}</div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;flex:none;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" inputMode="decimal" value="{{ sp.index }}" onChange="{{ sp.onIndex }}" style="border:none;background:transparent;width:4.5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <sc-if value="{{ sp.canAdd }}" hint-placeholder-val="{{ true }}">
+                        <div style="font:800 10px Archivo,sans-serif;background:#0f2a4a;color:#fff;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ sp.onAdd }}">ADD</div>
+                      </sc-if>
+                      <sc-if value="{{ sp.onRoster }}" hint-placeholder-val="{{ false }}">
+                        <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;flex:none;">PLAYING</div>
+                      </sc-if>
+                      <div style="font:800 14px Archivo,sans-serif;color:#c8102e;cursor:pointer;padding:0 2px;flex:none;" onClick="{{ sp.onAskRemove }}">×</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
             </sc-if>
 
             <sc-if value="{{ canAddMore }}" hint-placeholder-val="{{ true }}">
@@ -1281,11 +1305,29 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <sc-if value="{{ savedPlayerAskOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:45;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Remove saved player?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ savedPlayerAskName }} will no longer fill in when you type their name, on every phone. This doesn't change any rounds in History.</div>
+          <div style="display:flex;gap:8px;">
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onCancelSavedPlayer }}">CANCEL</div>
+            <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onConfirmSavedPlayer }}">REMOVE</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ clubDeleteAsk }}" hint-placeholder-val="{{ false }}">
       <div style="position:fixed;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:45;padding:24px;">
         <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;">
           <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Delete this club?</div>
           <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ clubDeleteName }} will be removed from the Club Directory, along with its tees, ratings and slopes. You'll have 30 seconds to restore it.</div>
+          <input type="password" value="{{ clubDeletePw }}" onChange="{{ onClubDeletePw }}" placeholder="Enter your login password" style="width:100%;box-sizing:border-box;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 13px Archivo,sans-serif;outline:none;margin:-6px 0 8px;"/>
+          <sc-if value="{{ clubDeletePwError }}" hint-placeholder-val="{{ false }}">
+            <div style="font:700 11px Archivo,sans-serif;color:#c8102e;margin-bottom:8px;">Incorrect password.</div>
+          </sc-if>
+          <div style="height:6px;"></div>
           <div style="display:flex;gap:8px;">
             <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onCancelClubDelete }}">CANCEL</div>
             <div style="flex:1;text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onConfirmClubDelete }}">DELETE</div>
@@ -1785,8 +1827,10 @@ class Component extends DCLogic {
       } catch(e){}
     }, 800);
   }
-  askDeleteClub(name){ this.setState({clubDeleteName: name}); }
+  askDeleteClub(name){ this.setState({clubDeleteName: name, clubDeletePw: '', clubDeletePwError: false}); }
   confirmDeleteClub(){
+    if ((this.state.clubDeletePw || '') !== getSitePassword()){ this.setState({clubDeletePwError: true}); return; }
+    this.setState({clubDeletePw: '', clubDeletePwError: false});
     const name = this.state.clubDeleteName;
     const course = (this.state.courseLibrary || {})[name];
     if (!course){ this.setState({clubDeleteName: null}); return; }
@@ -1880,7 +1924,96 @@ class Component extends DCLogic {
   // again without resetting your whole setup.
   // Saves everyone on the roster (latest index and tee) to this phone's player list,
   // so their names autofill next time, including players added on another phone.
+  // Saved players: one record per name (matched ignoring capitals and spaces), so a
+  // name is spelled the same every round while its index updates. Kept on this phone
+  // and backed up to Supabase so every phone has the same list.
+  playerKey(name){ return (name || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+  savedPlayerName(name){
+    const k = this.playerKey(name);
+    const hit = (this.state.knownPlayers || []).find(p => this.playerKey(p.name) === k);
+    return hit ? hit.name : (name || '').trim();
+  }
+  persistPlayers(known, dead){
+    known = known.slice(0, 150);
+    try {
+      localStorage.setItem('hustle_known_players', JSON.stringify(known));
+      localStorage.setItem('hustle_player_tombstones', JSON.stringify(dead || {}));
+    } catch(e){}
+    this.setState({knownPlayers: known, playerTombstones: dead || {}}, () => this.pushPlayers());
+  }
+  savePlayerRecord(name, index, tee){
+    const k = this.playerKey(name);
+    if (!k) return;
+    const known = (this.state.knownPlayers || []).slice();
+    const i = known.findIndex(p => this.playerKey(p.name) === k);
+    const prev = i >= 0 ? known[i] : null;
+    const rec = {name: prev ? prev.name : name.trim(), index, tee: tee || (prev && prev.tee) || 'White', updatedAt: Date.now()};
+    if (prev && prev.index === rec.index && prev.tee === rec.tee) return;
+    if (i >= 0) known.splice(i, 1);
+    known.unshift(rec);
+    const dead = {...(this.state.playerTombstones || {})}; delete dead[k];
+    this.persistPlayers(known, dead);
+  }
+  removeSavedPlayer(name){
+    const k = this.playerKey(name);
+    const known = (this.state.knownPlayers || []).filter(p => this.playerKey(p.name) !== k);
+    this.persistPlayers(known, {...(this.state.playerTombstones || {}), [k]: Date.now()});
+    this.setState({savedPlayerAsk: null});
+  }
+  mergePlayers(a, aDead, b, bDead){
+    const dead = {...(aDead || {})};
+    Object.entries(bDead || {}).forEach(([k,t]) => { if (!dead[k] || t > dead[k]) dead[k] = t; });
+    const by = {};
+    [...(a || []), ...(b || [])].forEach(p => {
+      if (!p || !p.name) return;
+      const k = this.playerKey(p.name);
+      if (!by[k] || (p.updatedAt || 0) > (by[k].updatedAt || 0)) by[k] = {...p, name: by[k] ? by[k].name : p.name};
+    });
+    Object.keys(by).forEach(k => { if (dead[k] && dead[k] >= (by[k].updatedAt || 0)) delete by[k]; else delete dead[k]; });
+    const list = Object.values(by).sort((x,y) => (y.updatedAt || 0) - (x.updatedAt || 0));
+    return {list, dead};
+  }
+  async loadPlayers(){
+    if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
+    try {
+      const r = await fetch(`${SYNC_ENDPOINT}?group=player-directory`);
+      const j = await r.json();
+      const rem = (j && j.data) || {};
+      const m = this.mergePlayers(this.state.knownPlayers, this.state.playerTombstones, rem.players, rem.tombstones);
+      this.persistPlayers(m.list, m.dead);
+    } catch(e){ /* offline: this phone's list still works */ }
+  }
+  pushPlayers(){
+    if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
+    if (this._playersPushTimer) clearTimeout(this._playersPushTimer);
+    this._playersPushTimer = setTimeout(async () => {
+      let list = this.state.knownPlayers || [], dead = this.state.playerTombstones || {};
+      try {
+        const r = await fetch(`${SYNC_ENDPOINT}?group=player-directory`);
+        const j = await r.json();
+        const rem = (j && j.data) || {};
+        const m = this.mergePlayers(list, dead, rem.players, rem.tombstones);
+        list = m.list; dead = m.dead;
+        if (stableStr(list) !== stableStr(this.state.knownPlayers || [])){
+          try {
+            localStorage.setItem('hustle_known_players', JSON.stringify(list));
+            localStorage.setItem('hustle_player_tombstones', JSON.stringify(dead));
+          } catch(e){}
+          this.setState({knownPlayers: list, playerTombstones: dead});
+        }
+      } catch(e){}
+      try {
+        await fetch(`${SYNC_ENDPOINT}?group=player-directory`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({key: SYNC_WRITE_KEY, group: 'player-directory', payload: {t: Date.now(), data: {players: list, tombstones: dead}}})
+        });
+      } catch(e){}
+    }, 900);
+  }
   rememberRoster(){
+    (this.state.roster || []).forEach(p => this.savePlayerRecord(p.name, p.index, p.tee));
+  }
+  rememberRosterOld(){
     let known = (this.state.knownPlayers || []).slice();
     this.state.roster.forEach(p => {
       if (!p.name) return;
@@ -1948,7 +2081,8 @@ class Component extends DCLogic {
     if (typeof window !== 'undefined') window.scrollTo(0, 0);
     try {
       const saved = JSON.parse(localStorage.getItem('hustle_known_players') || '[]');
-      if (Array.isArray(saved)) this.setState({knownPlayers: saved});
+      const dead = JSON.parse(localStorage.getItem('hustle_player_tombstones') || '{}') || {};
+      if (Array.isArray(saved)) this.setState({knownPlayers: saved, playerTombstones: dead});
     } catch(e){}
     // Always hydrate instantly from this device's last-known local snapshot first —
     // this alone means a closed tab / crashed browser never loses a round, even if
@@ -1989,6 +2123,7 @@ class Component extends DCLogic {
     this._clockTimer = setInterval(() => this.setState({currentTime: formatClockTime(new Date())}), 15000);
     if (!USE_LIVE_SYNC) return;
     this.loadDirectory();
+    this.loadPlayers();
     // If this phone has unsent edits from before it closed, send them first.
     if (this._hasUnsynced()) this.pushState(); else this.loadState();
     this._syncTimer = setInterval(() => {
@@ -3359,7 +3494,11 @@ class Component extends DCLogic {
     const n = parseFloat(val);
     const roster = this.state.roster.map(p => p.id === id ? {...p, index: isNaN(n) ? p.index : n} : p);
     this.setState({roster});
+  }  _syncSavedFromRoster(id){
+    const p = (this.state.roster || []).find(x => x.id === id);
+    if (p) this.savePlayerRecord(p.name, p.index, p.tee);
   }
+
   updatePlayerTee(id, tee){
     const roster = this.state.roster.map(p => p.id === id ? {...p, tee} : p);
     this.setState({roster});
@@ -3470,17 +3609,14 @@ class Component extends DCLogic {
     if (this.state.roster.length >= 15) return;
     if (!this.state.newName.trim()) return;
     const id = Math.max(0, ...this.state.roster.map(p=>p.id)) + 1;
-    const name = this.state.newName.trim();
+    const name = this.savedPlayerName(this.state.newName.trim());
     const initials = name.split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
     const idx = parseFloat(this.state.newIndex) || 0;
     const tee = this.state.newTee || 'White';
     const roster = [...this.state.roster, {id, name, initials, index: idx, tee, active:true}];
 
-    const knownPlayers = this.state.knownPlayers.filter(k => k.name.toLowerCase() !== name.toLowerCase());
-    knownPlayers.unshift({name, index: idx, tee});
-    try { localStorage.setItem('hustle_known_players', JSON.stringify(knownPlayers.slice(0, 50))); } catch(e){}
-
-    this.setState({roster, knownPlayers, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false, showNameSuggestions:false});
+    this.savePlayerRecord(name, idx, tee);
+    this.setState({roster, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false, showNameSuggestions:false});
   }
   selectKnownPlayer(p){
     this.setState({newName:p.name, newIndex:String(p.index || ''), newTee:p.tee || 'White', showNameSuggestions:false});
@@ -3785,8 +3921,8 @@ class Component extends DCLogic {
         const full = !on && gmCounts[k] >= 5;
         return {label:k, bg: on ? '#0f2a4a' : '#f3f1ea', color: on ? '#fff' : (full ? '#c9c3b6' : '#1a2733'), onClick: () => this.setPlayerGroup(p.id, k)};
       }),
-      onIndexChange: (e)=>this.updatePlayerIndex(p.id, e.target.value),
-      onTeeChange: (e)=>this.updatePlayerTee(p.id, e.target.value)
+      onIndexChange: (e)=>{ this.updatePlayerIndex(p.id, e.target.value); setTimeout(() => this._syncSavedFromRoster(p.id), 0); },
+      onTeeChange: (e)=>{ this.updatePlayerTee(p.id, e.target.value); setTimeout(() => this._syncSavedFromRoster(p.id), 0); }
     }));
 
     const courseQuery = s.courseSearch.trim();
@@ -3919,7 +4055,9 @@ class Component extends DCLogic {
           clubList, noClubs: names.length === 0,
           clubCountLabel: `${names.length} CLUB${names.length === 1 ? '' : 'S'}`,
           clubDeleteAsk: !!s.clubDeleteName, clubDeleteName: s.clubDeleteName || '',
-          onCancelClubDelete: () => this.setState({clubDeleteName: null}),
+          onCancelClubDelete: () => this.setState({clubDeleteName: null, clubDeletePw: '', clubDeletePwError: false}),
+          clubDeletePw: s.clubDeletePw || '', clubDeletePwError: !!s.clubDeletePwError,
+          onClubDeletePw: (e) => this.setState({clubDeletePw: e.target.value, clubDeletePwError: false}),
           onConfirmClubDelete: () => this.confirmDeleteClub(),
           clubUndoActive: !!undo && secs > 0, clubUndoSeconds: secs,
           clubUndoText: undo ? `${undo.name} deleted` : '',
@@ -3936,6 +4074,33 @@ class Component extends DCLogic {
       showNav: true,
       viewTabs,
       storageError: !!s.storageError,
+      ...(() => {
+        const known = s.knownPlayers || [];
+        const onRosterKeys = new Set((s.roster || []).map(p => this.playerKey(p.name)));
+        const full = (s.roster || []).length >= 12;
+        return {
+          hasSavedPlayers: known.length > 0,
+          savedPlayerCount: known.length,
+          savedPlayersOpen: !!s.savedPlayersOpen,
+          savedPlayersToggleLabel: s.savedPlayersOpen ? 'HIDE' : 'SHOW',
+          onToggleSavedPlayers: () => this.setState({savedPlayersOpen: !s.savedPlayersOpen}),
+          savedPlayerRows: known.slice().sort((a,b) => a.name.localeCompare(b.name)).map(p => {
+            const on = onRosterKeys.has(this.playerKey(p.name));
+            return {
+              name: p.name, index: p.index == null ? '' : p.index, onRoster: on, canAdd: !on && !full,
+              onIndex: (e) => {
+                const v = parseFloat(e.target.value);
+                this.savePlayerRecord(p.name, isNaN(v) ? e.target.value : v, p.tee);
+              },
+              onAdd: () => this.setState({newName: p.name, newIndex: String(p.index ?? ''), newTee: p.tee || 'White'}, () => this.addPlayer()),
+              onAskRemove: () => this.setState({savedPlayerAsk: p.name})
+            };
+          }),
+          savedPlayerAskOpen: !!s.savedPlayerAsk, savedPlayerAskName: s.savedPlayerAsk || '',
+          onCancelSavedPlayer: () => this.setState({savedPlayerAsk: null}),
+          onConfirmSavedPlayer: () => this.removeSavedPlayer(s.savedPlayerAsk)
+        };
+      })(),
       hasSetupNotice: !!s.setupNotice,
       setupNoticeTitle: s.setupNotice ? s.setupNotice.title : '', setupNoticeBody: s.setupNotice ? s.setupNotice.body : '',
       onDismissSetupNotice: () => this.setState({setupNotice: null}),
