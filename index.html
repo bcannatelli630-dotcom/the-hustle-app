@@ -788,12 +788,17 @@ input, select, textarea { font-size:16px !important; }
           </sc-if>
 
           <div>
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">GROSS TOTALS</div>
-            <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">GROSS SCORES</div>
+            <div style="background:#fff;border-radius:12px;padding:6px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;padding:6px 0;border-bottom:1px solid #f3f1ea;font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">
+                <div></div><div style="text-align:right;">OUT</div><div style="text-align:right;">IN</div><div style="text-align:right;">TOTAL</div>
+              </div>
               <sc-for list="{{ settleGrossTotals }}" as="gt" hint-placeholder-count="4">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;align-items:center;padding:9px 0;border-bottom:1px solid #f3f1ea;">
                   <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ gt.name }}</div>
-                  <div style="font:800 14px Georgia,serif;color:#0f2a4a;">{{ gt.gross }}</div>
+                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.out }}</div>
+                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.inn }}</div>
+                  <div style="text-align:right;font:800 15px Georgia,serif;color:#0f2a4a;">{{ gt.gross }}</div>
                 </div>
               </sc-for>
             </div>
@@ -822,9 +827,28 @@ input, select, textarea { font-size:16px !important; }
 
             <div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">BREAKDOWN</div>
-              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-                <sc-for list="{{ settleLines }}" as="l" hint-placeholder-count="3">
-                  <div style="padding:9px 0;border-bottom:1px solid #f3f1ea;font:600 11px Archivo,sans-serif;color:#5a6672;">{{ l.text }}</div>
+              <div style="background:#fff;border-radius:12px;padding:2px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleCats }}" as="c" hint-placeholder-count="3">
+                  <div style="border-bottom:1px solid #f3f1ea;">
+                    <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer;" onClick="{{ c.toggle }}">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">{{ c.key }}</div>
+                        <div style="font:600 12px Archivo,sans-serif;color:#5a6672;margin-top:2px;">{{ c.summary }}</div>
+                      </div>
+                      <div style="font:800 13px Georgia,serif;color:#0f2a4a;text-align:right;">{{ c.net }}</div>
+                      <div style="font:700 12px Archivo,sans-serif;color:#98928a;width:12px;text-align:center;">{{ c.chev }}</div>
+                    </div>
+                    <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 0 10px;display:flex;flex-direction:column;gap:6px;">
+                        <sc-for list="{{ c.rows }}" as="r" hint-placeholder-count="2">
+                          <div style="display:flex;gap:10px;align-items:baseline;background:#fbfaf7;border-radius:8px;padding:8px 10px;">
+                            <div style="font:800 11px Archivo,sans-serif;color:#98928a;flex:none;min-width:24px;">{{ r.hole }}</div>
+                            <div style="font:600 12px Archivo,sans-serif;color:#1a2733;text-wrap:pretty;">{{ r.detail }}</div>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
                 </sc-for>
               </div>
             </div>
@@ -1507,6 +1531,23 @@ input, select, textarea { font-size:16px !important; }
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ sweepDeadToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
       </div>
+      </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ GREENIE CARRYOVER ============ -->
+    <sc-if value="{{ showCarry }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
+        <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">{{ carryToast.title }}</div>
+        <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;text-wrap:pretty;">{{ carryToast.line }}</div>
+        <sc-if value="{{ carryToast.hasSweep }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(169,189,212,.25);">
+            <div style="font:800 10px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">GREENIE SWEEPS STILL ALIVE</div>
+            <div style="font:600 13px Archivo,sans-serif;color:#dfe7f0;margin-top:3px;text-wrap:pretty;">{{ carryToast.sweepLine }}</div>
+          </div>
+        </sc-if>
+        <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
       </div>
       </div>
     </sc-if>
@@ -2693,6 +2734,27 @@ class Component extends DCLogic {
       }
       if (next.count < 2 && s.sweepAnnouncedCount) patch.sweepAnnouncedCount = 0;
     }
+    // Modified greenies: alert when a par-3 greenie carries to the next hole.
+    if (this.greenieMode() === 'modified'){
+      const {carryAt} = this.resolveGreenies();
+      const keys = [];
+      Object.keys(carryAt).map(Number).sort((a,b)=>a-b).forEach(at => carryAt[at].forEach(h => keys.push(`${h}>${at}`)));
+      const prev = (s.carryAnnounced || '').split(',').filter(Boolean);
+      const fresh = keys.filter(k => !prev.includes(k));
+      const joined = keys.join(',');
+      if (joined !== (s.carryAnnounced || '')) patch.carryAnnounced = joined;
+      if (fresh.length && !activeNotif){
+        const [origin, to] = fresh[fresh.length - 1].split('>').map(Number);
+        const alive = !next.dead && next.candidate && next.count >= 1;
+        activeNotif = {kind:'greenieCarry', origin, from: to - 1, to,
+          sweepName: alive ? nameOf(next.candidate) : '', sweepCount: next.count, sweepTotal: next.totalPar3};
+      }
+      if (quiet && fresh.length){
+        // Hold until Save & Next Hole, like the other greenie alerts.
+        patch.carryAnnounced = keys.filter(k => prev.includes(k)).join(',');
+        if (patch.carryAnnounced === (s.carryAnnounced || '')) delete patch.carryAnnounced;
+      }
+    }
     if (quiet && activeNotif){
       // Hold the alert (and leave its "announced" flag unset) until Save & Next.
       activeNotif = null;
@@ -3320,14 +3382,22 @@ class Component extends DCLogic {
     const mode = this.state.scoringMode;
     const ledger = {};
     active.forEach(p => { ledger[p.id] = 0; });
-    const lines = [];
+    const lines = [], entries = [];
+    // Each pushed line also records the ledger change since the previous line so the
+    // settle screen can total money by category.
+    let snap = {...ledger};
+    const recorder = (prefix) => ({ push: (t) => {
+      const delta = {};
+      Object.keys(ledger).forEach(k => { delta[k] = ledger[k] - (snap[k] || 0); });
+      snap = {...ledger};
+      lines.push(prefix ? `${prefix} · ${t}` : t);
+      entries.push({raw: t, prefix, delta});
+    }});
     const groups = this.activeGroups(active);
     groups.forEach(g => {
-      const sub = [];
-      this.settleIndividualGames(g.players, ledger, sub, mode);
-      sub.forEach(l => lines.push(groups.length > 1 ? `${this.groupName(g.key).toUpperCase()} · ${l}` : l));
+      this.settleIndividualGames(g.players, ledger, recorder(groups.length > 1 ? this.groupName(g.key).toUpperCase() : ''), mode);
     });
-    this.settleGroupMatch(active, ledger, lines, mode);
+    this.settleGroupMatch(active, ledger, recorder(''), mode);
 
     const netRows = active.map(p => ({id:p.id, name:p.name, amount: ledger[p.id] || 0}))
       .sort((a,b) => b.amount - a.amount);
@@ -3348,7 +3418,40 @@ class Component extends DCLogic {
       if (debtors[di].amount <= 0.001) di++;
     }
 
-    return {netRows, transactions, lines};
+    return {netRows, transactions, lines, entries};
+  }
+
+  settleCategories(entries){
+    const active = this.state.roster.filter(p => p.active);
+    const first = id => { const p = active.find(x => String(x.id) === String(id)); return p ? p.name.split(' ')[0] : ''; };
+    const plural = {GREENIE:'GREENIES','GREENIE SWEEP':'GREENIES',SANDY:'SANDIES',POLIE:'POLIES',CHIPPY:'CHIPPIES',BARKY:'BARKIES',SKINS:'SKINS'};
+    const money = v => '$' + (Math.round(Math.abs(v)*100)/100).toFixed(Math.abs(v) % 1 ? 2 : 0);
+    const cats = [], byKey = {};
+    entries.forEach(e => {
+      const m = e.raw.match(/^(.*?)(\s#|\s·|:)/);
+      const head = (m ? m[1] : e.raw).trim();
+      const key = plural[head] || head;
+      const colon = e.raw.indexOf(':');
+      let hole = colon > 0 ? e.raw.slice(head.length, colon).trim().replace(/^·\s*/, '') : '';
+      hole = hole.replace(/\(carried to (#\d+)\)/, '→ $1').trim();
+      if (head === 'GREENIE SWEEP') hole = 'SWEEP';
+      if (e.prefix) hole = (e.prefix + ' ' + hole).trim();
+      const detail = colon > 0 ? e.raw.slice(colon + 1).trim() : e.raw;
+      let c = byKey[key];
+      if (!c){ c = byKey[key] = {key, wins:{}, totals:{}, rows:[]}; cats.push(c); }
+      Object.keys(e.delta).forEach(id => {
+        c.totals[id] = (c.totals[id] || 0) + e.delta[id];
+        if (e.delta[id] > 0.001 && head !== 'GREENIE SWEEP') c.wins[id] = (c.wins[id] || 0) + 1;
+      });
+      c.rows.push({hole, detail});
+    });
+    return cats.map(c => {
+      const winIds = Object.keys(c.wins).sort((a,b) => c.wins[b] - c.wins[a]);
+      const summary = winIds.length ? winIds.map(id => `${first(id)} ${c.wins[id]}`).join(' · ') : (c.rows[0] ? c.rows[0].detail : '');
+      const ups = Object.keys(c.totals).filter(id => c.totals[id] > 0.001).sort((a,b) => c.totals[b] - c.totals[a]);
+      const net = ups.length ? ups.map(id => `${first(id)} +${money(c.totals[id])}`).join(', ') : (Object.keys(c.totals).length && winIds.length ? 'Even' : '');
+      return {key: c.key, summary, net, rows: c.rows};
+    });
   }
 
   toggleGame(key){
@@ -4176,9 +4279,14 @@ class Component extends DCLogic {
     const settleTransactions = settlement.transactions.map(t => ({
       text: `${t.from} pays ${t.to} $${t.amount.toFixed(2)}`
     }));
-    const settleLines = settlement.lines.map(l => ({text:l}));
+    const settleCats = this.settleCategories(settlement.entries).map(c => {
+      const open = !!(s.settleOpen || {})[c.key];
+      return {...c, open, chev: open ? '▾' : '▸', hasHole: true,
+        toggle: () => this.setState(st => ({settleOpen: {...(st.settleOpen || {}), [c.key]: !(st.settleOpen || {})[c.key]}}))};
+    });
     const standingsForGross = this.computeStandings();
-    const settleGrossTotals = standingsForGross.map(r => ({name:r.name, gross:r.gross})).sort((a,b)=>a.gross-b.gross);
+    const settleGrossTotals = standingsForGross.map(r => ({name:r.name, gross:r.gross,
+      out: r.front || '–', inn: r.back || '–'})).sort((a,b)=>a.gross-b.gross);
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
 
     const navItems = this.buildNavItems();
@@ -4303,7 +4411,7 @@ class Component extends DCLogic {
       })(),
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(),
-      settleNetRows, settleTransactions, settleLines, settleGrossTotals, hasSettleData,
+      settleNetRows, settleTransactions, settleCats, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
       storageError: !!s.storageError,
@@ -4521,6 +4629,17 @@ class Component extends DCLogic {
           : s.activeNotif.reason === 'none' ? `Nobody hit the green on #${s.activeNotif.hole}, so nobody can sweep the par 3s`
           : (s.activeNotif.priorName ? `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so ${s.activeNotif.priorName}'s sweep is dead` : `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`)
       } : {line:''},
+      showCarry: !!s.activeNotif && s.activeNotif.kind==='greenieCarry',
+      carryToast: s.activeNotif && s.activeNotif.kind==='greenieCarry' ? (() => {
+        const n = s.activeNotif;
+        const again = n.from !== n.origin;
+        return {
+          title: again ? `#${n.origin} GREENIE CARRIES AGAIN · #${n.from} → #${n.to}` : `GREENIE CARRIES OVER · #${n.from} → #${n.to}`,
+          line: `Nobody won the #${n.origin} greenie${again ? ` on #${n.from}` : ''}. It's live on #${n.to}.`,
+          hasSweep: !!n.sweepName,
+          sweepLine: n.sweepName ? `${n.sweepName} has won ${n.sweepCount} of ${n.sweepTotal} par 3s. If ${n.sweepName.split(' ')[0]} wins this carryover, the sweep stays alive.` : ''
+        };
+      })() : {title:'', line:'', hasSweep:false, sweepLine:''},
       showPress: !!s.activeNotif && s.activeNotif.kind==='press',
       pressToast: s.activeNotif && s.activeNotif.kind==='press' ? {
         line: `${s.activeNotif.name} called a press on hole ${s.activeNotif.hole}`
