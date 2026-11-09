@@ -1046,18 +1046,21 @@ input, select, textarea { font-size:16px !important; }
             </sc-if>
 
             <sc-if value="{{ courseSearchOpen }}" hint-placeholder-val="{{ false }}">
-              <input placeholder="Club name, then city or state (e.g. san jose ca)" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
+              <input placeholder="Club name (e.g. san jose country club)" value="{{ courseSearch }}" onChange="{{ onCourseSearchChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:10px 12px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;"/>
               <sc-if value="{{ courseSearchLoading }}" hint-placeholder-val="{{ false }}">
                 <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;">Searching GolfCourseAPI…</div>
               </sc-if>
               <sc-if value="{{ courseSearchError }}" hint-placeholder-val="{{ false }}">
                 <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;">Course lookup unavailable — check your connection and try again.</div>
               </sc-if>
+              <sc-if value="{{ courseSearchCapped }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;line-height:1.4;">This phone has done 25 course searches today, so it stopped to protect GolfCourseAPI's daily limit. Courses in the Club Directory still work; searching opens up again tomorrow.</div>
+              </sc-if>
               <sc-if value="{{ courseSearchRateLimited }}" hint-placeholder-val="{{ false }}">
                 <div style="font:600 11px Archivo,sans-serif;color:#c8102e;padding:4px 2px;line-height:1.4;">GolfCourseAPI's daily search limit is used up. Courses in the Club Directory still work; new searches will work again tomorrow.</div>
               </sc-if>
               <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;line-height:1.4;">No courses found. Start with a word from the club's name (e.g. "cordevalle", "pebble"), then add the city or state to narrow it.</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;line-height:1.4;">No courses found. Try the club's name the way GolfCourseAPI lists it (e.g. "san jose country club", "cordevalle"), then add the city or state to narrow it.</div>
               </sc-if>
               <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
                 <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
@@ -3280,54 +3283,57 @@ class Component extends DCLogic {
     if (saveToDirectory) this.saveToLibrary(courseObj.name, fixed);
     this.setState({liveCourses, courseName: courseObj.name, roster: this.remapRosterTees(fixed), courseSearchOpen:false, courseSearch:'', courseSearchResults:[]});
   }
-  // GolfCourseAPI has a daily request limit, so typing doesn't search on every
-  // keystroke. The first word (3+ letters) triggers one search; every word after
-  // that (more of the name, a city, a state) narrows those results on the phone.
-  // A new search only happens if the first word changes, or if narrowing leaves
-  // nothing and the full phrase hasn't been tried yet.
+  // Search sends the whole phrase you typed (like it always used to), once you
+  // pause typing. Protection for GolfCourseAPI's daily limit:
+  //  - nothing is sent until you stop typing for about a second,
+  //  - adding words to a search that already has matches just narrows the list,
+  //  - every answer is remembered on the phone, so repeating a search costs nothing,
+  //  - the phone stops itself at 25 searches a day.
   onCourseSearchChange(e){
     const val = e.target.value;
     this.setState({courseSearch: val});
     if (this._courseSearchTimer) clearTimeout(this._courseSearchTimer);
     const tokens = queryTokens(val);
-    const first = tokens[0] || '';
-    if (first.length < 3){ this._courseSearchKey = null; this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false}); return; }
-    this._courseSearchTried = this._courseSearchTried || {};
-    const sameBase = this._courseSearchKey === first;
-    if (sameBase){
-      const narrowed = this.state.courseSearchResults.filter(c => tokens.every(t => courseHaystack(c).includes(t)));
-      const phrase = tokens.join(' ');
-      if (narrowed.length || this._courseSearchTried[phrase] || tokens.length < 2) return;
-      this.setState({courseSearchLoading:true, courseSearchError:false});
-      this._courseSearchTimer = setTimeout(() => this.runCourseSearch(phrase, first, true), 700);
+    const q = tokens.join(' ');
+    if (q.replace(/ /g, '').length < 3){
+      this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchCapped:false});
       return;
     }
-    this.setState({courseSearchLoading:true, courseSearchError:false, courseSearchRateLimited:false});
-    this._courseSearchTimer = setTimeout(() => this.runCourseSearch(first, first, false), 700);
+    const narrowed = (this.state.courseSearchResults || []).filter(c => tokens.every(t => courseHaystack(c).includes(t)));
+    if (this._lastCourseQuery && q.startsWith(this._lastCourseQuery) && narrowed.length){
+      this.setState({courseSearchLoading:false});
+      return;
+    }
+    this.setState({courseSearchLoading:true, courseSearchError:false, courseSearchRateLimited:false, courseSearchCapped:false});
+    this._courseSearchTimer = setTimeout(() => this.runCourseSearch(q), 1100);
   }
-  async runCourseSearch(query, baseKey, merge){
-    if (!USE_LIVE_SYNC || !COURSE_ENDPOINT){
-      this.setState({courseSearchLoading:false, courseSearchError:true});
+  async runCourseSearch(q){
+    if (!USE_LIVE_SYNC || !COURSE_ENDPOINT){ this.setState({courseSearchLoading:false, courseSearchError:true}); return; }
+    let cache = {};
+    try { cache = JSON.parse(localStorage.getItem('hustle_search_cache') || '{}') || {}; } catch(e){}
+    if (cache[q] && cache[q].length){
+      this._lastCourseQuery = q;
+      this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchResults: cache[q]});
       return;
     }
-    this._courseSearchTried = this._courseSearchTried || {};
-    this._courseSearchTried[query] = true;
-    const results = await this.searchCoursesLive(query);
-    if (results && results.rateLimited){
-      this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:true});
-      return;
+    const today = new Date().toDateString();
+    let count = {};
+    try { count = JSON.parse(localStorage.getItem('hustle_search_count') || '{}') || {}; } catch(e){}
+    if (count.day !== today) count = {day: today, n: 0};
+    if (count.n >= 25){ this.setState({courseSearchLoading:false, courseSearchCapped:true}); return; }
+    count.n++;
+    try { localStorage.setItem('hustle_search_count', JSON.stringify(count)); } catch(e){}
+    const results = await this.searchCoursesLive(q);
+    if (results && results.rateLimited){ this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:true}); return; }
+    if (results == null){ this.setState({courseSearchLoading:false, courseSearchError:true}); return; }
+    this._lastCourseQuery = q;
+    if (results.length){
+      cache[q] = results;
+      const keys = Object.keys(cache);
+      if (keys.length > 60) keys.slice(0, keys.length - 60).forEach(k => delete cache[k]);
+      try { localStorage.setItem('hustle_search_cache', JSON.stringify(cache)); } catch(e){}
     }
-    if (results == null){
-      this.setState({courseSearchLoading:false, courseSearchError:true});
-      return;
-    }
-    this._courseSearchKey = baseKey;
-    let list = results;
-    if (merge){
-      const seen = new Set(this.state.courseSearchResults.map(c => c.id));
-      list = this.state.courseSearchResults.concat(results.filter(c => !seen.has(c.id)));
-    }
-    this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchResults: list});
+    this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchResults: results});
   }
   // Search results are summaries; full tees/holes are fetched only for the course picked.
   async pickSearchResult(c, force){
@@ -3784,8 +3790,9 @@ class Component extends DCLogic {
 
     const courseQuery = s.courseSearch.trim();
     const qTokens = queryTokens(courseQuery);
-    const courseResults = (qTokens[0] || '').length < 3 ? [] : s.courseSearchResults
-      .filter(c => qTokens.every(t => courseHaystack(c).includes(t)))
+    const strictMatches = (s.courseSearchResults || []).filter(c => qTokens.every(t => courseHaystack(c).includes(t)));
+    // If no result has every word (e.g. "cc" for "Country Club"), show what the search found.
+    const courseResults = qTokens.join('').length < 3 ? [] : (strictMatches.length ? strictMatches : (s.courseSearchResults || []))
       .slice(0, 15)
       .map(c => ({
         name: c.name, isCurrent: c.name === s.courseName,
@@ -3795,7 +3802,7 @@ class Component extends DCLogic {
       }));
     const courseSearchLoading = s.courseSearchLoading;
     const courseSearchError = s.courseSearchError;
-    const showNoResults = !courseSearchLoading && !courseSearchError && !s.courseSearchRateLimited && (qTokens[0] || '').length >= 3 && courseResults.length === 0;
+    const showNoResults = !courseSearchLoading && !courseSearchError && !s.courseSearchRateLimited && !s.courseSearchCapped && qTokens.join('').length >= 3 && courseResults.length === 0;
     const currentCourseTees = Object.keys(this.course.tees).map(t => ({
       tee:t, rating:this.course.tees[t].rating, slope:this.course.tees[t].slope
     }));
@@ -4060,6 +4067,7 @@ class Component extends DCLogic {
       onCourseSearchChange: (e)=>this.onCourseSearchChange(e),
       courseSearchLoading, courseSearchError, showNoResults,
       courseSearchRateLimited: !!s.courseSearchRateLimited,
+      courseSearchCapped: !!s.courseSearchCapped,
       courseResults, currentCourseTees,
       roundTypes,
       isTournament: s.roundType === 'tournament',
