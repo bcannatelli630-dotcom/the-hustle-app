@@ -2464,7 +2464,7 @@ class Component extends DCLogic {
         activeNotif: {kind:'rrc', winner: winner ? winner.name : '', loser: loser ? loser.name : null}
       };
     }
-    this.setState({scores, ...extra}, () => { if (par === 3) this.refreshGreenieSweep(); });
+    this.setState({scores, ...extra}, () => this.refreshGreenieSweep());
   }
 
   wolfForHole(hole, active){
@@ -2550,51 +2550,72 @@ class Component extends DCLogic {
   // hole order every time — this is what makes it immune to holes being entered
   // out of order (e.g. tapping hole 14 before hole 2).
   computeGreenieSweep(){
+    // Walk the par 3s in hole order. A sweep needs ONE player to win the greenie on
+    // every par 3 AND par (or better) each of them. It dies the moment:
+    //  - the player marked closest to the pin doesn't par that hole,
+    //  - a different player wins a greenie, or
+    //  - a par 3 goes by with nobody marked closest (scores exist on a later hole).
+    // A par 3 that hasn't been finished yet stops the walk until it is.
     const course = this.course;
+    const total = this.totalHolesForRound();
     const par3Holes = [];
-    // Only par 3s in the holes being played (a 9-hole round has fewer).
-    for (let h = 1; h <= this.totalHolesForRound(); h++){ if (course.par[h-1] === 3) par3Holes.push(h); }
-    let candidate = null, count = 0, dead = false, lastResolvedHole = null, lastResolvedWinner = null;
+    for (let h = 1; h <= total; h++){ if (course.par[h-1] === 3) par3Holes.push(h); }
+    const active = (this.state.roster || []).filter(p => p.active);
+    const playedAfter = h => active.some(p => { const sc = this.state.scores[p.id] || {}; for (let x = h + 1; x <= total; x++) if (sc[x] != null) return true; return false; });
+    let candidate = null, count = 0, dead = false, resolved = 0;
+    let lastResolvedHole = null, lastResolvedWinner = null, deadReason = null, deadHole = null, deadWho = null, priorWho = null;
     for (const h of par3Holes){
       const winnerId = this.state.greenieWinners[h];
-      if (!winnerId) continue;
+      if (!winnerId){
+        if (!playedAfter(h)) break;
+        resolved++;
+        if (!dead){ dead = true; deadReason = 'none'; deadHole = h; priorWho = candidate; candidate = null; count = 0; }
+        continue;
+      }
       const g = (this.state.scores[winnerId] || {})[h];
-      if (g == null || g > course.par[h-1]) continue; // must par (or better) to validly claim it
-      lastResolvedHole = h; lastResolvedWinner = winnerId;
+      if (g == null) break;
+      resolved++;
       if (dead) continue;
+      if (g > course.par[h-1]){
+        dead = true; deadReason = 'bogey'; deadHole = h; deadWho = winnerId; priorWho = candidate; candidate = null; count = 0;
+        continue;
+      }
+      lastResolvedHole = h; lastResolvedWinner = winnerId;
       if (candidate == null){ candidate = winnerId; count = 1; }
       else if (candidate === winnerId){ count++; }
-      else { dead = true; candidate = null; count = 0; }
+      else { dead = true; deadReason = 'other'; deadHole = h; deadWho = winnerId; priorWho = candidate; candidate = null; count = 0; }
     }
-    return {candidate, count, dead, totalPar3: par3Holes.length, lastResolvedHole, lastResolvedWinner};
+    return {candidate, count, dead, resolved, totalPar3: par3Holes.length, lastResolvedHole, lastResolvedWinner, deadReason, deadHole, deadWho, priorWho};
   }
 
   refreshGreenieSweep(){
     if (!this.state.junk.greenies || !this.state.junk.greenies.active) return;
-    const prevCandidate = this.state.sweepCandidate, prevCount = this.state.sweepCount, prevDead = this.state.sweepDead;
+    const s = this.state;
     const next = this.computeGreenieSweep();
-    if (next.candidate === prevCandidate && next.count === prevCount && next.dead === prevDead) return;
-
+    const nameOf = id => { const p = (s.roster || []).find(x => x.id === id); return p ? p.name : ''; };
+    const patch = {sweepCandidate: next.candidate, sweepCount: next.count, sweepDead: next.dead};
     let activeNotif = null;
-    if (next.dead && !prevDead){
-      const priorHolder = this.state.roster.find(p => p.id === prevCandidate);
-      const newWinner = this.state.roster.find(p => p.id === next.lastResolvedWinner);
-      activeNotif = {kind:'sweepDead', priorName: priorHolder ? priorHolder.name : '', name: newWinner ? newWinner.name : ''};
-    } else if (!next.dead && next.candidate && next.count > prevCount){
-      const winner = this.state.roster.find(p => p.id === next.candidate);
-      const winnerName = winner ? winner.name : '';
-      if (next.totalPar3 > 0 && next.count === next.totalPar3){
-        activeNotif = {kind:'sweep', name: winnerName, count: next.count, total: next.totalPar3};
-      } else if (next.count >= 2){
-        activeNotif = {kind:'sweepAlive', name: winnerName, count: next.count, total: next.totalPar3};
+    if (next.dead){
+      // Announce once, starting with the second par 3 (a sweep that dies on the
+      // first par 3 is announced when the second one is finished).
+      if (!s.sweepDeadAnnounced && next.resolved >= 2){
+        activeNotif = {kind:'sweepDead', reason: next.deadReason, hole: next.deadHole, name: nameOf(next.deadWho), priorName: nameOf(next.priorWho)};
+        patch.sweepDeadAnnounced = true;
       }
-      // count === 1 (first valid greenie of the round) stays silent by design
+    } else {
+      if (s.sweepDeadAnnounced) patch.sweepDeadAnnounced = false;
+      if (next.candidate && next.count >= 2 && next.count !== s.sweepAnnouncedCount){
+        const winnerName = nameOf(next.candidate);
+        activeNotif = next.count === next.totalPar3
+          ? {kind:'sweep', name: winnerName, count: next.count, total: next.totalPar3}
+          : {kind:'sweepAlive', name: winnerName, count: next.count, total: next.totalPar3};
+        patch.sweepAnnouncedCount = next.count;
+      }
+      if (next.count < 2 && s.sweepAnnouncedCount) patch.sweepAnnouncedCount = 0;
     }
-
-    this.setState({
-      sweepCandidate: next.candidate, sweepCount: next.count, sweepDead: next.dead,
-      ...(activeNotif ? {activeNotif} : {})
-    });
+    const same = Object.keys(patch).every(k => s[k] === patch[k]);
+    if (same && !activeNotif) return;
+    this.setState({...patch, ...(activeNotif ? {activeNotif} : {})});
   }
 
   togglePressPicker(){ this.setState({pressPickerOpen: !this.state.pressPickerOpen, pressMode:'individual', pressAssign:{}}); }
@@ -2735,7 +2756,7 @@ class Component extends DCLogic {
       if (!scores[p.id]) scores[p.id] = {};
       if (scores[p.id][holeNum] == null){ scores[p.id][holeNum] = par; changed = true; }
     });
-    if (changed) this.setState({scores}, () => { if (par === 3) this.refreshGreenieSweep(); });
+    if (changed) this.setState({scores}, () => this.refreshGreenieSweep());
   }
 
   saveAdvance(){
@@ -4345,7 +4366,9 @@ class Component extends DCLogic {
       } : {name:'', line:''},
       showSweepDead: !!s.activeNotif && s.activeNotif.kind==='sweepDead',
       sweepDeadToast: s.activeNotif && s.activeNotif.kind==='sweepDead' ? {
-        line: `${s.activeNotif.name} takes a greenie — ${s.activeNotif.priorName}'s sweep is dead`
+        line: s.activeNotif.reason === 'bogey' ? `${s.activeNotif.name} was closest on #${s.activeNotif.hole} but didn't make par, so no greenie and no sweep`
+          : s.activeNotif.reason === 'none' ? `No greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`
+          : (s.activeNotif.priorName ? `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so ${s.activeNotif.priorName}'s sweep is dead` : `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`)
       } : {line:''},
       showPress: !!s.activeNotif && s.activeNotif.kind==='press',
       pressToast: s.activeNotif && s.activeNotif.kind==='press' ? {
