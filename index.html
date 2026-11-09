@@ -1207,7 +1207,20 @@ input, select, textarea { font-size:16px !important; }
                   <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ rp.label }}</div>
                 </div>
               </sc-for>
-              <sc-for list="{{ ruleCustoms }}" as="rc" hint-placeholder-count="3">
+              <sc-for list="{{ ruleCustoms }}" as="rc" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;min-width:0;" onClick="{{ rc.onToggle }}">
+                    <div style="width:18px;height:18px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ rc.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ rc.check }}</div>
+                    <div style="font:700 12px Archivo,sans-serif;color:#1a2733;overflow-wrap:anywhere;">{{ rc.text }}</div>
+                  </div>
+                  <div style="font:800 14px Archivo,sans-serif;color:#c8102e;cursor:pointer;padding:0 2px;flex:none;" onClick="{{ rc.onRemove }}">×</div>
+                </div>
+              </sc-for>
+              <div style="display:flex;gap:8px;">
+                <input value="{{ newRuleText }}" placeholder="Add another rule" onChange="{{ onNewRuleText }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
+                <div style="background:#0f2a4a;color:#fff;font:800 11px Archivo,sans-serif;padding:0 14px;border-radius:6px;display:flex;align-items:center;cursor:pointer;flex:none;opacity:{{ addRuleOpacity }};" onClick="{{ onAddRule }}">ADD</div>
+              </div>
+              <sc-for list="{{ ruleCustomsUnused }}" as="rc" hint-placeholder-count="0">
                 <input value="{{ rc.value }}" placeholder="Add another rule" onChange="{{ rc.onChange }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;background:#fbfaf7;"/>
               </sc-for>
               <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Checked rules and anything typed here show on the Scoreboard.</div>
@@ -1302,6 +1315,26 @@ input, select, textarea { font-size:16px !important; }
             <div style="font:800 9px Archivo,sans-serif;color:#fff;letter-spacing:.3px;white-space:nowrap;">{{ n.label }}</div>
           </div>
         </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ rulesModalOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:45;padding:24px;" onClick="{{ onCloseRules }}">
+        <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:340px;max-height:80vh;overflow-y:auto;">
+          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:10px;">ROUND RULES</div>
+          <sc-if value="{{ hasRules }}" hint-placeholder-val="{{ false }}">
+            <sc-for list="{{ rulesList }}" as="r" hint-placeholder-count="3">
+              <div style="display:flex;gap:10px;align-items:baseline;padding:6px 0;border-bottom:1px solid #f3f1ea;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#ffa62f;flex:none;transform:translateY(-2px);"></div>
+                <div style="font:700 14px Archivo,sans-serif;color:#1a2733;line-height:1.4;">{{ r.text }}</div>
+              </div>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ !hasRules }}" hint-placeholder-val="{{ false }}">
+            <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;">No rules set for this round. Add them on the Start step under Rules for the Round.</div>
+          </sc-if>
+          <div style="text-align:center;padding:11px;border-radius:8px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#0f2a4a;color:#fff;margin-top:16px;">CLOSE</div>
+        </div>
       </div>
     </sc-if>
 
@@ -1560,7 +1593,11 @@ const RULE_PRESETS = [
   ['twoputt', 'Two-putt max'],
   ['bunker', 'Lift, clean, place in bunkers']
 ];
-const RULES_DEFAULT = {preset:{}, custom:['','','']};
+const RULES_DEFAULT = {preset:{}, custom:[]};
+// Older rounds stored added rules as plain text in 3 slots; turn those into checked rules.
+function customRules(rules){
+  return ((rules && rules.custom) || []).map(r => typeof r === 'string' ? {text: r, on: true} : r).filter(r => r && r.text && r.text.trim());
+}
 const GROUP_COLORS = {A:{bg:'#0f2a4a', fg:'#fff'}, B:{bg:'#ffa62f', fg:'#0f2a4a'}, C:{bg:'#1e7a3d', fg:'#fff'}};
 // Everything needed to fully rebuild a finished round (scores, flags, bets) so it
 // can be reopened from History, edited, and re-settled.
@@ -2136,6 +2173,11 @@ class Component extends DCLogic {
     return !!this._lastLocalChangeAt && this._lastLocalChangeAt > (this._lastConfirmedPushAt || 0);
   }
   componentDidUpdate(){
+    if (this._clearCustomRulesAfterEnd && this.state.eventEnded){
+      this._clearCustomRulesAfterEnd = false;
+      const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+      if (customRules(rules).length){ rules.custom = []; this.setState({rules, newRuleText: ''}); }
+    }
     // Debounced local + remote autosave on every state change. Local write is
     // synchronous-cheap and unconditional (the safety net); remote push is
     // best-effort and only fires if the shared feed is configured.
@@ -2623,6 +2665,8 @@ class Component extends DCLogic {
     this.setState({showEndConfirm:true});
   }
   finalizeEndEvent(){
+    // Rules added for this round go away once it ends; the preset checkboxes stay.
+    this._clearCustomRulesAfterEnd = true;
     const settlement = this.computeSettlement();
     const active = this.state.roster.filter(p => p.active);
     const activeGames = [];
@@ -3386,7 +3430,8 @@ class Component extends DCLogic {
     const live = this.isRoundLive();
     const go = fn => () => { this.setState({menuOpen:false}); fn(); };
     return [
-      {label: live ? 'Round setup' : 'Home', color:'#1a2733', onClick: go(() => live ? this.goSetupStep(1) : this.setScreen('board'))},
+      {label: live ? 'Round Setup' : 'Home', color:'#1a2733', onClick: go(() => live ? this.goSetupStep(1) : this.setScreen('board'))},
+      {label:'Round Rules', color:'#1a2733', onClick: go(() => this.setState({rulesModalOpen: true}))},
       {label:'Club Directory', color:'#1a2733', onClick: go(() => this.setScreen('clubs'))},
       {label:'History', color:'#1a2733', onClick: go(() => this.setScreen('history'))},
       {label:'Log out', color:'#c8102e', onClick: go(() => this.logout())}
@@ -3528,6 +3573,28 @@ class Component extends DCLogic {
     rules.preset[key] = !rules.preset[key];
     this.setState({rules});
   }
+  addCustomRule(){
+    const text = (this.state.newRuleText || '').trim();
+    if (!text) return;
+    const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+    rules.custom = customRules(rules).concat([{text, on: true}]);
+    this.setState({rules, newRuleText: ''});
+  }
+  toggleCustomRule(i){
+    const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+    const list = customRules(rules);
+    if (!list[i]) return;
+    list[i].on = !list[i].on;
+    rules.custom = list;
+    this.setState({rules});
+  }
+  removeCustomRule(i){
+    const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
+    const list = customRules(rules);
+    list.splice(i, 1);
+    rules.custom = list;
+    this.setState({rules});
+  }
   setCustomRule(i, v){
     const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
     rules.custom = (rules.custom || ['','','']).slice(); rules.custom[i] = v;
@@ -3587,7 +3654,7 @@ class Component extends DCLogic {
     }
     const rules = this.state.rules || RULES_DEFAULT;
     const rulesList = RULE_PRESETS.filter(([k]) => (rules.preset || {})[k]).map(([,l]) => ({text:l}))
-      .concat((rules.custom || []).filter(t => t && t.trim()).map(t => ({text:t.trim()})));
+      .concat(customRules(rules).filter(r => r.on).map(r => ({text: r.text.trim()})));
     return {
       sbEmpty: allActive.length === 0,
       sbMatchups, sbGroups, sbHasGroups: gmOn,
@@ -4015,7 +4082,17 @@ class Component extends DCLogic {
         const on = !!(((s.rules || RULES_DEFAULT).preset || {})[k]);
         return {label:l, bg: on ? '#0f2a4a' : '#fff', check: on ? '✓' : '', onToggle: () => this.toggleRulePreset(k)};
       }),
-      ruleCustoms: [0,1,2].map(i => ({value: (((s.rules || RULES_DEFAULT).custom || [])[i]) || '', onChange: (e) => this.setCustomRule(i, e.target.value)})),
+      ruleCustoms: customRules(s.rules || RULES_DEFAULT).map((r, i) => ({
+        text: r.text, bg: r.on ? '#0f2a4a' : '#fff', check: r.on ? '✓' : '',
+        onToggle: () => this.toggleCustomRule(i), onRemove: () => this.removeCustomRule(i)
+      })),
+      ruleCustomsUnused: [],
+      newRuleText: s.newRuleText || '',
+      onNewRuleText: (e) => this.setState({newRuleText: e.target.value}),
+      onAddRule: () => this.addCustomRule(),
+      addRuleOpacity: (s.newRuleText || '').trim() ? 1 : .4,
+      rulesModalOpen: !!s.rulesModalOpen,
+      onCloseRules: () => this.setState({rulesModalOpen: false}),
       isScoreboardView: s.screen==='scoreboard',
       isLiveRound: this.isRoundLive(),
       heroOnBoard: !this.isRoundLive() && s.screen==='board',
