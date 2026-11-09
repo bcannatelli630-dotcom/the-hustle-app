@@ -734,19 +734,18 @@ input, select, textarea { font-size:16px !important; }
                 <div style="width:22px;height:22px;border-radius:50%;background:#f9e5e2;display:flex;align-items:center;justify-content:center;color:#c8102e;font:800 12px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ j.onDelete }}">×</div>
               </sc-if>
             </div>
-          </sc-for>
-
-          <sc-if value="{{ greenieModeVisible }}" hint-placeholder-val="{{ false }}">
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-              <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GREENIE SWEEPS</div>
-              <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;line-height:1.4;">{{ greenieModeSub }}</div>
-              <div style="display:flex;gap:6px;margin-top:10px;">
-                <sc-for list="{{ greenieModes }}" as="gm" hint-placeholder-count="2">
-                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gm.bg }};color:{{ gm.color }};" onClick="{{ gm.onClick }}">{{ gm.label }}</div>
-                </sc-for>
+            <sc-if value="{{ j.showSweepMode }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GREENIE SWEEPS</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;line-height:1.4;">{{ greenieModeSub }}</div>
+                <div style="display:flex;gap:6px;margin-top:10px;">
+                  <sc-for list="{{ greenieModes }}" as="gm" hint-placeholder-count="2">
+                    <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gm.bg }};color:{{ gm.color }};" onClick="{{ gm.onClick }}">{{ gm.label }}</div>
+                  </sc-for>
+                </div>
               </div>
-            </div>
-          </sc-if>
+            </sc-if>
+          </sc-for>
 
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;">
             <input placeholder="Add new junk bet (e.g. Barkies)" value="{{ newJunkLabel }}" onChange="{{ onNewJunkLabelChange }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fbfaf7;"/>
@@ -4072,7 +4071,8 @@ class Component extends DCLogic {
       onToggle: () => this.toggleJunk(k),
       onChange: (e)=>this.setJunkValue(k,e.target.value),
       deletable:false,
-      isPriceless: k==='rrc'
+      isPriceless: k==='rrc',
+      showSweepMode: k==='greenies' && !!s.junk[k].active
     })).concat(s.customJunk.map(j => ({
       key:j.id, label:j.label, sub:j.sub, value:j.value, active:j.active,
       bg: j.active ? '#0f2a4a' : '#e9e5dc', knob: j.active ? '18px' : '2px',
