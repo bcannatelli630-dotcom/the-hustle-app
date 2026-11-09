@@ -1396,19 +1396,21 @@ input, select, textarea { font-size:16px !important; }
     </sc-if>
 
     <sc-if value="{{ historyUndoActive }}" hint-placeholder-val="{{ false }}">
-      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:44;display:flex;justify-content:center;">
-        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);">
+      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:44;display:flex;justify-content:center;pointer-events:none;transform:translate({{ undoDX }}px,{{ undoDY }}px);">
+        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px 11px 10px;display:flex;align-items:center;gap:10px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;" onPointerDown="{{ onUndoDragStart }}">
+          <div style="display:flex;gap:3px;flex:none;opacity:.5;"><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div></div>
           <div style="flex:1;min-width:0;font:700 11px Archivo,sans-serif;line-height:1.4;">{{ historyUndoText }}</div>
-          <div style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onRestoreHistory }}">RESTORE · {{ historyUndoSeconds }}s</div>
+          <div data-undo-btn="1" style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onRestoreHistory }}">RESTORE · {{ historyUndoSeconds }}s</div>
         </div>
       </div>
     </sc-if>
 
     <sc-if value="{{ clubUndoActive }}" hint-placeholder-val="{{ false }}">
-      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:44;display:flex;justify-content:center;">
-        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:12px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);">
+      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:44;display:flex;justify-content:center;pointer-events:none;transform:translate({{ undoDX }}px,{{ undoDY }}px);">
+        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px 11px 10px;display:flex;align-items:center;gap:10px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;" onPointerDown="{{ onUndoDragStart }}">
+          <div style="display:flex;gap:3px;flex:none;opacity:.5;"><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div></div>
           <div style="flex:1;min-width:0;font:700 11px Archivo,sans-serif;line-height:1.4;">{{ clubUndoText }}</div>
-          <div style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onRestoreClub }}">RESTORE · {{ clubUndoSeconds }}s</div>
+          <div data-undo-btn="1" style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onRestoreClub }}">RESTORE · {{ clubUndoSeconds }}s</div>
         </div>
       </div>
     </sc-if>
@@ -2607,25 +2609,36 @@ class Component extends DCLogic {
       (active.every(p => scoreOf(p.id, h) != null) && (this.state.currentHole || 1) > h));
     const modified = this.greenieMode() === 'modified';
     const list = [], carryAt = {};
+    // lead = the player who has won every greenie so far (the one on track for sweeps).
+    let lead = null, leadOk = true;
     for (let h = 1; h <= total; h++){
       if (course.par[h-1] !== 3) continue;
       const entry = {hole: h, wonOn: null, winner: null, status: 'pending', reason: null};
       let at = h;
       while (true){
         const w = gw[at];
+        let carry = !w;
         if (w){
           const g = scoreOf(w, at);
           if (g == null){ entry.status = 'pending'; break; }
-          if (g > course.par[at-1]){ entry.status = 'lost'; entry.reason = 'bogey'; entry.winner = w; entry.wonOn = at; break; }
-          entry.status = 'won'; entry.winner = w; entry.wonOn = at; break;
+          if (g > course.par[at-1]){
+            // Modified: closest but no par carries the greenie on, unless it's the
+            // player going for sweeps, which kills it. Traditional: greenie is lost.
+            if (modified && w !== lead){ carry = true; }
+            else { entry.status = 'lost'; entry.reason = 'bogey'; entry.winner = w; entry.wonOn = at; break; }
+          } else { entry.status = 'won'; entry.winner = w; entry.wonOn = at; break; }
         }
-        if (!finished(at)){ entry.status = 'pending'; break; }
-        if (!modified){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = at; break; }
-        at++;
-        if (at > total){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = total; break; }
-        (carryAt[at] = carryAt[at] || []).push(h);
+        if (carry){
+          if (!finished(at)){ entry.status = 'pending'; break; }
+          if (!modified){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = at; break; }
+          at++;
+          if (at > total){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = total; break; }
+          (carryAt[at] = carryAt[at] || []).push(h);
+        }
       }
       list.push(entry);
+      if (entry.status === 'won' && leadOk && (lead == null || lead === entry.winner)) lead = entry.winner;
+      else if (entry.status !== 'pending'){ leadOk = false; lead = null; }
     }
     return {list, carryAt};
   }
@@ -2826,6 +2839,19 @@ class Component extends DCLogic {
         this.setState({historyUndo: null});
       } else this.forceUpdate();
     }, 1000);
+  }
+  // Restore bars can be dragged anywhere on screen; the spot is kept for this session.
+  startUndoDrag(e){
+    if (e.target && e.target.closest && e.target.closest('[data-undo-btn]')) return;
+    const sx = e.clientX, sy = e.clientY, ox = this.state.undoDX || 0, oy = this.state.undoDY || 0;
+    const H = window.innerHeight || 800, W = window.innerWidth || 400;
+    const move = ev => {
+      const dx = Math.max(-W/2, Math.min(W/2, ox + ev.clientX - sx));
+      const dy = Math.max(-(H - 140), Math.min(60, oy + ev.clientY - sy));
+      this.setState({undoDX: dx, undoDY: dy});
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }
   restoreHistoryRecord(){
     const u = this.state.historyUndo;
@@ -4281,6 +4307,7 @@ class Component extends DCLogic {
       showNav: true,
       viewTabs,
       storageError: !!s.storageError,
+      undoDX: s.undoDX || 0, undoDY: s.undoDY || 0, onUndoDragStart: (e) => this.startUndoDrag(e),
       ...(() => {
         const rec = s.historyDeleteId ? (s.history || []).find(h => h.id === s.historyDeleteId) : null;
         const u = s.historyUndo;
