@@ -839,7 +839,7 @@ input, select, textarea { font-size:16px !important; }
             <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">No clubs yet. Pick a course in Round and tap SAVE to keep it here.</div>
           </sc-if>
           <sc-for list="{{ clubList }}" as="cl" hint-placeholder-count="3">
-            <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+            <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;flex:none;">
               <div style="padding:13px 14px;display:flex;align-items:flex-start;gap:10px;">
                 <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ cl.onToggle }}">
                   <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ cl.name }}</div>
