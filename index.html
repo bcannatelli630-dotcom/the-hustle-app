@@ -354,6 +354,7 @@ input, select, textarea { font-size:16px !important; }
           <div style="font:700 13px Archivo,sans-serif;color:#0f2a4a;">Hole {{ currentHoleObj.n }} · Par {{ currentHoleObj.par }} · Handicap {{ currentHoleObj.si }}</div>
         </div>
 
+        <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;">
         <sc-if value="{{ currentHoleObj.showGreenie }}" hint-placeholder-val="{{ false }}">
           <sc-if value="{{ currentHoleObj.greenieActive }}" hint-placeholder-val="{{ false }}">
             <div style="flex:none;padding:10px 18px;background:#fff8e6;border-bottom:1px solid #e9e5dc;">
@@ -485,7 +486,7 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </sc-if>
 
-        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
+        <div style="flex:none;padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
           <sc-for list="{{ currentHoleObj.playerRows }}" as="p" hint-placeholder-count="6">
             <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
               <div style="width:34px;height:34px;border-radius:50%;background:#eef2f6;display:flex;align-items:center;justify-content:center;font:800 12px Archivo,sans-serif;color:#0f2a4a;flex:none;">{{ p.initials }}</div>
@@ -540,6 +541,7 @@ input, select, textarea { font-size:16px !important; }
           <sc-if value="{{ !isLastHole }}" hint-placeholder-val="{{ true }}">
             <div style="background:#0f2a4a;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onSaveAdvance }}">SAVE &amp; NEXT HOLE</div>
           </sc-if>
+        </div>
         </div>
       </div>
     </sc-if>
@@ -601,17 +603,17 @@ input, select, textarea { font-size:16px !important; }
                 </sc-for>
               </div>
               <div style="display:flex;gap:8px;margin-top:10px;">
-                <div style="flex:1;">
+                <div style="flex:1;min-width:0;">
                   <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
                 </div>
-                <div style="flex:1;">
+                <div style="flex:1;min-width:0;">
                   <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
                 </div>
-                <div style="flex:1;">
+                <div style="flex:1;min-width:0;">
                   <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
                 </div>
               </div>
               <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Name the teams and assign players in Let's Play.</div>
@@ -626,17 +628,17 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </div>
             <div style="display:flex;gap:8px;">
-              <div style="flex:1;">
+              <div style="flex:1;min-width:0;">
                 <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ nassau.front }}" onChange="{{ nassau.onFront }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
               </div>
-              <div style="flex:1;">
+              <div style="flex:1;min-width:0;">
                 <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ nassau.back }}" onChange="{{ nassau.onBack }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
               </div>
-              <div style="flex:1;">
+              <div style="flex:1;min-width:0;">
                 <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
               </div>
             </div>
           </div>
@@ -2096,7 +2098,10 @@ class Component extends DCLogic {
   }
   clearRound(){
     this.rememberRoster();
+    const offAll = o => { const c = JSON.parse(JSON.stringify(o || {})); Object.keys(c).forEach(k => { if (c[k] && typeof c[k] === 'object') c[k].active = false; }); return c; };
     this.setState({
+      games: offAll(this.state.games), junk: offAll(this.state.junk),
+      customJunk: (this.state.customJunk || []).map(j => ({...j, active: false})),
       roundId: newRoundId(), roundIdAt: Date.now(), cellStamps: {},
       roster: [],
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
@@ -3881,23 +3886,23 @@ class Component extends DCLogic {
     const sandyActive = !!(s.junk.sandies && s.junk.sandies.active);
     const sandyChips = sandyActive ? active.map(p => {
       const on = !!(s.sandyFlags[n] && s.sandyFlags[n][p.id]);
-      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleSandy(n, p.id)};
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => this.toggleSandy(n, p.id)};
     }) : [];
     const polyActive = !!(s.junk.polies && s.junk.polies.active);
     const polyChips = polyActive ? active.map(p => {
       const on = !!(s.polyFlags[n] && s.polyFlags[n][p.id]);
-      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.togglePoly(n, p.id)};
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => this.togglePoly(n, p.id)};
     }) : [];
 
     const barkyActive = !!(s.junk.barkies && s.junk.barkies.active);
     const barkyChips = barkyActive ? active.map(p => {
       const on = !!(s.barkyFlags[n] && s.barkyFlags[n][p.id]);
-      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleBarky(n, p.id)};
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => this.toggleBarky(n, p.id)};
     }) : [];
     const chippyActive = !!(s.junk.chippies && s.junk.chippies.active);
     const chippyChips = chippyActive ? active.map(p => {
       const on = !!(s.chippyFlags[n] && s.chippyFlags[n][p.id]);
-      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleChippy(n, p.id)};
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => this.toggleChippy(n, p.id)};
     }) : [];
 
     const vegasActive = !!(s.games.vegas && s.games.vegas.active);
