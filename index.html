@@ -1087,7 +1087,21 @@ input, select, textarea { font-size:16px !important; }
             </sc-if>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
               <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-bottom:8px;line-height:1.4;">Only phones on the same code see this round live. Share yours with your group — or enter someone else's to jump into their round.</div>
-              <div style="font:800 13px monospace;color:#0f2a4a;background:#f3f1ea;border-radius:6px;padding:9px 10px;margin-bottom:8px;">{{ groupKey }}</div>
+              <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
+                <div style="flex:1;font:800 13px monospace;color:#0f2a4a;background:#f3f1ea;border-radius:6px;padding:9px 10px;">{{ groupKey }}</div>
+                <sc-if value="{{ regenIdle }}" hint-placeholder-val="{{ true }}">
+                  <div style="border:1.5px solid #0f2a4a;color:#0f2a4a;padding:9px 12px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onRegenGroupKey }}">NEW CODE</div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ regenConfirm }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#fbf6e6;border:1px solid #ecd9a0;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+                  <div style="font:600 11px Archivo,sans-serif;color:#1a2733;line-height:1.45;">This phone moves to a new code with a brand-new, empty round (no roster, course, or bets). {{ prevGroupKey }} is not changed. Enter {{ prevGroupKey }} again to go back to it.</div>
+                  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">
+                    <div style="padding:7px 12px;font:800 11px Archivo,sans-serif;color:#5a6672;cursor:pointer;" onClick="{{ onCancelRegen }}">CANCEL</div>
+                    <div style="background:#0f2a4a;color:#fff;padding:7px 12px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;" onClick="{{ onRegenGroupKey }}">GET NEW CODE</div>
+                  </div>
+                </div>
+              </sc-if>
               <div style="display:flex;gap:8px;">
                 <input value="{{ groupKeyInput }}" onChange="{{ onGroupKeyInputChange }}" placeholder="Enter a different code to join" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px monospace;outline:none;background:#fbfaf7;"/>
                 <div style="background:#0f2a4a;color:#fff;padding:9px 14px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onJoinGroupKey }}">JOIN</div>
@@ -1178,6 +1192,19 @@ input, select, textarea { font-size:16px !important; }
               </sc-if>
               <sc-if value="{{ showNoResults }}" hint-placeholder-val="{{ false }}">
                 <div style="font:600 11px Archivo,sans-serif;color:#98928a;padding:4px 2px;line-height:1.4;">No courses found. Try the club's name the way GolfCourseAPI lists it (e.g. "san jose country club", "cordevalle"), then add the city or state to narrow it.</div>
+              </sc-if>
+              <sc-if value="{{ hasDirResults }}" hint-placeholder-val="{{ false }}">
+                <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;padding:2px 2px 0;">IN YOUR CLUB DIRECTORY</div>
+                <sc-for list="{{ dirResults }}" as="c" hint-placeholder-count="1">
+                  <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
+                    <div style="flex:1;min-width:0;">
+                      <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ c.name }}</div>
+                      <div style="font:600 9px Georgia,serif;color:#98928a;margin-top:2px;">{{ c.sub }}</div>
+                    </div>
+                    <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;letter-spacing:.5px;flex:none;">SAVED</div>
+                  </div>
+                </sc-for>
+                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;padding:4px 2px;line-height:1.4;">Not the right club? <span style="color:#0f2a4a;font-weight:800;cursor:pointer;text-decoration:underline;" onClick="{{ onSearchApiAnyway }}">Search GolfCourseAPI</span></div>
               </sc-if>
               <sc-for list="{{ courseResults }}" as="c" hint-placeholder-count="3">
                 <div style="background:#fff;border-radius:10px;padding:11px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ c.onSelect }}">
@@ -2138,6 +2165,18 @@ class Component extends DCLogic {
       this.loadState(true);
       // Retry shortly after in case the host's data was still in flight when we joined.
       setTimeout(() => this.loadState(true), 2500);
+    });
+  }
+  // New code for this phone only. The old code's round stays on the server untouched;
+  // entering the old code again reloads it as-is.
+  regenerateGroupKey(){
+    if (!this.state.regenConfirm){ this.setState({regenConfirm:true}); return; }
+    const k = 'game-' + Math.random().toString(36).slice(2, 8);
+    if (typeof localStorage !== 'undefined') localStorage.setItem(GROUP_KEY_STORAGE, k);
+    this.setState({groupKey: k, groupKeyInput:'', regenConfirm:false}, () => {
+      // Fresh round on the new code: no roster, course, or wager settings carried over.
+      this.resetRosterAndSettings();
+      this.setState({eventEnded:false, editingHistoryId:null, editBlockedId:null, clearRoundConfirmOpen:false});
     });
   }
   openClearDataConfirm(){ this.setState({clearDataConfirmOpen:true}); }
@@ -3892,9 +3931,10 @@ class Component extends DCLogic {
   //  - adding words to a search that already has matches just narrows the list,
   //  - every answer is remembered on the phone, so repeating a search costs nothing,
   //  - the phone stops itself at 25 searches a day.
-  onCourseSearchChange(e){
+  onCourseSearchChange(e, keepApi){
     const val = e.target.value;
-    this.setState({courseSearch: val});
+    const apiAnyway = !!keepApi;
+    this.setState({courseSearch: val, courseSearchApiAnyway: apiAnyway});
     if (this._courseSearchTimer) clearTimeout(this._courseSearchTimer);
     const tokens = queryTokens(val);
     const q = tokens.join(' ');
@@ -3903,6 +3943,11 @@ class Component extends DCLogic {
       return;
     }
     const narrowed = (this.state.courseSearchResults || []).filter(c => tokens.every(t => courseHaystack(c).includes(t)));
+    // Club Directory first: if a saved club matches, show it and skip GolfCourseAPI.
+    if (!apiAnyway && this.directoryMatches(tokens).length){
+      this.setState({courseSearchResults:[], courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchCapped:false});
+      return;
+    }
     if (this._lastCourseQuery && q.startsWith(this._lastCourseQuery) && narrowed.length){
       this.setState({courseSearchLoading:false});
       return;
@@ -3937,6 +3982,13 @@ class Component extends DCLogic {
       try { localStorage.setItem('hustle_search_cache', JSON.stringify(cache)); } catch(e){}
     }
     this.setState({courseSearchLoading:false, courseSearchError:false, courseSearchRateLimited:false, courseSearchResults: results});
+  }
+  directoryMatches(tokens){
+    const names = new Set([...Object.keys(this.state.courseLibrary || {}), ...Object.keys(this.state.liveCourses || {})]);
+    return [...names].filter(n => { const c = (this.state.courseLibrary || {})[n] || (this.state.liveCourses || {})[n]; const hay = courseHaystack({...c, name: n}); return tokens.every(t => hay.includes(t)); }).sort();
+  }
+  searchApiAnyway(){
+    this.onCourseSearchChange({target:{value:this.state.courseSearch}}, true);
   }
   // Search results are summaries; full tees/holes are fetched only for the course picked.
   async pickSearchResult(c, force){
@@ -4454,9 +4506,13 @@ class Component extends DCLogic {
         sub: s.courseDetailLoadingId && s.courseDetailLoadingId === c.id ? 'LOADING TEES & HOLES…' : (c.location ? c.location.toUpperCase() : 'TAP TO LOAD'),
         onSelect: () => this.pickSearchResult(c)
       }));
+    const dirResults = qTokens.join('').length < 3 || s.courseSearchApiAnyway ? [] : this.directoryMatches(qTokens).slice(0, 15).map(n => {
+      const c = (s.courseLibrary || {})[n] || (s.liveCourses || {})[n] || {};
+      return {name: n, isCurrent: n === s.courseName, sub: c.location ? c.location.toUpperCase() : 'IN CLUB DIRECTORY', onSelect: () => this.selectSavedCourse(n)};
+    });
     const courseSearchLoading = s.courseSearchLoading;
     const courseSearchError = s.courseSearchError;
-    const showNoResults = !courseSearchLoading && !courseSearchError && !s.courseSearchRateLimited && !s.courseSearchCapped && qTokens.join('').length >= 3 && courseResults.length === 0;
+    const showNoResults = !courseSearchLoading && !courseSearchError && !s.courseSearchRateLimited && !s.courseSearchCapped && qTokens.join('').length >= 3 && courseResults.length === 0 && !dirResults.length;
     const currentCourseTees = Object.keys(this.course.tees).map(t => ({
       tee:t, rating:this.course.tees[t].rating, slope:this.course.tees[t].slope
     }));
@@ -4530,6 +4586,8 @@ class Component extends DCLogic {
       onLogout: () => this.logout(),
       groupKey: s.groupKey, groupKeyInput: s.groupKeyInput,
       onGroupKeyInputChange: (e)=>this.onGroupKeyInputChange(e), onJoinGroupKey: () => this.joinGroupKey(),
+      onRegenGroupKey: () => this.regenerateGroupKey(), onCancelRegen: () => this.setState({regenConfirm:false}),
+      regenConfirm: !!s.regenConfirm, regenIdle: !s.regenConfirm, prevGroupKey: s.groupKey,
       syncError: s.syncError,
       currentTime: s.currentTime,
       ...this.buildScoreboard(),
@@ -4783,7 +4841,7 @@ class Component extends DCLogic {
       courseSearchLoading, courseSearchError, showNoResults,
       courseSearchRateLimited: !!s.courseSearchRateLimited,
       courseSearchCapped: !!s.courseSearchCapped,
-      courseResults, currentCourseTees,
+      courseResults, currentCourseTees, dirResults, hasDirResults: dirResults.length > 0, onSearchApiAnyway: () => this.searchApiAnyway(),
       roundTypes,
       isTournament: s.roundType === 'tournament',
       tournamentDays: s.tournamentDays,
