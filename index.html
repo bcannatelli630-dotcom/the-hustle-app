@@ -928,7 +928,7 @@ input, select, textarea { font-size:16px !important; }
         </div>
         <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
           <sc-for list="{{ historyList }}" as="h" hint-placeholder-count="3">
-            <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
+            <div style="flex:none;background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
               <div style="padding:13px 14px;cursor:pointer;" onClick="{{ h.onToggle }}">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
                   <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;flex:1;min-width:0;">{{ h.title }}</div>
@@ -977,24 +977,29 @@ input, select, textarea { font-size:16px !important; }
                       </div>
                       <div>
                         <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:6px;">HOLE BY HOLE</div>
-                        <div style="border:1px solid #f3f1ea;border-radius:8px;overflow:hidden;">
-                          <div style="display:grid;grid-template-columns:{{ h.d.cols }};background:#0f2a4a;padding:6px 0;">
-                            <div style="font:800 9px Archivo,sans-serif;color:#a9bdd4;text-align:center;">HOLE</div>
+                        <div style="border:1px solid #f3f1ea;border-radius:8px;overflow-x:auto;">
+                          <div style="width:max-content;min-width:100%;">
+                          <div style="display:grid;grid-template-columns:{{ h.d.cols }};background:#0f2a4a;align-items:center;">
+                            <div style="position:sticky;left:0;z-index:2;background:#0f2a4a;font:800 9px Archivo,sans-serif;color:#a9bdd4;text-align:center;padding:8px 0;">HOLE</div>
                             <sc-for list="{{ h.d.players }}" as="pl" hint-placeholder-count="3">
-                              <div style="font:800 11px Archivo,sans-serif;color:#fff;text-align:center;">{{ pl.initials }}</div>
+                              <div style="font:800 11px Archivo,sans-serif;color:#fff;text-align:center;padding:7px 0;">{{ pl.initials }}</div>
+                            </sc-for>
+                            <div style="font:800 9px Archivo,sans-serif;color:#a9bdd4;padding:8px 0 8px 10px;">WON</div>
+                            <sc-for list="{{ h.d.pairs }}" as="pr" hint-placeholder-count="1">
+                              <div style="font:800 9px Archivo,sans-serif;color:#a9bdd4;text-align:center;padding:8px 4px;border-left:1px solid rgba(169,189,212,.2);">{{ pr.label }}</div>
                             </sc-for>
                           </div>
                           <sc-for list="{{ h.d.holes }}" as="ho" hint-placeholder-count="9">
-                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1px solid #f3f1ea;align-items:center;min-height:40px;">
-                              <div style="display:flex;flex-direction:column;align-items:center;">
+                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1px solid #f3f1ea;align-items:stretch;min-height:40px;">
+                              <div style="position:sticky;left:0;z-index:1;background:#fff;box-shadow:1px 0 0 #f3f1ea;display:flex;flex-direction:column;align-items:center;justify-content:center;">
                                 <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ ho.n }}</div>
                                 <div style="font:600 9px Archivo,sans-serif;color:#98928a;">P{{ ho.par }}</div>
                               </div>
                               <sc-for list="{{ ho.cells }}" as="ce" hint-placeholder-count="3">
-                                <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;">
-                                  <div style="display:flex;gap:2px;height:4px;">
+                                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 0;">
+                                  <div style="display:flex;gap:2px;height:5px;">
                                     <sc-for list="{{ ce.dots }}" as="dt" hint-placeholder-count="0">
-                                      <div style="width:4px;height:4px;border-radius:2px;background:#0f2a4a;"></div>
+                                      <div style="width:5px;height:5px;border-radius:3px;background:#0f2a4a;"></div>
                                     </sc-for>
                                   </div>
                                   <div style="font:{{ ce.weight }} 14px Georgia,serif;color:{{ ce.color }};">{{ ce.score }}</div>
@@ -1003,18 +1008,40 @@ input, select, textarea { font-size:16px !important; }
                                   </sc-if>
                                 </div>
                               </sc-for>
-                            </div>
-                          </sc-for>
-                          <sc-for list="{{ h.d.totals }}" as="tt" hint-placeholder-count="1">
-                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1.5px solid #e9e5dc;background:#fbfaf7;padding:7px 0;">
-                              <div style="font:800 9px Archivo,sans-serif;color:#5a6672;text-align:center;align-self:center;">{{ tt.label }}</div>
-                              <sc-for list="{{ tt.vals }}" as="tv" hint-placeholder-count="3">
-                                <div style="font:800 14px Georgia,serif;color:#0f2a4a;text-align:center;">{{ tv.v }}</div>
+                              <div style="display:flex;align-items:center;gap:5px;padding-left:10px;">
+                                <sc-if value="{{ ho.hasWinner }}" hint-placeholder-val="{{ false }}">
+                                  <div style="font:800 10px Archivo,sans-serif;color:#fff;background:#0f2a4a;border-radius:4px;padding:2px 5px;">{{ ho.winner }}</div>
+                                </sc-if>
+                                <sc-if value="{{ ho.halved }}" hint-placeholder-val="{{ false }}">
+                                  <div style="font:700 10px Archivo,sans-serif;color:#98928a;">Halved</div>
+                                </sc-if>
+                                <sc-if value="{{ ho.viaDot }}" hint-placeholder-val="{{ false }}">
+                                  <div style="font:700 9px Archivo,sans-serif;color:#5a6672;">net</div>
+                                </sc-if>
+                              </div>
+                              <sc-for list="{{ ho.matches }}" as="m" hint-placeholder-count="1">
+                                <div style="border-left:1px solid #f3f1ea;display:flex;align-items:center;justify-content:center;font:800 10px Archivo,sans-serif;color:{{ m.color }};padding:0 4px;">{{ m.text }}</div>
                               </sc-for>
                             </div>
                           </sc-for>
+                          <sc-for list="{{ h.d.totals }}" as="tt" hint-placeholder-count="1">
+                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1.5px solid #e9e5dc;background:#fbfaf7;align-items:center;">
+                              <div style="position:sticky;left:0;z-index:1;background:#fbfaf7;box-shadow:1px 0 0 #f3f1ea;font:800 9px Archivo,sans-serif;color:#5a6672;text-align:center;padding:10px 0;">{{ tt.label }}</div>
+                              <sc-for list="{{ tt.vals }}" as="tv" hint-placeholder-count="3">
+                                <div style="font:800 14px Georgia,serif;color:#0f2a4a;text-align:center;">{{ tv.v }}</div>
+                              </sc-for>
+                              <div style="font:700 10px Archivo,sans-serif;color:#5a6672;padding-left:10px;">{{ tt.wins }}</div>
+                              <sc-for list="{{ tt.matches }}" as="m" hint-placeholder-count="1">
+                                <div style="border-left:1px solid #f3f1ea;align-self:stretch;display:flex;align-items:center;justify-content:center;font:800 10px Archivo,sans-serif;color:{{ m.color }};padding:0 4px;">{{ m.text }}</div>
+                              </sc-for>
+                            </div>
+                          </sc-for>
+                          </div>
                         </div>
-                        <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-top:6px;line-height:1.5;">Dots = strokes received. G greenie · S sandy · P polie · C chippy · B barky. Red = under par.</div>
+                        <sc-if value="{{ h.d.scrolls }}" hint-placeholder-val="{{ false }}">
+                          <div style="font:700 9px Archivo,sans-serif;color:#98928a;margin-top:6px;">Swipe the table for each pair's match →</div>
+                        </sc-if>
+                        <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-top:6px;line-height:1.5;">Dots = strokes received. WON = low net on the hole (ties halve); "net" = a stroke decided it. Match columns are net, front/back/total like a Nassau. G greenie · S sandy · P polie · C chippy · B barky. Red = under par.</div>
                       </div>
                       <div>
                         <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:4px;">BETS &amp; JUNK</div>
@@ -3650,10 +3677,32 @@ class Component extends DCLogic {
       const ch = {}; active.forEach(p => { ch[p.id] = this.getScoringCH(p, s.scoringMode, active); });
       const flag = (m, h, pid) => !!((m || {})[h] && m[h][pid]);
       const holes = [];
+      const ini = p => p.initials || p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const pairs = [];
+      active.forEach((a, i) => active.slice(i + 1).forEach(b => pairs.push([a, b])));
+      const run = pairs.map(() => 0), seg = {out: pairs.map(() => 0), inn: pairs.map(() => 0)};
+      const winsBy = {out: {}, inn: {}};
+      const mText = (v, a, b, up) => ({text: v === 0 ? 'AS' : `${ini(v > 0 ? a : b)} ${Math.abs(v)}${up ? ' UP' : ''}`, color: v === 0 ? '#98928a' : (up ? '#1e7a3d' : '#0f2a4a')});
       for (let h = 1; h <= 18; h++){
         if (!active.some(p => (s.scores[p.id] || {})[h] != null)) continue;
         const par = course.par[h-1], si = course.si[h-1];
-        holes.push({n: h, par, cells: active.map(p => {
+        const net = {}, gross = {};
+        active.forEach(p => { const g = (s.scores[p.id] || {})[h]; if (g != null){ gross[p.id] = g; net[p.id] = g - this.strokesAllocated(ch[p.id], si); } });
+        const scored = active.filter(p => net[p.id] != null);
+        const lowN = Math.min(...scored.map(p => net[p.id])), lowG = Math.min(...scored.map(p => gross[p.id]));
+        const lows = scored.filter(p => net[p.id] === lowN);
+        const w = scored.length === active.length && lows.length === 1 ? lows[0] : null;
+        const sk = h <= 9 ? 'out' : 'inn';
+        if (w) winsBy[sk][w.id] = (winsBy[sk][w.id] || 0) + 1;
+        const matches = pairs.map(([a, b], k) => {
+          if (net[a.id] != null && net[b.id] != null){
+            const d = net[a.id] < net[b.id] ? 1 : net[b.id] < net[a.id] ? -1 : 0;
+            run[k] += d; seg[sk][k] += d;
+          }
+          return mText(run[k], a, b, false);
+        });
+        holes.push({n: h, par, hasWinner: !!w, halved: !w && scored.length === active.length, winner: w ? ini(w) : '',
+          viaDot: !!w && (gross[w.id] !== lowG || scored.filter(p => gross[p.id] === lowG).length > 1), matches, cells: active.map(p => {
           const g = (s.scores[p.id] || {})[h];
           const dots = this.strokesAllocated(ch[p.id], si);
           let junk = '';
@@ -3669,13 +3718,17 @@ class Component extends DCLogic {
       const sum = (pid, a, b) => { let t = 0, any = false; for (let h = a; h <= b; h++){ const g = (s.scores[pid] || {})[h]; if (g != null){ t += g; any = true; } } return any ? t : '\u2013'; };
       const hasBack = holes.some(x => x.n > 9), hasFront = holes.some(x => x.n <= 9);
       const totals = [];
-      if (hasFront && hasBack) totals.push({label:'OUT', vals: active.map(p => ({v: sum(p.id, 1, 9)}))});
-      if (hasFront && hasBack) totals.push({label:'IN', vals: active.map(p => ({v: sum(p.id, 10, 18)}))});
-      totals.push({label: hasFront && hasBack ? 'TOT' : (hasBack ? 'IN' : 'OUT'), vals: active.map(p => ({v: sum(p.id, 1, 18)}))});
+      const winsTxt = (m) => active.filter(p => m[p.id]).sort((a, b) => m[b.id] - m[a.id]).map(p => `${ini(p)} ${m[p.id]}`).join(' · ');
+      const both = {}; active.forEach(p => { const v = (winsBy.out[p.id] || 0) + (winsBy.inn[p.id] || 0); if (v) both[p.id] = v; });
+      const segM = arr => arr.map((v, k) => mText(v, pairs[k][0], pairs[k][1], true));
+      if (hasFront && hasBack) totals.push({label:'OUT', vals: active.map(p => ({v: sum(p.id, 1, 9)})), wins: winsTxt(winsBy.out), matches: segM(seg.out)});
+      if (hasFront && hasBack) totals.push({label:'IN', vals: active.map(p => ({v: sum(p.id, 10, 18)})), wins: winsTxt(winsBy.inn), matches: segM(seg.inn)});
+      totals.push({label: hasFront && hasBack ? 'TOT' : (hasBack ? 'IN' : 'OUT'), vals: active.map(p => ({v: sum(p.id, 1, 18)})), wins: winsTxt(both), matches: segM(run)});
       const st = this.computeSettlement();
       const cats = this.settleCategories(st.entries);
       const txns = st.transactions.map(t => ({text: `${t.from.split(' ')[0]} pays ${t.to.split(' ')[0]} $${t.amount}`}));
-      return {players: active.map(p => ({initials: p.initials})), cols: `34px repeat(${active.length}, minmax(0,1fr))`,
+      return {players: active.map(p => ({initials: ini(p)})), pairs: pairs.map(([a, b]) => ({label: pairs.length === 1 ? 'MATCH' : `${ini(a)}·${ini(b)}`})), scrolls: pairs.length > 1,
+        cols: `34px repeat(${active.length}, 38px) minmax(64px,1fr) repeat(${pairs.length}, ${pairs.length === 1 ? '72px' : '62px'})`,
         holes, totals, cats, txns, allSquare: !txns.length, course: s.courseName};
     }); } catch(e){ val = null; }
     this._histCache[rec.id] = {key, val};
