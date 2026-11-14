@@ -964,6 +964,85 @@ input, select, textarea { font-size:16px !important; }
                       <div style="font:700 13px Georgia,serif;color:{{ p.color }};">{{ p.amountLabel }}</div>
                     </div>
                   </sc-for>
+                  <sc-if value="{{ h.hasDetail }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px;">
+                      <div style="display:flex;flex-direction:column;gap:4px;">
+                        <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">SETTLEMENT</div>
+                        <sc-if value="{{ h.d.allSquare }}" hint-placeholder-val="{{ false }}">
+                          <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">All square. Nobody owes anybody.</div>
+                        </sc-if>
+                        <sc-for list="{{ h.d.txns }}" as="t" hint-placeholder-count="1">
+                          <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ t.text }}</div>
+                        </sc-for>
+                      </div>
+                      <div>
+                        <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:6px;">HOLE BY HOLE</div>
+                        <div style="border:1px solid #f3f1ea;border-radius:8px;overflow:hidden;">
+                          <div style="display:grid;grid-template-columns:{{ h.d.cols }};background:#0f2a4a;padding:6px 0;">
+                            <div style="font:800 9px Archivo,sans-serif;color:#a9bdd4;text-align:center;">HOLE</div>
+                            <sc-for list="{{ h.d.players }}" as="pl" hint-placeholder-count="3">
+                              <div style="font:800 11px Archivo,sans-serif;color:#fff;text-align:center;">{{ pl.initials }}</div>
+                            </sc-for>
+                          </div>
+                          <sc-for list="{{ h.d.holes }}" as="ho" hint-placeholder-count="9">
+                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1px solid #f3f1ea;align-items:center;min-height:40px;">
+                              <div style="display:flex;flex-direction:column;align-items:center;">
+                                <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ ho.n }}</div>
+                                <div style="font:600 9px Archivo,sans-serif;color:#98928a;">P{{ ho.par }}</div>
+                              </div>
+                              <sc-for list="{{ ho.cells }}" as="ce" hint-placeholder-count="3">
+                                <div style="display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;">
+                                  <div style="display:flex;gap:2px;height:4px;">
+                                    <sc-for list="{{ ce.dots }}" as="dt" hint-placeholder-count="0">
+                                      <div style="width:4px;height:4px;border-radius:2px;background:#0f2a4a;"></div>
+                                    </sc-for>
+                                  </div>
+                                  <div style="font:{{ ce.weight }} 14px Georgia,serif;color:{{ ce.color }};">{{ ce.score }}</div>
+                                  <sc-if value="{{ ce.hasJunk }}" hint-placeholder-val="{{ false }}">
+                                    <div style="font:800 8px Archivo,sans-serif;color:#0f2a4a;background:#ffa62f;border-radius:3px;padding:1px 4px;letter-spacing:.5px;">{{ ce.junk }}</div>
+                                  </sc-if>
+                                </div>
+                              </sc-for>
+                            </div>
+                          </sc-for>
+                          <sc-for list="{{ h.d.totals }}" as="tt" hint-placeholder-count="1">
+                            <div style="display:grid;grid-template-columns:{{ h.d.cols }};border-top:1.5px solid #e9e5dc;background:#fbfaf7;padding:7px 0;">
+                              <div style="font:800 9px Archivo,sans-serif;color:#5a6672;text-align:center;align-self:center;">{{ tt.label }}</div>
+                              <sc-for list="{{ tt.vals }}" as="tv" hint-placeholder-count="3">
+                                <div style="font:800 14px Georgia,serif;color:#0f2a4a;text-align:center;">{{ tv.v }}</div>
+                              </sc-for>
+                            </div>
+                          </sc-for>
+                        </div>
+                        <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-top:6px;line-height:1.5;">Dots = strokes received. G greenie · S sandy · P polie · C chippy · B barky. Red = under par.</div>
+                      </div>
+                      <div>
+                        <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:4px;">BETS &amp; JUNK</div>
+                        <sc-for list="{{ h.d.cats }}" as="c" hint-placeholder-count="2">
+                          <div style="border-bottom:1px solid #f3f1ea;">
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;" onClick="{{ c.toggle }}">
+                              <div style="flex:1;min-width:0;">
+                                <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">{{ c.key }}</div>
+                                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;margin-top:2px;">{{ c.summary }}</div>
+                              </div>
+                              <div style="font:800 12px Georgia,serif;color:#0f2a4a;text-align:right;">{{ c.net }}</div>
+                              <div style="font:700 11px Archivo,sans-serif;color:#98928a;width:12px;text-align:center;">{{ c.chev }}</div>
+                            </div>
+                            <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
+                              <div style="padding:0 0 8px;display:flex;flex-direction:column;gap:5px;">
+                                <sc-for list="{{ c.rows }}" as="r" hint-placeholder-count="2">
+                                  <div style="display:flex;gap:10px;align-items:baseline;background:#fbfaf7;border-radius:6px;padding:7px 9px;">
+                                    <div style="font:800 10px Archivo,sans-serif;color:#98928a;flex:none;min-width:22px;">{{ r.hole }}</div>
+                                    <div style="font:600 11px Archivo,sans-serif;color:#1a2733;text-wrap:pretty;">{{ r.detail }}</div>
+                                  </div>
+                                </sc-for>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </sc-if>
                 </div>
               </sc-if>
             </div>
@@ -1531,6 +1610,38 @@ input, select, textarea { font-size:16px !important; }
         <div style="font:700 14px Archivo,sans-serif;color:#fff;margin-top:4px;">{{ sweepDeadToast.line }}</div>
         <div style="text-align:right;margin-top:8px;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
       </div>
+      </div>
+      </div>
+    </sc-if>
+
+    <!-- ============ ROUND SUMMARY ============ -->
+    <sc-if value="{{ showRoundSummary }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+      <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;">
+        <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">{{ roundToast.title }}</div>
+        <div style="font:600 11px Archivo,sans-serif;color:#a9bdd4;margin-top:3px;">{{ roundToast.sub }}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">
+          <sc-if value="{{ roundToast.allSquare }}" hint-placeholder-val="{{ false }}">
+            <div style="font:700 14px Archivo,sans-serif;color:#fff;">All square. Nobody owes anybody.</div>
+          </sc-if>
+          <sc-for list="{{ roundToast.txns }}" as="t" hint-placeholder-count="1">
+            <div style="font:700 14px Archivo,sans-serif;color:#fff;">{{ t.text }}</div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ roundToast.hasCats }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(169,189,212,.25);display:flex;flex-direction:column;gap:5px;">
+            <sc-for list="{{ roundToast.cats }}" as="c" hint-placeholder-count="1">
+              <div style="display:flex;gap:8px;align-items:baseline;">
+                <div style="font:800 10px Archivo,sans-serif;color:#d4a017;letter-spacing:.4px;flex:none;">{{ c.key }}</div>
+                <div style="font:600 12px Archivo,sans-serif;color:#dfe7f0;flex:1;min-width:0;text-wrap:pretty;">{{ c.summary }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex;justify-content:flex-end;gap:16px;margin-top:10px;">
+          <div style="font:700 10px Archivo,sans-serif;color:#d4a017;cursor:pointer;" onClick="{{ roundToast.onView }}">VIEW ROUND</div>
+          <div style="font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">DISMISS</div>
+        </div>
       </div>
       </div>
     </sc-if>
@@ -2254,6 +2365,7 @@ class Component extends DCLogic {
     return !!this._lastLocalChangeAt && this._lastLocalChangeAt > (this._lastConfirmedPushAt || 0);
   }
   componentDidUpdate(){
+    this.checkRoundSummaryNotif();
     if (this._clearCustomRulesAfterEnd && this.state.eventEnded){
       this._clearCustomRulesAfterEnd = false;
       const rules = JSON.parse(JSON.stringify(this.state.rules || RULES_DEFAULT));
@@ -2848,7 +2960,7 @@ class Component extends DCLogic {
     const editingId = this.state.editingHistoryId;
     if (editingId){
       // Re-settling an edited past round: update that record in place.
-      const history = this.state.history.map(h => h.id === editingId ? {...h, course: this.state.courseName, format, payouts, snapshot, edited: true} : h);
+      const history = this.state.history.map(h => h.id === editingId ? {...h, course: this.state.courseName, format, payouts, snapshot, edited: true, endedAt: Date.now()} : h);
       this.setState({history, showEndConfirm:false, eventEnded:true, editingHistoryId:null, screen:'settle'});
       return;
     }
@@ -2861,7 +2973,8 @@ class Component extends DCLogic {
       expanded: false,
       editing: false,
       payouts,
-      snapshot
+      snapshot,
+      endedAt: Date.now()
     };
     this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
   }
@@ -3480,6 +3593,74 @@ class Component extends DCLogic {
     this.setState({junk});
   }
 
+  // Run read-only scoring helpers against a saved round's snapshot.
+  withSnapshot(snap, fn){
+    const real = this.state;
+    this.state = Object.assign({}, real, backfillDefaults(JSON.parse(JSON.stringify(snap))));
+    try { return fn(); } finally { this.state = real; }
+  }
+  roundDetail(rec){
+    if (!rec || !rec.snapshot) return null;
+    const key = rec.id + '|' + (rec.endedAt || '') + '|' + JSON.stringify(rec.snapshot.scores || {}).length;
+    this._histCache = this._histCache || {};
+    if (this._histCache[rec.id] && this._histCache[rec.id].key === key) return this._histCache[rec.id].val;
+    let val = null;
+    try { val = this.withSnapshot(rec.snapshot, () => {
+      const s = this.state, course = this.course;
+      const active = s.roster.filter(p => p.active);
+      const ch = {}; active.forEach(p => { ch[p.id] = this.getScoringCH(p, s.scoringMode, active); });
+      const flag = (m, h, pid) => !!((m || {})[h] && m[h][pid]);
+      const holes = [];
+      for (let h = 1; h <= 18; h++){
+        if (!active.some(p => (s.scores[p.id] || {})[h] != null)) continue;
+        const par = course.par[h-1], si = course.si[h-1];
+        holes.push({n: h, par, cells: active.map(p => {
+          const g = (s.scores[p.id] || {})[h];
+          const dots = this.strokesAllocated(ch[p.id], si);
+          let junk = '';
+          if (s.greenieWinners && s.greenieWinners[h] === p.id) junk += 'G';
+          if (flag(s.sandyFlags, h, p.id)) junk += 'S';
+          if (flag(s.polyFlags, h, p.id)) junk += 'P';
+          if (flag(s.chippyFlags, h, p.id)) junk += 'C';
+          if (flag(s.barkyFlags, h, p.id)) junk += 'B';
+          return {score: g == null ? '\u2013' : g, dots: Array.from({length: dots}, (_, i) => ({i})),
+            junk, hasJunk: !!junk, color: g != null && g < par ? '#c8102e' : '#1a2733', weight: g != null && g < par ? 900 : 700};
+        })});
+      }
+      const sum = (pid, a, b) => { let t = 0, any = false; for (let h = a; h <= b; h++){ const g = (s.scores[pid] || {})[h]; if (g != null){ t += g; any = true; } } return any ? t : '\u2013'; };
+      const hasBack = holes.some(x => x.n > 9), hasFront = holes.some(x => x.n <= 9);
+      const totals = [];
+      if (hasFront && hasBack) totals.push({label:'OUT', vals: active.map(p => ({v: sum(p.id, 1, 9)}))});
+      if (hasFront && hasBack) totals.push({label:'IN', vals: active.map(p => ({v: sum(p.id, 10, 18)}))});
+      totals.push({label: hasFront && hasBack ? 'TOT' : (hasBack ? 'IN' : 'OUT'), vals: active.map(p => ({v: sum(p.id, 1, 18)}))});
+      const st = this.computeSettlement();
+      const cats = this.settleCategories(st.entries);
+      const txns = st.transactions.map(t => ({text: `${t.from.split(' ')[0]} pays ${t.to.split(' ')[0]} $${t.amount}`}));
+      return {players: active.map(p => ({initials: p.initials})), cols: `34px repeat(${active.length}, minmax(0,1fr))`,
+        holes, totals, cats, txns, allSquare: !txns.length, course: s.courseName};
+    }); } catch(e){ val = null; }
+    this._histCache[rec.id] = {key, val};
+    return val;
+  }
+  checkRoundSummaryNotif(){
+    if (this.state.activeNotif || !this.state.history) return;
+    let seen = [];
+    try { seen = JSON.parse(localStorage.getItem('hustle_round_notified') || '[]'); } catch(e){}
+    const cutoff = Date.now() - 12 * 3600 * 1000;
+    const rec = this.state.history.find(h => h.endedAt && h.endedAt > cutoff && h.snapshot && !seen.includes(h.id + '@' + h.endedAt));
+    if (!rec) return;
+    seen = seen.concat(rec.id + '@' + rec.endedAt).slice(-50);
+    try { localStorage.setItem('hustle_round_notified', JSON.stringify(seen)); } catch(e){}
+    const d = this.roundDetail(rec);
+    if (!d) return;
+    this.setState({activeNotif: {kind: 'roundSummary', id: rec.id}});
+    try {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && navigator.serviceWorker){
+        const body = d.allSquare ? 'All square. Nobody owes anybody.' : d.txns.map(t => t.text).join('\n');
+        navigator.serviceWorker.ready.then(reg => reg.showNotification(`${rec.edited ? 'Round re-settled' : 'Round final'} \u00b7 ${rec.course}`, {body, tag: 'round-' + rec.id})).catch(() => {});
+      }
+    } catch(e){}
+  }
   toggleHistory(id){
     const history = this.state.history.map(h => h.id === id ? {...h, expanded: !h.expanded} : h);
     this.setState({history});
@@ -4230,7 +4411,17 @@ class Component extends DCLogic {
       onEditScores: (e) => { e.stopPropagation(); this.editHistoryScores(h.id); },
       onTitleChange: (e) => this.updateHistoryField(h.id, 'title', e.target.value),
       onCourseChange: (e) => this.updateHistoryField(h.id, 'course', e.target.value),
-      payouts: h.payouts.map(p => ({name:p.name, amountLabel: (p.amount>=0?'+$':'-$')+Math.abs(p.amount), color: p.amount>=0 ? '#1e7a3d' : '#c8102e'}))
+      payouts: h.payouts.map(p => ({name:p.name, amountLabel: (p.amount>=0?'+$':'-$')+Math.abs(p.amount), color: p.amount>=0 ? '#1e7a3d' : '#c8102e'})),
+      d: (() => {
+        const d = h.expanded ? this.roundDetail(h) : null;
+        if (!d) return null;
+        return {...d, cats: d.cats.map(c => {
+          const k = h.id + '|' + c.key, open = !!(s.histCatOpen || {})[k];
+          return {...c, open, chev: open ? '\u25be' : '\u25b8',
+            toggle: () => this.setState(st => ({histCatOpen: {...(st.histCatOpen || {}), [k]: !(st.histCatOpen || {})[k]}}))};
+        })};
+      })(),
+      hasDetail: !!h.expanded && !!h.snapshot
     }));
 
     const rosterList = s.roster.map(p => ({
@@ -4629,6 +4820,15 @@ class Component extends DCLogic {
           : s.activeNotif.reason === 'none' ? `Nobody hit the green on #${s.activeNotif.hole}, so nobody can sweep the par 3s`
           : (s.activeNotif.priorName ? `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so ${s.activeNotif.priorName}'s sweep is dead` : `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`)
       } : {line:''},
+      showRoundSummary: !!s.activeNotif && s.activeNotif.kind==='roundSummary',
+      roundToast: (() => {
+        const n = s.activeNotif, rec = n && n.kind==='roundSummary' ? s.history.find(h => h.id === n.id) : null;
+        const d = rec ? this.roundDetail(rec) : null;
+        if (!d) return {title:'', sub:'', allSquare:false, txns:[], cats:[], hasCats:false, onView: () => {}};
+        return {title: rec.edited ? 'ROUND RE-SETTLED' : 'ROUND FINAL', sub: `${rec.title} \u00b7 ${rec.course}`,
+          allSquare: d.allSquare, txns: d.txns, cats: d.cats, hasCats: d.cats.length > 0,
+          onView: () => this.setState(st => ({activeNotif: null, history: st.history.map(h => h.id === rec.id ? {...h, expanded: true} : h)}), () => this.setScreen('history'))};
+      })(),
       showCarry: !!s.activeNotif && s.activeNotif.kind==='greenieCarry',
       carryToast: s.activeNotif && s.activeNotif.kind==='greenieCarry' ? (() => {
         const n = s.activeNotif;
