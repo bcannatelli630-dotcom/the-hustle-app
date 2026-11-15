@@ -101,7 +101,7 @@ input, select, textarea { font-size:16px !important; }
           </div>
           <sc-if value="{{ isLiveRound }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;">
-            <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
+            <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">BETS</div>
             <sc-if value="{{ isOnlineNow }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
                 <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
@@ -311,7 +311,7 @@ input, select, textarea { font-size:16px !important; }
             <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
           </div>
           <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-            <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">SETTLE UP</div>
+            <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">{{ settleBtnLabel }}</div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">ENTER SCORES · HOLE {{ currentHoleObj.n }}</div>
           <sc-if value="{{ isEditingHistory }}" hint-placeholder-val="{{ false }}">
@@ -540,6 +540,7 @@ input, select, textarea { font-size:16px !important; }
           </sc-if>
           <sc-if value="{{ !isLastHole }}" hint-placeholder-val="{{ true }}">
             <div style="background:#0f2a4a;color:#fff;text-align:center;padding:13px;border-radius:10px;font:800 12px Archivo,sans-serif;letter-spacing:.5px;cursor:pointer;" onClick="{{ onSaveAdvance }}">SAVE &amp; NEXT HOLE</div>
+            <div style="text-align:center;padding:10px;font:800 11px Archivo,sans-serif;letter-spacing:.5px;color:#c8102e;cursor:pointer;" onClick="{{ onEndEarly }}">END ROUND EARLY</div>
           </sc-if>
         </div>
         </div>
@@ -779,7 +780,7 @@ input, select, textarea { font-size:16px !important; }
               <div style="font:900 20px 'Archivo Black',sans-serif;letter-spacing:.4px;white-space:nowrap;flex-shrink:0;"><span style="color:#fff;">THE </span><span style="color:#ffa62f;">HUSTLE</span></div>
             </div>
           </div>
-          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">SETTLE UP · BASED ON HOLES ENTERED SO FAR</div>
+          <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">{{ settleHeaderLabel }}</div>
         </div>
 
         <div style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
@@ -1610,6 +1611,30 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <sc-if value="{{ showEarlyConfirm }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">End the round early?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:14px;">Bets settle on holes entered so far ({{ earlyHolesLine }}). Type END to confirm.</div>
+          <input value="{{ earlyText }}" onChange="{{ onEarlyText }}" placeholder="END" autocapitalize="characters" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #e9e5dc;border-radius:8px;font:800 16px Archivo,sans-serif;letter-spacing:2px;text-align:center;color:#0f2a4a;margin-bottom:12px;outline:none;">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:{{ earlyBtnBg }};color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onConfirmEarly }}">END ROUND</div>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onCancelEarly }}">KEEP PLAYING</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showEndPending }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;left:12px;right:12px;bottom:16px;z-index:45;display:flex;justify-content:center;">
+        <div style="background:#0f2a4a;border:1.5px solid #c8102e;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;width:100%;max-width:420px;box-shadow:0 12px 30px rgba(0,0,0,.3);">
+          <div style="flex:1;min-width:0;">
+            <div style="font:800 11px Archivo,sans-serif;color:#ff8a7a;letter-spacing:.6px;">ENDING ROUND IN {{ endPendingSecs }}s</div>
+            <div style="font:600 11px Archivo,sans-serif;color:#a9bdd4;margin-top:2px;">Tap undo to keep playing.</div>
+          </div>
+          <div style="background:#ffa62f;color:#0f2a4a;padding:10px 16px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onUndoEnd }}">UNDO</div>
+        </div>
+      </div>
+    </sc-if>
     <!-- ============ END EVENT CONFIRM ============ -->
     <sc-if value="{{ showEndConfirm }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
@@ -2002,6 +2027,7 @@ class Component extends DCLogic {
     taFlips: {}, // { [hole]: { [playerId]: 'T'|'A' } } — everyone flips fresh each hole
     bbbPoints: {}, // { [hole]: { bingo: playerId, bango: playerId, bongo: playerId } }
     showEndConfirm: false,
+    showEarlyConfirm: false, earlyText: '', pendingEndAt: null,
     eventEnded: false,
     editingHistoryId: null,
     editBlockedId: null,
@@ -2477,6 +2503,7 @@ class Component extends DCLogic {
     this._pushTimer = setTimeout(() => this.pushState(), 600);
   }
   componentWillUnmount(){
+    if (this._endPendingTimer) clearInterval(this._endPendingTimer);
     if (this._histUndoTimer) clearInterval(this._histUndoTimer);
     if (this._clubUndoTimer) clearInterval(this._clubUndoTimer);
     if (this._syncTimer) clearInterval(this._syncTimer);
@@ -3061,6 +3088,25 @@ class Component extends DCLogic {
     this.setState({editingHistoryId: null, screen: 'history'});
   }
   dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
+  confirmEarlyEnd(){
+    if (this.state.earlyText.trim().toUpperCase() !== 'END') return;
+    this.setState({showEarlyConfirm:false, earlyText:'', pendingEndAt: Date.now() + 30000}, () => this.startEndPendingTimer());
+  }
+  startEndPendingTimer(){
+    if (this._endPendingTimer) clearInterval(this._endPendingTimer);
+    this._endPendingTimer = setInterval(() => {
+      const at = this.state.pendingEndAt;
+      if (!at){ clearInterval(this._endPendingTimer); this._endPendingTimer = null; return; }
+      if (Date.now() >= at){
+        clearInterval(this._endPendingTimer); this._endPendingTimer = null;
+        this.setState({pendingEndAt:null}, () => this.finalizeEndEvent());
+      } else this.forceUpdate();
+    }, 250);
+  }
+  undoPendingEnd(){
+    if (this._endPendingTimer){ clearInterval(this._endPendingTimer); this._endPendingTimer = null; }
+    this.setState({pendingEndAt:null});
+  }
   toggleHistoryEdit(id){
     this.setState({history: this.state.history.map(h => h.id===id ? {...h, editing: !h.editing} : h)});
   }
@@ -3937,7 +3983,7 @@ class Component extends DCLogic {
       item('STROKES', s.screen === 'strokes', () => this.setScreen('strokes')),
       item('SCORECARD', s.screen === 'card', () => this.setScreen('card')),
       item('LEADERBOARD', s.screen === 'board' || s.screen === 'scoreboard', () => this.setScreen('board')),
-      item('SETTLE', s.screen === 'settle', () => this.goSettle())
+      item(s.eventEnded ? 'SETTLE' : 'BETS', s.screen === 'settle', () => this.goSettle())
     ];
   }
   buildMenuItems(){
@@ -4712,7 +4758,7 @@ class Component extends DCLogic {
         };
       })(),
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
-      goSettle: () => this.goSettle(),
+      goSettle: () => this.goSettle(), settleBtnLabel: s.eventEnded ? 'SETTLE UP' : 'BETS', settleHeaderLabel: s.eventEnded ? 'SETTLE UP · FINAL' : 'BETS · BASED ON HOLES ENTERED SO FAR',
       settleNetRows, settleTransactions, settleCats, settleGrossTotals, hasSettleData,
       showNav: true,
       viewTabs,
@@ -4801,6 +4847,17 @@ class Component extends DCLogic {
       showEndConfirm: s.showEndConfirm,
       onDismissEndConfirm: () => this.dismissEndConfirm(),
       onForceEndEvent: () => this.finalizeEndEvent(),
+      onEndEarly: () => this.setState({showEarlyConfirm:true, earlyText:''}),
+      showEarlyConfirm: s.showEarlyConfirm,
+      earlyText: s.earlyText,
+      onEarlyText: e => this.setState({earlyText: e.target.value}),
+      earlyBtnBg: s.earlyText.trim().toUpperCase() === 'END' ? '#c8102e' : '#d9d4c8',
+      earlyHolesLine: (() => { const act = s.roster.filter(p => p.active); let last = 0; for (let i = 1; i <= this.totalHolesForRound(); i++){ if (act.length && act.every(p => (s.scores[p.id]||{})[i] != null)) last = i; } return last ? 'through hole ' + last : 'no holes complete'; })(),
+      onConfirmEarly: () => this.confirmEarlyEnd(),
+      onCancelEarly: () => this.setState({showEarlyConfirm:false, earlyText:''}),
+      showEndPending: !!s.pendingEndAt,
+      endPendingSecs: s.pendingEndAt ? Math.max(0, Math.ceil((s.pendingEndAt - Date.now()) / 1000)) : 0,
+      onUndoEnd: () => this.undoPendingEnd(),
       pressPickerOpen: s.pressPickerOpen,
       onTogglePressPicker: () => this.togglePressPicker(),
       pressPickerLabel: s.pressPickerOpen ? 'CANCEL' : 'CALL PRESS',
