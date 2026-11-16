@@ -3476,6 +3476,9 @@ class Component extends DCLogic {
   pendingPhones(){
     const s = this.state;
     if (!s.roundEnd) return [];
+    // A phone that hasn't checked in within 20 minutes of the round ending (left
+    // the course, dead battery) stops holding the round open.
+    if (this.syncNow() - (s.roundEnd.at || 0) > 20 * 60 * 1000) return [];
     const acks = s.endAcks || {};
     return Object.keys(s.devices || {}).filter(id => !acks[id]);
   }
@@ -4315,6 +4318,13 @@ class Component extends DCLogic {
     this.setState({roster: [], setupConfirm:null});
   }
   goSetupStep(n){
+    // Setting up after a round has ended starts a fresh round: the ended one is
+    // already in History, and its players stay in Saved Players only.
+    const s0 = this.state;
+    if (s0.eventEnded && !s0.editingHistoryId && this.isRoundLive()){
+      if (s0.roundEnd && this.pendingPhones().length){ this.setState({clearEndedConfirm: true, afterClear: 'setup', menuOpen: false}); return; }
+      this.clearRound();
+    }
     n = Math.max(1, Math.min(4, n));
     const cur = this.state.screen === 'games' ? 3 : (this.state.setupStep || 1);
     if (n > cur || (this.state.screen !== 'settings' && this.state.screen !== 'games')){
@@ -5453,8 +5463,8 @@ class Component extends DCLogic {
           onRoundFinalClear: () => n ? this.setState({clearEndedConfirm: true}) : this.clearRound(),
           clearEndedConfirm: !!s.clearEndedConfirm,
           clearEndedText: `${n} phone${n === 1 ? ' has' : 's have'} not synced since the round ended. Scores ${n === 1 ? 'it hasn\u2019t' : 'they haven\u2019t'} sent won\u2019t reach History.`,
-          onClearEndedAnyway: () => { this.setState({clearEndedConfirm: false}); this.clearRound(); },
-          onCancelClearEnded: () => this.setState({clearEndedConfirm: false})
+          onClearEndedAnyway: () => { const next = s.afterClear; this.setState({clearEndedConfirm: false, afterClear: null}); this.clearRound(); if (next === 'setup') this.goSetupStep(1); },
+          onCancelClearEnded: () => this.setState({clearEndedConfirm: false, afterClear: null})
         };
       })(),
       onEndEarly: () => { if (!this.lockedOut('end')) this.setState({showEarlyConfirm:true, earlyText:''}); },
