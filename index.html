@@ -4330,7 +4330,12 @@ class Component extends DCLogic {
     this.rememberRoster();
     this.setState({roster: [], setupConfirm:null});
   }
-  goSetupStep(n){
+  goSetupStep(n, keepView){
+    // Opening Bets: with players in 2+ groups, start on the Group Match tab.
+    if (n === 3 && !keepView){
+      const multi = new Set(this.state.roster.filter(p => p.active).map(p => p.group || 'A')).size > 1;
+      this.setState({betsView: multi ? 'groupmatch' : 'games'});
+    }
     // Setting up after a round has ended starts a fresh round: the ended one is
     // already in History, and its players stay in Saved Players only.
     const s0 = this.state;
@@ -4403,8 +4408,8 @@ class Component extends DCLogic {
         {label:'ROUND', text: roundText, color: noCourse ? '#c8102e' : '#1a2733', onEdit: () => this.goSetupStep(1)},
         {label:'PLAYERS', text: playersText, color: active.length ? '#1a2733' : '#c8102e', onEdit: () => this.goSetupStep(2)},
         ...(splitReview ? [
-          {label:`BETWEEN GROUPS · ${modeLabel}`, text: gmText, color:'#1a2733', onEdit: () => { this.setState({betsView: 'groupmatch'}); this.goSetupStep(3); }},
-          ...this.groupKeys().map(g => ({label: `${this.groupName(g).toUpperCase()} · WITHIN GROUP`, text: groupBetText(g), color:'#1a2733', onEdit: () => { this.setState({junkEditGroup: g, betsView: 'games'}); this.goSetupStep(3); }}))
+          {label:`BETWEEN GROUPS · ${modeLabel}`, text: gmText, color:'#1a2733', onEdit: () => this.goSetupStep(3)},
+          ...this.groupKeys().map(g => ({label: `${this.groupName(g).toUpperCase()} · WITHIN GROUP`, text: groupBetText(g), color:'#1a2733', onEdit: () => { this.setState({junkEditGroup: g, betsView: 'games'}); this.goSetupStep(3, true); }}))
         ] : [
           {label:`BETS · ${modeLabel}`, text: betsParts.length ? betsParts.join(' · ') : 'No bets on', color:'#1a2733', onEdit: () => this.goSetupStep(3)}
         ])
