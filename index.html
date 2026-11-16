@@ -604,7 +604,15 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </div>
 
+        <div style="flex:none;padding:10px 16px;border-bottom:1px solid #e9e5dc;background:#fbfaf7;">
+          <div style="display:flex;gap:6px;background:#f3f1ea;border-radius:8px;padding:4px;">
+            <sc-for list="{{ betsTabs }}" as="bt" hint-placeholder-count="2">
+              <div style="flex:1;text-align:center;padding:10px 4px;border-radius:6px;background:{{ bt.bg }};color:{{ bt.color }};font:800 12px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ bt.onClick }}">{{ bt.label }}</div>
+            </sc-for>
+          </div>
+        </div>
         <div data-setup-scroll="1" style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+          <sc-if value="{{ betsGamesView }}" hint-placeholder-val="{{ true }}">
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
                 <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">ROUND ADMIN</div>
@@ -633,13 +641,13 @@ input, select, textarea { font-size:16px !important; }
             </div>
 
 
-          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">GAMES</div>
+          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">{{ gamesHeading }}</div>
 
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div style="flex:1;">
                 <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. Individual games stay within each group.</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. The only bet between groups.</div>
               </div>
               <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
                 <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
@@ -668,6 +676,23 @@ input, select, textarea { font-size:16px !important; }
               <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Name the teams and assign players in Let's Play.</div>
             </sc-if>
           </div>
+          <sc-if value="{{ gmSplit }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="height:1px;background:#e9e5dc;margin:4px 0 6px;"></div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">WITHIN EACH GROUP · OPTIONAL</div>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">Games and junk played only among each group's own players. Leave everything off for no side bets.</div>
+              <div style="display:flex;gap:6px;background:#f3f1ea;border-radius:8px;padding:4px;">
+                <sc-for list="{{ junkTabs.tabs }}" as="jt" hint-placeholder-count="2">
+                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;background:{{ jt.bg }};color:{{ jt.color }};font:800 11px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;" onClick="{{ jt.onClick }}">
+                    <sc-if value="{{ jt.differs }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:#ffa62f;flex:none;"></span></sc-if>
+                    <span>{{ jt.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ junkTabs.players }}</div>
+            </div>
+            <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-4px;">GAMES</div>
+          </sc-if>
 
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
             <div style="display:flex;align-items:center;justify-content:between;justify-content:space-between;margin-bottom:10px;">
@@ -772,10 +797,15 @@ input, select, textarea { font-size:16px !important; }
           </div>
 
 
-          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">JUNK</div>
-          <sc-if value="{{ junkTabs.show }}" hint-placeholder-val="{{ false }}">
+          </sc-if>
+
+          <sc-if value="{{ betsJunkView }}" hint-placeholder-val="{{ false }}">
+            <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.4;">Side bets on single shots. The winner collects from every other player in the group.</div>
+            <sc-if value="{{ gmSplit }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:6px;">
-              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Each group sets its own junk. Group Match is the only bet between groups.</div>
+              <div style="height:1px;background:#e9e5dc;margin:4px 0 6px;"></div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">WITHIN EACH GROUP · OPTIONAL</div>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">Games and junk played only among each group's own players. Leave everything off for no side bets.</div>
               <div style="display:flex;gap:6px;background:#f3f1ea;border-radius:8px;padding:4px;">
                 <sc-for list="{{ junkTabs.tabs }}" as="jt" hint-placeholder-count="2">
                   <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;background:{{ jt.bg }};color:{{ jt.color }};font:800 11px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;" onClick="{{ jt.onClick }}">
@@ -786,47 +816,62 @@ input, select, textarea { font-size:16px !important; }
               </div>
               <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ junkTabs.players }}</div>
             </div>
-          </sc-if>
-
-          <sc-for list="{{ junkList }}" as="j" hint-placeholder-count="4">
-            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:12px;">
-              <div style="flex:1;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ j.label }}</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ j.sub }}</div>
-              </div>
-              <sc-if value="{{ j.isPriceless }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#f3f1ea;border-radius:6px;padding:6px 10px;"><span style="font:800 11px Archivo,sans-serif;letter-spacing:.4px;color:#d4a017;">PRICELESS</span></div>
-              </sc-if>
-              <sc-if value="{{ !j.isPriceless }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:64px;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ j.value }}" onChange="{{ j.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
-              </sc-if>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ j.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ j.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ j.knob }};transition:left .15s;"></div>
-              </div>
-              <sc-if value="{{ j.deletable }}" hint-placeholder-val="{{ false }}">
-                <div style="width:22px;height:22px;border-radius:50%;background:#f9e5e2;display:flex;align-items:center;justify-content:center;color:#c8102e;font:800 12px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ j.onDelete }}">×</div>
-              </sc-if>
-            </div>
-            <sc-if value="{{ j.showSweepMode }}" hint-placeholder-val="{{ false }}">
-              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GREENIE SWEEPS</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;line-height:1.4;">{{ greenieModeSub }}</div>
-                <div style="display:flex;gap:6px;margin-top:10px;">
-                  <sc-for list="{{ greenieModes }}" as="gm" hint-placeholder-count="2">
-                    <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gm.bg }};color:{{ gm.color }};" onClick="{{ gm.onClick }}">{{ gm.label }}</div>
-                  </sc-for>
-                </div>
-              </div>
             </sc-if>
-          </sc-for>
-
+            <div style="flex:none;background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;overflow:hidden;">
+              <sc-for list="{{ junkList }}" as="j" hint-placeholder-count="7">
+                <div style="border-bottom:1px solid #f3f1ea;">
+                  <sc-if value="{{ j.active }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">{{ j.label }}</div>
+                        <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ j.sub }}</div>
+                      </div>
+                      <sc-if value="{{ j.isPriceless }}" hint-placeholder-val="{{ false }}">
+                        <div style="background:#f3f1ea;border-radius:6px;padding:6px 10px;flex:none;"><span style="font:800 11px Archivo,sans-serif;letter-spacing:.4px;color:#d4a017;">PRICELESS</span></div>
+                      </sc-if>
+                      <sc-if value="{{ !j.isPriceless }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;width:56px;flex:none;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" value="{{ j.value }}" onChange="{{ j.onChange }}" style="border:none;background:transparent;width:100%;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      </sc-if>
+                      <div style="width:38px;height:22px;border-radius:11px;background:{{ j.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ j.onToggle }}">
+                        <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ j.knob }};transition:left .15s;"></div>
+                      </div>
+                      <sc-if value="{{ j.deletable }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:22px;height:22px;border-radius:50%;background:#f9e5e2;display:flex;align-items:center;justify-content:center;color:#c8102e;font:800 12px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ j.onDelete }}">×</div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ j.showSweepMode }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:0 14px 12px;">
+                        <div style="display:flex;gap:6px;">
+                          <sc-for list="{{ greenieModes }}" as="gm" hint-placeholder-count="2">
+                            <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gm.bg }};color:{{ gm.color }};" onClick="{{ gm.onClick }}">{{ gm.label }} SWEEPS</div>
+                          </sc-for>
+                        </div>
+                        <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:8px;line-height:1.4;">{{ greenieModeSub }}</div>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                  <sc-if value="{{ j.off }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;">
+                      <div style="flex:1;min-width:0;font:800 12px Archivo,sans-serif;color:#98928a;">{{ j.label }}</div>
+                      <div style="width:32px;height:18px;border-radius:9px;background:{{ j.smallBg }};position:relative;cursor:pointer;flex:none;" onClick="{{ j.onToggle }}">
+                        <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ j.smallKnob }};transition:left .15s;"></div>
+                      </div>
+                      <sc-if value="{{ j.deletable }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:20px;height:20px;border-radius:50%;background:#f9e5e2;display:flex;align-items:center;justify-content:center;color:#c8102e;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ j.onDelete }}">×</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:8px;">
+              <input placeholder="Add your own junk bet" value="{{ newJunkLabel }}" onChange="{{ onNewJunkLabelChange }}" style="flex:1;min-width:0;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fbfaf7;"/>
+              <div style="background:#0f2a4a;color:#fff;padding:9px 16px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onAddJunk }}">ADD</div>
+            </div>
+          </sc-if>
           <sc-if value="{{ junkTabs.show }}" hint-placeholder-val="{{ false }}">
             <div style="font:800 11px Archivo,sans-serif;color:#0f2a4a;text-align:center;padding:10px;border:1.5px dashed #c9c3b6;border-radius:8px;cursor:pointer;letter-spacing:.3px;" onClick="{{ junkTabs.onCopy }}">{{ junkTabs.copyLabel }}</div>
           </sc-if>
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;">
-            <input placeholder="Add new junk bet (e.g. Barkies)" value="{{ newJunkLabel }}" onChange="{{ onNewJunkLabelChange }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fbfaf7;"/>
-            <div style="background:#0f2a4a;color:#fff;padding:9px 16px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onAddJunk }}">ADD</div>
-          </div>
 
         </div>
         <div style="flex:none;padding:10px 16px 12px;display:flex;gap:8px;border-top:1px solid #e9e5dc;background:#fbfaf7;">
@@ -1960,7 +2005,7 @@ const SYNC_KEYS = [
   'sweepCandidate', 'sweepCount', 'sweepDead', 'rrcHolder',
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
-  'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGreenies', 'groupTrack',
+  'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGames', 'groupGreenies', 'groupTrack',
   'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
   'adminDeviceId', 'adminName', 'roundEnd', 'devices', 'endAcks'
 ];
@@ -1999,7 +2044,7 @@ const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead'
 // Lists merged item by item.
 const LIST_MERGE_KEYS = ['roster','history','presses','customJunk'];
 const MERGE_KEYS = ['scores','greenieWinners','groupGreenies','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history',
-  'games','junk','groupJunk','groupTrack','customJunk','presses','devices','endAcks','rules'].concat(SCALAR_MERGE_KEYS);
+  'games','junk','groupJunk','groupGames','groupTrack','customJunk','presses','devices','endAcks','rules'].concat(SCALAR_MERGE_KEYS);
 const LEAF_DEPTH = {liveCourses:1, roster:1, history:1, presses:1, customJunk:1};
 const isPlainObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
 function newRoundId(){ return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -2138,7 +2183,7 @@ class Component extends DCLogic {
     activeNotif: null,
     rrcHolder: null,
     greenieWinners: {},
-    groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+    groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
     greenieResolved: {},
     wolfPicks: {},
     sandyFlags: {},
@@ -2149,7 +2194,7 @@ class Component extends DCLogic {
     taFlips: {}, // { [hole]: { [playerId]: 'T'|'A' } } — everyone flips fresh each hole
     bbbPoints: {}, // { [hole]: { bingo: playerId, bango: playerId, bongo: playerId } }
     showEndConfirm: false,
-    showEarlyConfirm: false, earlyText: '', pendingEndAt: null,
+    showEarlyConfirm: false, earlyText: '', pendingEndAt: null, betsView: 'games',
     eventEnded: false,
     editingHistoryId: null,
     editBlockedId: null,
@@ -2469,7 +2514,8 @@ class Component extends DCLogic {
     const offAll = o => { const c = JSON.parse(JSON.stringify(o || {})); Object.keys(c).forEach(k => { if (c[k] && typeof c[k] === 'object') c[k].active = false; }); return c; };
     this.setState({
       games: offAll(this.state.games), junk: offAll(this.state.junk),
-      groupJunk: Object.fromEntries(Object.entries(this.state.groupJunk || {}).map(([k,v]) => [k, offAll(v)])), groupGreenies: {}, groupTrack: {},
+      groupJunk: Object.fromEntries(Object.entries(this.state.groupJunk || {}).map(([k,v]) => [k, offAll(v)])),
+      groupGames: Object.fromEntries(Object.entries(this.state.groupGames || {}).map(([k,v]) => [k, offAll(v)])), groupGreenies: {}, groupTrack: {},
       roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', clearEndedConfirm: false,
       customJunk: (this.state.customJunk || []).map(j => ({...j, active: false})),
       roundId: newRoundId(), roundIdAt: this.syncNow(), cellStamps: {},
@@ -2491,7 +2537,7 @@ class Component extends DCLogic {
   // Settings-tab action rather than a locked-down admin one.
   resetRosterAndSettings(){
     this.setState({
-      groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2510,7 +2556,7 @@ class Component extends DCLogic {
       localStorage.removeItem('hustle_known_players');
     }
     const fresh = {
-      groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2994,11 +3040,40 @@ class Component extends DCLogic {
     return (p && p.group) || 'A';
   }
   junkFor(g){ return g === 'A' ? this.state.junk : ((this.state.groupJunk || {})[g] || this.state.junk); }
+  // Games played inside group g. Group A uses the top-level games; Group Match itself
+  // always comes from there too, since it's the one bet between groups.
+  gamesFor(g){
+    const base = this.state.games;
+    if (g === 'A' || !this.splitJunk()) return base;
+    const own = (this.state.groupGames || {})[g];
+    return own ? {...own, groupmatch: base.groupmatch} : base;
+  }
+  editGroup(){
+    const ks = this.groupKeys();
+    return ks.length > 1 && ks.includes(this.state.junkEditGroup) ? this.state.junkEditGroup : 'A';
+  }
+  editGames(key, fn, g){
+    if (this.lockedOut()) return;
+    const grp = key === 'groupmatch' ? 'A' : (g || this.editGroup());
+    if (grp === 'A'){ const games = JSON.parse(JSON.stringify(this.state.games)); fn(games[key]); this.setState({games}); return; }
+    const gg = {...(this.state.groupGames || {})};
+    const mine = JSON.parse(JSON.stringify(gg[grp] || this.state.games));
+    delete mine.groupmatch;
+    fn(mine[key]); gg[grp] = mine;
+    this.setState({groupGames: gg});
+  }
+  // Which active players are in a group that has this game on.
+  gamePlayers(key, active){
+    if (!this.splitJunk()) return (this.state.games[key] && this.state.games[key].active) ? active : [];
+    const on = this.groupKeys().filter(g => { const G = this.gamesFor(g); return G[key] && G[key].active; });
+    if (on.length === this.groupKeys().length) return active;
+    return active.filter(p => on.includes(p.group || 'A'));
+  }
   // Run read-only helpers as if only group g's junk existed. Never call setState inside.
   withGroup(g, fn){
     if (!this.splitJunk()) return fn();
     const real = this.state;
-    const scoped = {...real, junk: this.junkFor(g), __junkGroup: g,
+    const scoped = {...real, junk: this.junkFor(g), games: this.gamesFor(g), __junkGroup: g,
       greenieWinners: g === 'A' ? real.greenieWinners : ((real.groupGreenies || {})[g] || {})};
     if (g !== 'A'){ const t = (real.groupTrack || {})[g] || {}; GROUP_TRACK_KEYS.forEach(k => { scoped[k] = t[k]; }); }
     this.state = scoped;
@@ -3018,16 +3093,24 @@ class Component extends DCLogic {
     this.setState({groupJunk: gj}, cb);
   }
   setJunkEditGroup(g){
-    const gj = {...(this.state.groupJunk || {})};
-    if (g !== 'A' && !gj[g] && !this.betsLocked()){ gj[g] = JSON.parse(JSON.stringify(this.state.junk)); this.setState({junkEditGroup: g, groupJunk: gj}); }
-    else this.setState({junkEditGroup: g});
+    const patch = {junkEditGroup: g};
+    if (g !== 'A' && !this.betsLocked()){
+      const gj = this.state.groupJunk || {}, gg = this.state.groupGames || {};
+      if (!gj[g]) patch.groupJunk = {...gj, [g]: JSON.parse(JSON.stringify(this.state.junk))};
+      if (!gg[g]){ const copy = JSON.parse(JSON.stringify(this.state.games)); delete copy.groupmatch; patch.groupGames = {...gg, [g]: copy}; }
+    }
+    this.setState(patch);
   }
   copyJunkFromA(g){
     if (this.lockedOut()) return;
     const gj = {...(this.state.groupJunk || {})};
     const targets = g === 'A' ? this.groupKeys().filter(k => k !== 'A') : [g];
-    targets.forEach(k => { gj[k] = JSON.parse(JSON.stringify(this.state.junk)); });
-    this.setState({groupJunk: gj}, () => this.refreshGreenieSweep(true));
+    const gg = {...(this.state.groupGames || {})};
+    targets.forEach(k => {
+      gj[k] = JSON.parse(JSON.stringify(this.state.junk));
+      const copy = JSON.parse(JSON.stringify(this.state.games)); delete copy.groupmatch; gg[k] = copy;
+    });
+    this.setState({groupJunk: gj, groupGames: gg}, () => this.refreshGreenieSweep(true));
   }
 
   // Pure, derived from source-of-truth (greenieWinners + scores), walked in ascending
@@ -3278,9 +3361,13 @@ class Component extends DCLogic {
     const settlement = this.computeSettlement();
     const active = this.state.roster.filter(p => p.active);
     const activeGames = [];
-    if (this.state.games.nassau.active) activeGames.push('Nassau');
-    if (this.state.games.bestball.active) activeGames.push('Best Ball');
-    ['wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (this.state.games[k].active) activeGames.push(this.state.games[k].label); });
+    if (this.state.games.groupmatch && this.state.games.groupmatch.active && this.splitJunk()) activeGames.push('Group Match');
+    this.groupKeys().forEach(g => this.withGroup(g, () => {
+      const G = this.state.games, add = x => { if (!activeGames.includes(x)) activeGames.push(x); };
+      if (G.nassau.active) add('Nassau');
+      if (G.bestball.active) add('Best Ball');
+      ['wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (G[k].active) add(G[k].label); });
+    }));
     const payouts = active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}));
     const snapshot = JSON.parse(JSON.stringify(ROUND_SNAPSHOT_KEYS.reduce((o,k) => { o[k] = this.state[k]; return o; }, {})));
     const format = activeGames.length ? activeGames.join(' + ') : 'No games active';
@@ -4023,23 +4110,11 @@ class Component extends DCLogic {
     });
   }
 
-  toggleGame(key){
-    if (this.lockedOut()) return;
-    const games = JSON.parse(JSON.stringify(this.state.games));
-    games[key].active = !games[key].active;
-    this.setState({games});
-  }
-  toggleGameFlag(key, field){
-    if (this.lockedOut()) return;
-    const games = JSON.parse(JSON.stringify(this.state.games));
-    games[key][field] = !games[key][field];
-    this.setState({games});
-  }
+  toggleGame(key){ this.editGames(key, x => { x.active = !x.active; }); }
+  toggleGameFlag(key, field){ this.editGames(key, x => { x[field] = !x[field]; }); }
   setGameValue(key, field, val){
-    if (this.lockedOut()) return;
-    const games = JSON.parse(JSON.stringify(this.state.games));
-    const n = parseFloat(val); games[key][field] = (val === '' || isNaN(n)) ? '' : n;
-    this.setState({games});
+    const n = parseFloat(val);
+    this.editGames(key, x => { x[field] = (val === '' || isNaN(n)) ? '' : n; });
   }
   toggleJunk(key, g){
     this.editJunk(g || 'A', j => { j[key].active = !j[key].active; });
@@ -4218,6 +4293,25 @@ class Component extends DCLogic {
     });
     const junkCount = Object.values(s.junk || {}).filter(j => j && j.active).length;
     const betsParts = games.concat(junkCount ? [`${junkCount} junk`] : []);
+    // With Group Match across groups: the bet between groups, then each group's own games and junk.
+    const splitReview = this.splitJunk();
+    const groupBetText = g => this.withGroup(g, () => {
+      const G = this.state.games, Jk = this.state.junk, out = [];
+      Object.entries(G).forEach(([k, x]) => {
+        if (k === 'groupmatch' || !x || !x.active) return;
+        const lb = String(x.label || k).toLowerCase().replace(/\b[a-z]/g, m => m.toUpperCase());
+        out.push(k === 'nassau' ? `Nassau ${x.front}/${x.back}/${x.overall}` : `${lb} ${x.value}`);
+      });
+      Object.entries(Jk).forEach(([k, x]) => {
+        if (!x || !x.active) return;
+        const nm = (x.label || k).charAt(0) + (x.label || k).slice(1).toLowerCase();
+        out.push(k === 'rrc' ? 'RRC' : `${nm}${k === 'greenies' ? (x.sweepMode === 'modified' ? ' (mod.)' : ' (trad.)') : ''} $${x.value}`);
+      });
+      (s.customJunk || []).forEach(j => { if (j.active) out.push(`${j.label} $${j.value}`); });
+      return out.length ? out.join(' · ') : 'No side bets';
+    });
+    const gmS = s.games.groupmatch || {};
+    const gmText = gmS.active ? `Group Match · ${({best1:'Best ball', best2:'Best 2 balls', all:'All scores'})[gmS.format] || 'Best ball'} · $${gmS.front}/$${gmS.back}/$${gmS.overall}` : 'None';
     return {
       setupStep: step,
       isStep1: step === 1, isStep2: step === 2, isStep4: step === 4,
@@ -4231,7 +4325,12 @@ class Component extends DCLogic {
       reviewCards: [
         {label:'ROUND', text: roundText, color: noCourse ? '#c8102e' : '#1a2733', onEdit: () => this.goSetupStep(1)},
         {label:'PLAYERS', text: playersText, color: active.length ? '#1a2733' : '#c8102e', onEdit: () => this.goSetupStep(2)},
-        {label:`BETS · ${modeLabel}`, text: betsParts.length ? betsParts.join(' · ') : 'No bets on', color:'#1a2733', onEdit: () => this.goSetupStep(3)}
+        ...(splitReview ? [
+          {label:`BETWEEN GROUPS · ${modeLabel}`, text: gmText, color:'#1a2733', onEdit: () => this.goSetupStep(3)},
+          ...this.groupKeys().map(g => ({label: `${this.groupName(g).toUpperCase()} · WITHIN GROUP`, text: groupBetText(g), color:'#1a2733', onEdit: () => { this.setState({junkEditGroup: g, betsView: 'games'}); this.goSetupStep(3); }}))
+        ] : [
+          {label:`BETS · ${modeLabel}`, text: betsParts.length ? betsParts.join(' · ') : 'No bets on', color:'#1a2733', onEdit: () => this.goSetupStep(3)}
+        ])
       ]
     };
   }
@@ -4641,8 +4740,12 @@ class Component extends DCLogic {
     }));
 
     const activeGamesList = [];
-    if (s.games.nassau.active) activeGamesList.push(`NASSAU $${s.games.nassau.front}`);
-    ['bestball','wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (s.games[k].active) activeGamesList.push(`${s.games[k].label} $${s.games[k].value}`); });
+    if (s.games.groupmatch && s.games.groupmatch.active && this.splitJunk()) activeGamesList.push(`GROUP MATCH $${s.games.groupmatch.front}`);
+    this.groupKeys().forEach(g => this.withGroup(g, () => {
+      const G = this.state.games, add = x => { if (!activeGamesList.includes(x)) activeGamesList.push(x); };
+      if (G.nassau.active) add(`NASSAU $${G.nassau.front}`);
+      ['bestball','wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (G[k].active) add(`${G[k].label} $${G[k].value}`); });
+    }));
     const gamesChips = activeGamesList.map(text => ({text}));
 
     const holeChips = [];
@@ -4741,10 +4844,11 @@ class Component extends DCLogic {
       return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => this.toggleChippy(n, p.id)};
     }) : [];
 
-    const vegasActive = !!(s.games.vegas && s.games.vegas.active);
+    const vegasPl = this.gamePlayers('vegas', active), taPl = this.gamePlayers('ta', active), bbbPl = this.gamePlayers('bbb', active), wolfPl = this.gamePlayers('wolf', active);
+    const vegasActive = vegasPl.length > 0;
     const vegasHoleState = s.vegasTeams[n] || {skip:false, assign:{}};
     const vegasSkip = !!vegasHoleState.skip;
-    const vegasChips = vegasActive ? active.map(p => {
+    const vegasChips = vegasActive ? vegasPl.map(p => {
       const team = vegasHoleState.assign[p.id];
       const bg = team === 'A' ? '#0f2a4a' : (team === 'B' ? '#ffa62f' : '#f3f1ea');
       const color = team === 'A' ? '#fff' : (team === 'B' ? '#1a2733' : '#1a2733');
@@ -4753,9 +4857,9 @@ class Component extends DCLogic {
     }) : [];
     const onToggleVegasSkip = () => this.toggleVegasSkip(n);
 
-    const taActive = !!(s.games.ta && s.games.ta.active);
+    const taActive = taPl.length > 0;
     const taHoleFlips = s.taFlips[n] || {};
-    const taChips = taActive ? active.map(p => {
+    const taChips = taActive ? taPl.map(p => {
       const flip = taHoleFlips[p.id];
       const bg = flip === 'T' ? '#0f2a4a' : (flip === 'A' ? '#ffa62f' : '#f3f1ea');
       const color = flip === 'T' ? '#fff' : '#1a2733';
@@ -4763,19 +4867,19 @@ class Component extends DCLogic {
       return {id:p.id, initials:label, bg, color, onClick: () => this.cycleTaFlip(n, p.id)};
     }) : [];
 
-    const bbbActive = !!(s.games.bbb && s.games.bbb.active);
+    const bbbActive = bbbPl.length > 0;
     const bbbHole = s.bbbPoints[n] || {};
-    const makeBbbChips = (type) => active.map(p => {
+    const makeBbbChips = (type) => bbbPl.map(p => {
       const on = bbbHole[type] === p.id;
       return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#f3f1ea', color: on?'#fff':'#1a2733', onClick: () => this.toggleBbbPoint(n, type, p.id)};
     });
     const bingoChips = bbbActive ? makeBbbChips('bingo') : [];
     const bangoChips = bbbActive ? makeBbbChips('bango') : [];
     const bongoChips = bbbActive ? makeBbbChips('bongo') : [];
-    const wolfActive = !!(s.games.wolf && s.games.wolf.active);
-    const wolfPlayer = wolfActive ? this.wolfForHole(n, active) : null;
+    const wolfActive = wolfPl.length > 0;
+    const wolfPlayer = wolfActive ? this.wolfForHole(n, wolfPl) : null;
     const wolfPick = s.wolfPicks[n];
-    const wolfPartnerChips = (wolfActive && wolfPlayer) ? active.filter(p => p.id !== wolfPlayer.id).map(p => ({
+    const wolfPartnerChips = (wolfActive && wolfPlayer) ? wolfPl.filter(p => p.id !== wolfPlayer.id).map(p => ({
       id:p.id, initials:p.initials,
       isPicked: wolfPick && !wolfPick.lone && wolfPick.partnerId === p.id,
       bg: (wolfPick && !wolfPick.lone && wolfPick.partnerId === p.id) ? '#0f2a4a' : '#f3f1ea',
@@ -4825,23 +4929,27 @@ class Component extends DCLogic {
         onChange: (e) => this.setGroupName(k, e.target.value)
       }))
     };
+    const egKey = this.editGroup();
+    const EG = this.gamesFor(egKey);
+    const egPlayers = s.roster.filter(p => p.active && (!this.splitJunk() || (p.group || 'A') === egKey));
     const nassau = {
-      active: s.games.nassau.active,
-      bg: s.games.nassau.active ? '#0f2a4a' : '#e9e5dc',
-      knob: s.games.nassau.active ? '18px' : '2px',
+      active: EG.nassau.active,
+      bg: EG.nassau.active ? '#0f2a4a' : '#e9e5dc',
+      knob: EG.nassau.active ? '18px' : '2px',
       onToggle: () => this.toggleGame('nassau'),
-      front: s.games.nassau.front, back: s.games.nassau.back, overall: s.games.nassau.overall,
+      front: EG.nassau.front, back: EG.nassau.back, overall: EG.nassau.overall,
       onFront: (e)=>this.setGameValue('nassau','front',e.target.value),
       onBack: (e)=>this.setGameValue('nassau','back',e.target.value),
       onOverall: (e)=>this.setGameValue('nassau','overall',e.target.value)
     };
 
     const sixSix = {
-      active: s.games.sixsixsix.active,
-      bg: s.games.sixsixsix.active ? '#0f2a4a' : '#e9e5dc',
-      knob: s.games.sixsixsix.active ? '18px' : '2px',
+      active: EG.sixsixsix.active,
+      bg: EG.sixsixsix.active ? '#0f2a4a' : '#e9e5dc',
+      knob: EG.sixsixsix.active ? '18px' : '2px',
       onToggle: () => this.toggleGame('sixsixsix'),
-      value: s.games.sixsixsix.value, sub: s.games.sixsixsix.sub,
+      value: EG.sixsixsix.value,
+      sub: this.splitJunk() && egPlayers.length !== 4 ? `Needs exactly 4 players. ${this.groupName(egKey)} has ${egPlayers.length}.` : EG.sixsixsix.sub,
       onChange: (e)=>this.setGameValue('sixsixsix','value',e.target.value),
       pairingsOpen: s.sixPairingsOpen,
       pairingsLabel: s.sixPairingsOpen ? 'HIDE PAIRINGS' : 'SHOW PAIRINGS',
@@ -4849,7 +4957,7 @@ class Component extends DCLogic {
     };
     const sixSixGroups = [];
     {
-      const activeP = s.roster.filter(p => p.active);
+      const activeP = egPlayers;
       for (let i=0; i<activeP.length; i+=4){
         const grp = activeP.slice(i, i+4);
         if (grp.length < 4){
@@ -4870,34 +4978,34 @@ class Component extends DCLogic {
       }
     }
     const simpleGames = ['wolf','skins','vegas','ta','bbb'].map(k => ({
-      key:k, label:s.games[k].label, sub:s.games[k].sub, value:s.games[k].value, active:s.games[k].active,
-      bg: s.games[k].active ? '#0f2a4a' : '#e9e5dc', knob: s.games[k].active ? '18px' : '2px',
+      key:k, label:EG[k].label, sub:EG[k].sub, value:EG[k].value, active:EG[k].active,
+      bg: EG[k].active ? '#0f2a4a' : '#e9e5dc', knob: EG[k].active ? '18px' : '2px',
       onToggle: () => this.toggleGame(k),
       onChange: (e)=>this.setGameValue(k,'value',e.target.value),
       showCarryover: k === 'skins',
-      carryoverBg: s.games[k].carryover ? '#0f2a4a' : '#fff',
-      carryoverCheck: s.games[k].carryover ? '✓' : '',
+      carryoverBg: EG[k].carryover ? '#0f2a4a' : '#fff',
+      carryoverCheck: EG[k].carryover ? '✓' : '',
       onToggleCarryover: () => this.toggleGameFlag(k, 'carryover')
     }));
     const bestBall = {
-      active: s.games.bestball.active,
-      value: s.games.bestball.value,
-      sub: s.games.bestball.sub,
-      bg: s.games.bestball.active ? '#0f2a4a' : '#e9e5dc',
-      knob: s.games.bestball.active ? '18px' : '2px',
+      active: EG.bestball.active,
+      value: EG.bestball.value,
+      sub: EG.bestball.sub,
+      bg: EG.bestball.active ? '#0f2a4a' : '#e9e5dc',
+      knob: EG.bestball.active ? '18px' : '2px',
       onToggle: () => this.toggleGame('bestball'),
       onChange: (e)=>this.setGameValue('bestball','value',e.target.value),
-      tiebreakBg: s.games.bestball.secondBallTiebreak ? '#0f2a4a' : '#fff',
-      tiebreakCheck: s.games.bestball.secondBallTiebreak ? '✓' : '',
+      tiebreakBg: EG.bestball.secondBallTiebreak ? '#0f2a4a' : '#fff',
+      tiebreakCheck: EG.bestball.secondBallTiebreak ? '✓' : '',
       onToggleTiebreak: () => this.toggleGameFlag('bestball', 'secondBallTiebreak'),
       ...(() => {
-        const om = s.games.bestball.oddMode === 'three' ? 'three' : 'solo';
+        const om = EG.bestball.oddMode === 'three' ? 'three' : 'solo';
         return {
-          showOdd: this.activeGroups(s.roster.filter(p => p.active)).some(g => g.players.length >= 3 && g.players.length % 2 === 1),
+          showOdd: this.splitJunk() ? (egPlayers.length >= 3 && egPlayers.length % 2 === 1) : this.activeGroups(s.roster.filter(p => p.active)).some(g => g.players.length >= 3 && g.players.length % 2 === 1),
           oddSub: om === 'three' ? 'Odd number in a group: the last player joins the last team as a 3-player best ball.' : 'Odd number in a group: the last player plays his own ball against each team.',
           oddOptions: [['solo','ODD PLAYER SOLO'],['three','ODD PLAYER JOINS A TEAM']].map(([k, l]) => ({
             label: l, bg: om === k ? '#0f2a4a' : '#f3f1ea', color: om === k ? '#fff' : '#1a2733',
-            onClick: () => { if (this.lockedOut()) return; const games = JSON.parse(JSON.stringify(this.state.games)); games.bestball.oddMode = k; this.setState({games}); }
+            onClick: () => this.editGames('bestball', x => { x.oddMode = k; })
           }))
         };
       })()
@@ -4909,7 +5017,7 @@ class Component extends DCLogic {
     const rrcHolderName = (s.roster.find(p => p.id === this.withGroup(jg, () => this.state.rrcHolder)) || {}).name;
     const gMode = (J.greenies && J.greenies.sweepMode === 'modified') ? 'modified' : 'traditional';
     const setGMode = (m) => this.editJunk(jg, j => { j.greenies.sweepMode = m; }, () => this.refreshGreenieSweep());
-    const junkSig = g => stableStr(this.junkFor(g));
+    const junkSig = g => stableStr(this.junkFor(g)) + stableStr((() => { const G = {...this.gamesFor(g)}; delete G.groupmatch; return G; })());
     const junkTabs = {
       show: jSplit,
       tabs: jKeys.map(k => ({
@@ -4919,7 +5027,7 @@ class Component extends DCLogic {
         onClick: () => this.setJunkEditGroup(k)
       })),
       players: s.roster.filter(p => p.active && (p.group || 'A') === jg).map(p => p.name.split(' ')[0]).join(', '),
-      copyLabel: jg === 'A' ? `COPY ${this.groupName('A').toUpperCase()} JUNK TO ALL GROUPS` : `MATCH ${this.groupName('A').toUpperCase()} JUNK`,
+      copyLabel: jg === 'A' ? `COPY ${this.groupName('A').toUpperCase()} GAMES & JUNK TO ALL GROUPS` : `MATCH ${this.groupName('A').toUpperCase()} GAMES & JUNK`,
       onCopy: () => this.copyJunkFromA(jg)
     };
     const greenieModeBits = {
@@ -4941,9 +5049,11 @@ class Component extends DCLogic {
       onChange: (e)=>this.setJunkValue(k,e.target.value, jg),
       deletable:false,
       isPriceless: k==='rrc',
-      showSweepMode: k==='greenies' && !!J[k].active
+      showSweepMode: k==='greenies' && !!J[k].active,
+      off: !J[k].active, smallBg: J[k].active ? '#0f2a4a' : '#e9e5dc', smallKnob: J[k].active ? '16px' : '2px'
     })).concat(s.customJunk.map(j => ({
       key:j.id, label:j.label, sub:j.sub, value:j.value, active:j.active,
+      off: !j.active, smallBg: j.active ? '#0f2a4a' : '#e9e5dc', smallKnob: j.active ? '16px' : '2px',
       bg: j.active ? '#0f2a4a' : '#e9e5dc', knob: j.active ? '18px' : '2px',
       onToggle: () => this.toggleCustomJunk(j.id),
       onChange: (e)=>this.setCustomJunkValue(j.id, e.target.value),
@@ -5339,6 +5449,13 @@ class Component extends DCLogic {
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
       nassau, groupMatch, simpleGames, bestBall, junkList, junkTabs, holeJunk, historyList,
+      betsGamesView: s.betsView !== 'junk', betsJunkView: s.betsView === 'junk',
+      gmSplit: jSplit, gamesHeading: jSplit ? 'BETWEEN GROUPS' : 'GAMES',
+      betsTabs: [['games','GAMES'],['junk','JUNK']].map(([k, l]) => {
+        const on = (s.betsView === 'junk') === (k === 'junk');
+        return {label: l, bg: on ? '#0f2a4a' : 'transparent', color: on ? '#fff' : '#5a6672',
+          onClick: () => this.setState({betsView: k}, () => { const el = document.querySelector('[data-setup-scroll]'); if (el) el.scrollTop = 0; })};
+      }),
       sixSix, sixSixGroups,
       newJunkLabel,
       onNewJunkLabelChange: (e)=>this.setState({newJunkLabel:e.target.value}),
