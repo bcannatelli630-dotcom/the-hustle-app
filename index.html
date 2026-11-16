@@ -4324,6 +4324,9 @@ class Component extends DCLogic {
     this.setState({setupConfirm: null});
   }
   clearRoundInfo(){
+    // Full reset for a new round: players (kept in Saved Players), bets, junk, scores
+    // and the course. Club Directory and Saved Players are untouched.
+    this.clearRound();
     this.setState({roundType:'18', tournamentDays:2, eventName:'', courseName:'No Course Selected', courseSearch:'', courseSearchOpen:false, setupConfirm:null});
   }
   clearAllPlayers(){
@@ -5412,7 +5415,7 @@ class Component extends DCLogic {
       onDismissSetupNotice: () => this.setState({setupNotice: null}),
       hasSetupConfirm: !!s.setupConfirm,
       setupConfirmTitle: s.setupConfirm === 'replaceClub' ? 'Replace saved club?' : (s.setupConfirm === 'round' ? 'Clear round info?' : 'Clear all players?'),
-      setupConfirmBody: s.setupConfirm === 'replaceClub' ? `${s.courseName} is already in your Club Directory. Saving replaces its saved tees, ratings and slopes with this version.` : (s.setupConfirm === 'round' ? 'This clears the round type, tournament name and course for this round. Your Club Directory is not affected.' : 'This removes everyone from the player list. They stay saved, so their names fill in when you type them.'),
+      setupConfirmBody: s.setupConfirm === 'replaceClub' ? `${s.courseName} is already in your Club Directory. Saving replaces its saved tees, ratings and slopes with this version.` : (s.setupConfirm === 'round' ? 'This clears everything for this round: players, bets, junk, scores, round type, tournament name and course. Players stay in Saved Players and your Club Directory is not affected.' : 'This removes everyone from the player list. They stay saved, so their names fill in when you type them.'),
       setupConfirmAction: s.setupConfirm === 'replaceClub' ? 'REPLACE' : 'CLEAR',
       ...(() => {
         const live = (s.liveCourses || {})[s.courseName];
