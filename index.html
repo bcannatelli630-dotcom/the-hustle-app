@@ -2768,6 +2768,49 @@ class Component extends DCLogic {
       }
     } catch (e) { this._onPushFailed(); }
   }
+  // Menu → Sync now: merge this phone with the server right away (newest edit of
+  // each item wins, nothing deleted), send the result back, and say what changed.
+  async manualSync(){
+    const say = (msg) => {
+      if (this._lockT) clearTimeout(this._lockT);
+      this.setState({lockNotice: 'sync', syncMsg: msg});
+      this._lockT = setTimeout(() => this.setState({lockNotice: null}), 4500);
+    };
+    if (!USE_LIVE_SYNC || !SYNC_ENDPOINT){ say('Live sync is off on this phone.'); return; }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false){ say('No signal. Your data is saved on this phone and will sync when you\u2019re back in coverage.'); return; }
+    say('Syncing\u2026');
+    try {
+      const sent = Date.now();
+      const res = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`, {cache: 'no-store'});
+      const json = await res.json();
+      this._noteServerTime(json, sent);
+      const local = pickSyncFields(this.state);
+      const remote = json && !json.empty && json.data ? json.data : null;
+      const merged = remote ? mergeStates(this.state, remote, true) : local;
+      const flat = o => { const out = {}; MERGE_KEYS.forEach(k => Object.assign(out, flattenKey(k, o[k]))); return out; };
+      const fm = flat(merged), fl = flat(local), fr = remote ? flat(remote) : {};
+      let gotScores = 0, gotOther = 0, sentN = 0;
+      const userData = /^(scores|greenieWinners|groupGreenies|sandyFlags|polyFlags|barkyFlags|chippyFlags|wolfPicks|vegasTeams|taFlips|bbbPoints|presses|games|junk|groupGames|groupJunk|customJunk|roster)\|/;
+      for (const p in fm){
+        if (!userData.test(p)) continue;
+        const same = (x, y) => x === y || (x == null && y == null) || ((x === 'null' || x == null) && (y === 'null' || y == null));
+        if (!same(fl[p], fm[p])){ if (p.startsWith('scores|')) gotScores++; else gotOther++; }
+        if (remote && !same(fr[p], fm[p])) sentN++;
+      }
+      if (stableStr(merged) !== stableStr(local)){
+        this._applyingRemote = true;
+        this.setState(backfillDefaults(merged), () => { this._applyingRemote = false; });
+      }
+      if (!remote || sentN) await this.pushState();
+      const parts = [];
+      if (gotScores) parts.push(`Recovered ${gotScores} score${gotScores === 1 ? '' : 's'}`);
+      if (gotOther) parts.push(`${gotScores ? '' : 'Recovered '}${gotOther} other item${gotOther === 1 ? '' : 's'}`);
+      if (sentN) parts.push(`Sent ${sentN} item${sentN === 1 ? '' : 's'} to the server`);
+      say(parts.length ? parts.join(' \u00b7 ') : 'Already up to date.');
+    } catch (e) {
+      say('Couldn\u2019t reach the server. Your data is saved on this phone; try again when you have signal.');
+    }
+  }
   _onPushFailed(){
     // Surface it after a couple of consecutive failures (not on one network blip)
     // so it's visible in Settings that changes on THIS device aren't reaching
@@ -4025,9 +4068,19 @@ class Component extends DCLogic {
         }
         if (!holes || totA === totB) return; // ties push
         const win = totA < totB ? A : B, lose = totA < totB ? B : A;
-        const share = seg.value * lose.players.length / win.players.length;
         lose.players.forEach(p => { ledger[p.id] -= seg.value; });
-        win.players.forEach(p => { ledger[p.id] += share; });
+        // Uneven sides: winners split the pot in whole dollars; any leftover goes to
+        // the winner with the best net score over the segment, so totals stay at $0.
+        const pot = seg.value * lose.players.length;
+        if (lose.players.length === win.players.length){
+          win.players.forEach(p => { ledger[p.id] += seg.value; });
+        } else {
+          const each = Math.floor(pot / win.players.length);
+          const segNet = p => { let t = 0; for (let h = seg.start; h <= seg.end; h++){ const v = this.netToParAt(p, h, mode, allActive); if (v != null) t += v; } return t; };
+          const best = win.players.slice().sort((x, y) => segNet(x) - segNet(y))[0];
+          win.players.forEach(p => { ledger[p.id] += each; });
+          ledger[best.id] += Math.round((pot - each * win.players.length) * 100) / 100;
+        }
         lines.push(`GROUP MATCH · ${seg.label}: ${this.groupName(win.key)} beats ${this.groupName(lose.key)} — each ${this.groupName(lose.key)} player pays $${seg.value}`);
       });
     }
@@ -4439,6 +4492,7 @@ class Component extends DCLogic {
       {label:'Round Rules', color:'#1a2733', onClick: go(() => this.setState({rulesModalOpen: true}))},
       {label:'Club Directory', color:'#1a2733', onClick: go(() => this.setScreen('clubs'))},
       {label:'History', color:'#1a2733', onClick: go(() => this.setScreen('history'))},
+      {label:'Sync now', color:'#0f2a4a', onClick: go(() => this.manualSync())},
       {label:'Log out', color:'#c8102e', onClick: go(() => this.logout())}
     ];
   }
@@ -5390,7 +5444,7 @@ class Component extends DCLogic {
           onConfirmTakeAdmin: () => this.setState({adminDeviceId: me, adminName: '', adminConfirmOpen: false}),
           onCancelTakeAdmin: () => this.setState({adminConfirmOpen: false}),
           showLockNotice: !!s.lockNotice,
-          lockNoticeText: s.lockNotice === 'editDelete' ? 'You\u2019re editing this round. Save or cancel the edit before deleting it.' : s.lockNotice === 'end' ? `Only the round admin (${this.adminLabel()}) can end the round.` : `Bets are locked during the round. Only the round admin (${this.adminLabel()}) can change them.`,
+          lockNoticeText: s.lockNotice === 'sync' ? (s.syncMsg || '') : s.lockNotice === 'editDelete' ? 'You\u2019re editing this round. Save or cancel the edit before deleting it.' : s.lockNotice === 'end' ? `Only the round admin (${this.adminLabel()}) can end the round.` : `Bets are locked during the round. Only the round admin (${this.adminLabel()}) can change them.`,
           showRoundFinal: !!re,
           roundFinalLine: isAdm
             ? (n ? `Waiting on ${n} phone${n > 1 ? 's' : ''} to sync. Late score fixes still update the History record.` : 'Every phone has synced. Clear the round when you\u2019re done.')
