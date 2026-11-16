@@ -104,7 +104,7 @@ input, select, textarea { font-size:16px !important; }
             <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">BETS</div>
             <sc-if value="{{ isOnlineNow }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:5px;background:#d4a017;color:#0f2a4a;font:800 10px Archivo,sans-serif;padding:4px 9px;border-radius:2px;letter-spacing:.6px;">
-                <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>LIVE
+                <span style="width:6px;height:6px;border-radius:50%;background:#0f2a4a;"></span>{{ liveBadgeText }}
               </div>
             </sc-if>
             <sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
@@ -136,6 +136,19 @@ input, select, textarea { font-size:16px !important; }
         <sc-if value="{{ heroOnBoard }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;margin:8px 10px 8px;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(15,42,74,.06);min-height:0;">
             <img src="./assets/course-photo.jpg" style="width:100%;height:100%;object-fit:cover;object-position:center 62%;display:block;"/>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showRoundFinal }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:none;margin:10px 18px 0;background:#0f2a4a;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font:800 11px Archivo,sans-serif;color:#ffa62f;letter-spacing:.6px;">ROUND FINAL · SAVED TO HISTORY</div>
+            <div style="font:600 11px Archivo,sans-serif;color:#a9bdd4;line-height:1.4;">{{ roundFinalLine }}</div>
+            <div style="display:flex;gap:8px;">
+              <div style="flex:1;text-align:center;background:#fff;color:#0f2a4a;padding:9px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ goSettle }}">VIEW BETS</div>
+              <sc-if value="{{ roundFinalCanClear }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:1;text-align:center;background:#c8102e;color:#fff;padding:9px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;" onClick="{{ onRoundFinalClear }}">CLEAR ROUND</div>
+              </sc-if>
+            </div>
           </div>
         </sc-if>
 
@@ -314,13 +327,6 @@ input, select, textarea { font-size:16px !important; }
             <div style="background:#c8102e;color:#fff;font:800 10px Archivo,sans-serif;padding:5px 10px;border-radius:20px;letter-spacing:.5px;cursor:pointer;white-space:nowrap;" onClick="{{ goSettle }}">{{ settleBtnLabel }}</div>
           </div>
           <div style="margin-top:7px;font:700 11px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;">ENTER SCORES · HOLE {{ currentHoleObj.n }}</div>
-          <sc-if value="{{ isEditingHistory }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:10px;background:#ffa62f;border-radius:8px;padding:9px 10px;display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;min-width:0;font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">EDITING PAST ROUND · {{ editingHistoryTitle }}</div>
-              <div style="background:#fff;color:#5a6672;font:800 10px Archivo,sans-serif;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onCancelHistoryEdits }}">CANCEL</div>
-              <div style="background:#0f2a4a;color:#fff;font:800 10px Archivo,sans-serif;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onSaveHistoryEdits }}">SAVE &amp; RE-SETTLE</div>
-            </div>
-          </sc-if>
         </div>
 
         <sc-if value="{{ showViewTabs }}" hint-placeholder-val="{{ true }}">
@@ -355,18 +361,23 @@ input, select, textarea { font-size:16px !important; }
         </div>
 
         <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;">
-        <sc-if value="{{ currentHoleObj.showGreenie }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ currentHoleObj.greenieActive }}" hint-placeholder-val="{{ false }}">
+        <sc-for list="{{ holeJunk }}" as="hj" hint-placeholder-count="0">
+          <sc-if value="{{ hj.showGreenie }}" hint-placeholder-val="{{ false }}">
             <div style="flex:none;padding:10px 18px;background:#fff8e6;border-bottom:1px solid #e9e5dc;">
-              <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;margin-bottom:8px;">{{ currentHoleObj.greenieLabel }}</div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                <sc-if value="{{ hj.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:{{ hj.tagBg }};color:{{ hj.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;letter-spacing:.4px;">{{ hj.tag }}</span>
+                </sc-if>
+                <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;">{{ hj.greenieLabel }}</div>
+              </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <sc-for list="{{ currentHoleObj.greenieChips }}" as="gc" hint-placeholder-count="4">
+                <sc-for list="{{ hj.greenieChips }}" as="gc" hint-placeholder-count="4">
                   <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ gc.bg }};color:{{ gc.color }};" onClick="{{ gc.onClick }}">{{ gc.initials }}</div>
                 </sc-for>
               </div>
             </div>
           </sc-if>
-        </sc-if>
+        </sc-for>
 
         <sc-if value="{{ currentHoleObj.wolfActive }}" hint-placeholder-val="{{ false }}">
           <div style="flex:none;padding:10px 18px;background:#eef2f6;border-bottom:1px solid #e9e5dc;">
@@ -380,49 +391,68 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </sc-if>
 
-        <sc-if value="{{ currentHoleObj.sandyActive }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
-            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">SANDIES — up-and-down from the bunker</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <sc-for list="{{ currentHoleObj.sandyChips }}" as="sc_" hint-placeholder-count="4">
-                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ sc_.bg }};color:{{ sc_.color }};" onClick="{{ sc_.onClick }}">{{ sc_.initials }}</div>
-              </sc-for>
+        <sc-for list="{{ holeJunk }}" as="hj" hint-placeholder-count="0">
+          <sc-if value="{{ hj.sandyActive }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                <sc-if value="{{ hj.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:{{ hj.tagBg }};color:{{ hj.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;letter-spacing:.4px;">{{ hj.tag }}</span>
+                </sc-if>
+                <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">SANDIES — up-and-down from the bunker</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ hj.sandyChips }}" as="sc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ sc_.bg }};color:{{ sc_.color }};" onClick="{{ sc_.onClick }}">{{ sc_.initials }}</div>
+                </sc-for>
+              </div>
             </div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ currentHoleObj.polyActive }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
-            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">POLIES — putt made longer than the flagstick</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <sc-for list="{{ currentHoleObj.polyChips }}" as="pc_" hint-placeholder-count="4">
-                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ pc_.bg }};color:{{ pc_.color }};" onClick="{{ pc_.onClick }}">{{ pc_.initials }}</div>
-              </sc-for>
+          </sc-if>
+          <sc-if value="{{ hj.polyActive }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                <sc-if value="{{ hj.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:{{ hj.tagBg }};color:{{ hj.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;letter-spacing:.4px;">{{ hj.tag }}</span>
+                </sc-if>
+                <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">POLIES — putt made longer than the flagstick</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ hj.polyChips }}" as="pc_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ pc_.bg }};color:{{ pc_.color }};" onClick="{{ pc_.onClick }}">{{ pc_.initials }}</div>
+                </sc-for>
+              </div>
             </div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ currentHoleObj.barkyActive }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
-            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">BARKIES — par or better after hitting a tree</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <sc-for list="{{ currentHoleObj.barkyChips }}" as="bk_" hint-placeholder-count="4">
-                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ bk_.bg }};color:{{ bk_.color }};" onClick="{{ bk_.onClick }}">{{ bk_.initials }}</div>
-              </sc-for>
+          </sc-if>
+          <sc-if value="{{ hj.barkyActive }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                <sc-if value="{{ hj.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:{{ hj.tagBg }};color:{{ hj.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;letter-spacing:.4px;">{{ hj.tag }}</span>
+                </sc-if>
+                <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">BARKIES — par or better after hitting a tree</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ hj.barkyChips }}" as="bk_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ bk_.bg }};color:{{ bk_.color }};" onClick="{{ bk_.onClick }}">{{ bk_.initials }}</div>
+                </sc-for>
+              </div>
             </div>
-          </div>
-        </sc-if>
-
-        <sc-if value="{{ currentHoleObj.chippyActive }}" hint-placeholder-val="{{ false }}">
-          <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
-            <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;margin-bottom:6px;">CHIPPIES — up-and-down off the green with a chip-in</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <sc-for list="{{ currentHoleObj.chippyChips }}" as="cp_" hint-placeholder-count="4">
-                <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ cp_.bg }};color:{{ cp_.color }};" onClick="{{ cp_.onClick }}">{{ cp_.initials }}</div>
-              </sc-for>
+          </sc-if>
+          <sc-if value="{{ hj.chippyActive }}" hint-placeholder-val="{{ false }}">
+            <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
+                <sc-if value="{{ hj.hasTag }}" hint-placeholder-val="{{ false }}">
+                  <span style="background:{{ hj.tagBg }};color:{{ hj.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;letter-spacing:.4px;">{{ hj.tag }}</span>
+                </sc-if>
+                <div style="font:800 10px Archivo,sans-serif;color:#5a6672;letter-spacing:.5px;">CHIPPIES — up-and-down off the green with a chip-in</div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <sc-for list="{{ hj.chippyChips }}" as="cp_" hint-placeholder-count="4">
+                  <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ cp_.bg }};color:{{ cp_.color }};" onClick="{{ cp_.onClick }}">{{ cp_.initials }}</div>
+                </sc-for>
+              </div>
             </div>
-          </div>
-        </sc-if>
+          </sc-if>
+        </sc-for>
 
         <sc-if value="{{ currentHoleObj.vegasActive }}" hint-placeholder-val="{{ false }}">
           <div style="flex:none;padding:10px 18px;background:#f3f1ea;border-bottom:1px solid #e9e5dc;">
@@ -575,6 +605,24 @@ input, select, textarea { font-size:16px !important; }
         </div>
 
         <div data-setup-scroll="1" style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+            <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">ROUND ADMIN</div>
+                <span style="background:{{ adminCard.badgeBg }};color:{{ adminCard.badgeFg }};font:800 9px Archivo,sans-serif;padding:3px 7px;border-radius:4px;letter-spacing:.4px;">{{ adminCard.badge }}</span>
+              </div>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">{{ adminCard.text }}</div>
+              <sc-if value="{{ adminCard.isAdmin }}" hint-placeholder-val="{{ false }}">
+                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">WHOSE PHONE IS THIS?</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <sc-for list="{{ adminCard.chips }}" as="ac" hint-placeholder-count="4">
+                    <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ ac.bg }};color:{{ ac.color }};" onClick="{{ ac.onClick }}">{{ ac.name }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ adminCard.canTake }}" hint-placeholder-val="{{ false }}">
+                <div style="text-align:center;padding:9px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;" onClick="{{ adminCard.onTake }}">MAKE THIS PHONE ADMIN</div>
+              </sc-if>
+            </div>
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
               <div style="display:flex;gap:6px;">
@@ -660,6 +708,14 @@ input, select, textarea { font-size:16px !important; }
                 <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
                 <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
               </div>
+              <sc-if value="{{ bestBall.showOdd }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">{{ bestBall.oddSub }}</div>
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                  <sc-for list="{{ bestBall.oddOptions }}" as="bo" hint-placeholder-count="2">
+                    <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ bo.bg }};color:{{ bo.color }};" onClick="{{ bo.onClick }}">{{ bo.label }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
             </sc-if>
           </div>
 
@@ -717,6 +773,20 @@ input, select, textarea { font-size:16px !important; }
 
 
           <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">JUNK</div>
+          <sc-if value="{{ junkTabs.show }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">Each group sets its own junk. Group Match is the only bet between groups.</div>
+              <div style="display:flex;gap:6px;background:#f3f1ea;border-radius:8px;padding:4px;">
+                <sc-for list="{{ junkTabs.tabs }}" as="jt" hint-placeholder-count="2">
+                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;background:{{ jt.bg }};color:{{ jt.color }};font:800 11px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;" onClick="{{ jt.onClick }}">
+                    <sc-if value="{{ jt.differs }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:#ffa62f;flex:none;"></span></sc-if>
+                    <span>{{ jt.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ junkTabs.players }}</div>
+            </div>
+          </sc-if>
 
           <sc-for list="{{ junkList }}" as="j" hint-placeholder-count="4">
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:12px;">
@@ -750,6 +820,9 @@ input, select, textarea { font-size:16px !important; }
             </sc-if>
           </sc-for>
 
+          <sc-if value="{{ junkTabs.show }}" hint-placeholder-val="{{ false }}">
+            <div style="font:800 11px Archivo,sans-serif;color:#0f2a4a;text-align:center;padding:10px;border:1.5px dashed #c9c3b6;border-radius:8px;cursor:pointer;letter-spacing:.3px;" onClick="{{ junkTabs.onCopy }}">{{ junkTabs.copyLabel }}</div>
+          </sc-if>
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;align-items:center;gap:10px;">
             <input placeholder="Add new junk bet (e.g. Barkies)" value="{{ newJunkLabel }}" onChange="{{ onNewJunkLabelChange }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fbfaf7;"/>
             <div style="background:#0f2a4a;color:#fff;padding:9px 16px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;flex:none;" onClick="{{ onAddJunk }}">ADD</div>
@@ -1477,6 +1550,13 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <sc-if value="{{ isEditingHistory }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:none;background:#ffa62f;padding:8px 12px;display:flex;align-items:center;gap:8px;border-top:1px solid #e08f1f;">
+        <div style="flex:1;min-width:0;font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">EDITING PAST ROUND · {{ editingHistoryTitle }}</div>
+        <div style="background:#fff;color:#5a6672;font:800 10px Archivo,sans-serif;padding:8px 10px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onCancelHistoryEdits }}">CANCEL</div>
+        <div style="background:#0f2a4a;color:#fff;font:800 10px Archivo,sans-serif;padding:8px 10px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ onSaveHistoryEdits }}">SAVE &amp; RE-SETTLE</div>
+      </div>
+    </sc-if>
     <!-- bottom nav -->
     <sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
       <div style="flex:none;height:60px;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #0a2038;background:#0f2a4a;">
@@ -1635,6 +1715,35 @@ input, select, textarea { font-size:16px !important; }
         </div>
       </div>
     </sc-if>
+    <sc-if value="{{ showLockNotice }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;left:12px;right:12px;top:16px;z-index:46;display:flex;justify-content:center;pointer-events:none;">
+        <div style="background:#0f2a4a;border:1.5px solid #ffa62f;border-radius:10px;padding:11px 14px;max-width:420px;width:100%;box-sizing:border-box;font:700 12px Archivo,sans-serif;color:#fff;line-height:1.4;box-shadow:0 12px 30px rgba(0,0,0,.3);">{{ lockNoticeText }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ adminConfirmOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Make this phone the round admin?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">Do this only if the admin's phone is dead or gone. That phone will no longer be able to change bets or end the round.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onConfirmTakeAdmin }}">MAKE THIS PHONE ADMIN</div>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onCancelTakeAdmin }}">CANCEL</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ clearEndedConfirm }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;margin-bottom:8px;">Clear the round now?</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;margin-bottom:18px;">{{ clearEndedText }}</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#c8102e;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onClearEndedAnyway }}">CLEAR ANYWAY</div>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onCancelClearEnded }}">WAIT</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
     <!-- ============ END EVENT CONFIRM ============ -->
     <sc-if value="{{ showEndConfirm }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
@@ -1763,7 +1872,7 @@ const DEFAULT_SCORES = {};
 const GAMES_DEFAULT = {
   nassau: {active:false, front:5, back:5, overall:5},
   groupmatch: {active:false, label:'GROUP MATCH', format:'best1', front:5, back:5, overall:5, names:{A:'', B:'', C:''}},
-  bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false},
+  bestball: {active:false, value:2, label:'BEST BALL', sub:'Team best-ball vs the field', secondBallTiebreak:false, oddMode:'solo'},
   wolf: {active:false, value:2, label:'WOLF', sub:'Per hole, lone wolf pays double'},
   sixsixsix: {active:false, value:2, label:'6-6-6', sub:'Best ball, rotating partners per 6'},
   skins: {active:false, value:2, label:'SKINS', sub:'Per hole', carryover:false},
@@ -1851,8 +1960,9 @@ const SYNC_KEYS = [
   'sweepCandidate', 'sweepCount', 'sweepDead', 'rrcHolder',
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
-  'customJunk', 'presses', 'courseName', 'liveCourses',
-  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt'
+  'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGreenies', 'groupTrack',
+  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
+  'adminDeviceId', 'adminName', 'roundEnd', 'devices', 'endAcks'
 ];
 const RULE_PRESETS = [
   ['breakfast', 'Breakfast ball'],
@@ -1866,10 +1976,11 @@ const RULES_DEFAULT = {preset:{}, custom:[]};
 function customRules(rules){
   return ((rules && rules.custom) || []).map(r => typeof r === 'string' ? {text: r, on: true} : r).filter(r => r && r.text && r.text.trim());
 }
+const GROUP_TRACK_KEYS = ['sweepCandidate','sweepCount','sweepDead','sweepDeadAnnounced','sweepAnnouncedCount','carryAnnounced','rrcHolder'];
 const GROUP_COLORS = {A:{bg:'#0f2a4a', fg:'#fff'}, B:{bg:'#ffa62f', fg:'#0f2a4a'}, C:{bg:'#1e7a3d', fg:'#fff'}};
 // Everything needed to fully rebuild a finished round (scores, flags, bets) so it
 // can be reopened from History, edited, and re-settled.
-const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => !['history','showHero','editingHistoryId','cellStamps','roundId','roundIdAt'].includes(k));
+const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => !['history','showHero','editingHistoryId','cellStamps','roundId','roundIdAt','adminDeviceId','adminName','roundEnd','devices','endAcks'].includes(k));
 function pickSyncFields(obj){
   const out = {};
   SYNC_KEYS.forEach(k => { if (obj[k] !== undefined) out[k] = obj[k]; });
@@ -1882,8 +1993,14 @@ function pickSyncFields(obj){
 // sync, each cell keeps whichever phone changed it most recently, instead of one
 // phone's whole round replacing the other's. Clearing a round starts a new round
 // id; the newer round wins outright so an old round can't come back.
-const MERGE_KEYS = ['scores','greenieWinners','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history'];
-const LEAF_DEPTH = {liveCourses:1, roster:1, history:1};
+// Single values merged as one cell each (newest edit wins), instead of riding along
+// with whichever phone saved last.
+const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','tournamentDays','eventName','roundLive','adminDeviceId','adminName','roundEnd'];
+// Lists merged item by item.
+const LIST_MERGE_KEYS = ['roster','history','presses','customJunk'];
+const MERGE_KEYS = ['scores','greenieWinners','groupGreenies','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history',
+  'games','junk','groupJunk','groupTrack','customJunk','presses','devices','endAcks','rules'].concat(SCALAR_MERGE_KEYS);
+const LEAF_DEPTH = {liveCourses:1, roster:1, history:1, presses:1, customJunk:1};
 const isPlainObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
 function newRoundId(){ return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function stableStr(v){
@@ -1898,7 +2015,8 @@ function keyedList(arr){
 }
 function flattenKey(k, v){
   const out = {};
-  const base = (k === 'roster' || k === 'history') ? keyedList(v) : v;
+  if (SCALAR_MERGE_KEYS.includes(k)){ out[k + '|$'] = stableStr(v); return out; }
+  const base = LIST_MERGE_KEYS.includes(k) ? keyedList(v) : v;
   const max = LEAF_DEPTH[k] || 99;
   const walk = (val, path, depth) => {
     if (isPlainObj(val) && depth < max && Object.keys(val).length) Object.keys(val).forEach(c => walk(val[c], path + '|' + c, depth + 1));
@@ -1908,6 +2026,7 @@ function flattenKey(k, v){
   return out;
 }
 function unflattenKey(k, flat, orderRef){
+  if (SCALAR_MERGE_KEYS.includes(k)) return (k + '|$') in flat ? JSON.parse(flat[k + '|$']) : null;
   const root = {};
   Object.keys(flat).sort((a,b) => a.split('|').length - b.split('|').length).forEach(p => {
     const parts = p.split('|').slice(1);
@@ -1918,12 +2037,14 @@ function unflattenKey(k, flat, orderRef){
     if (isPlainObj(o[last]) && isPlainObj(val) && !Object.keys(val).length) return;
     o[last] = val;
   });
-  if (k === 'roster' || k === 'history'){
+  if (LIST_MERGE_KEYS.includes(k)){
     const ref = Object.keys(keyedList(orderRef));
     const keys = Object.keys(root);
     const ordered = ref.filter(x => x in root);
     const extra = keys.filter(x => !ref.includes(x));
-    return (k === 'history' ? extra.concat(ordered) : ordered.concat(extra)).map(x => root[x]);
+    const list = (k === 'history' ? extra.concat(ordered) : ordered.concat(extra)).map(x => root[x]);
+    if (k === 'presses') list.sort((a, b) => ((a && a.hole) || 0) - ((b && b.hole) || 0));
+    return list;
   }
   return root;
 }
@@ -2017,6 +2138,7 @@ class Component extends DCLogic {
     activeNotif: null,
     rrcHolder: null,
     greenieWinners: {},
+    groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
     greenieResolved: {},
     wolfPicks: {},
     sandyFlags: {},
@@ -2347,8 +2469,10 @@ class Component extends DCLogic {
     const offAll = o => { const c = JSON.parse(JSON.stringify(o || {})); Object.keys(c).forEach(k => { if (c[k] && typeof c[k] === 'object') c[k].active = false; }); return c; };
     this.setState({
       games: offAll(this.state.games), junk: offAll(this.state.junk),
+      groupJunk: Object.fromEntries(Object.entries(this.state.groupJunk || {}).map(([k,v]) => [k, offAll(v)])), groupGreenies: {}, groupTrack: {},
+      roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', clearEndedConfirm: false,
       customJunk: (this.state.customJunk || []).map(j => ({...j, active: false})),
-      roundId: newRoundId(), roundIdAt: Date.now(), cellStamps: {},
+      roundId: newRoundId(), roundIdAt: this.syncNow(), cellStamps: {},
       roster: [],
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
@@ -2367,6 +2491,7 @@ class Component extends DCLogic {
   // Settings-tab action rather than a locked-down admin one.
   resetRosterAndSettings(){
     this.setState({
+      groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2375,7 +2500,7 @@ class Component extends DCLogic {
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected',
       roundType: '18', tournamentDays: 2, eventName: '',
-      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false, roundLive: false, setupStep: 1, roundId: newRoundId(), roundIdAt: Date.now(), cellStamps: {},
+      scoringMode: 'low', showHero: true, resetAllConfirmOpen: false, roundLive: false, setupStep: 1, roundId: newRoundId(), roundIdAt: this.syncNow(), cellStamps: {},
       rules: JSON.parse(JSON.stringify(RULES_DEFAULT))
     });
   }
@@ -2385,6 +2510,7 @@ class Component extends DCLogic {
       localStorage.removeItem('hustle_known_players');
     }
     const fresh = {
+      groupJunk: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2412,7 +2538,7 @@ class Component extends DCLogic {
       const localSaved = JSON.parse(localStorage.getItem(LOCAL_STATE_KEY) || 'null');
       if (localSaved && typeof localSaved === 'object'){
         const restore = pickSyncFields(localSaved);
-        ['screen','setupStep','currentHole'].forEach(k => { if (localSaved[k] !== undefined) restore[k] = localSaved[k]; });
+        ['screen','setupStep','currentHole','eventEnded','editingHistoryId'].forEach(k => { if (localSaved[k] !== undefined) restore[k] = localSaved[k]; });
         this.setState(backfillDefaults(restore));
       }
     } catch(e){}
@@ -2478,9 +2604,10 @@ class Component extends DCLogic {
     // no data: any local interaction quietly blocked every future sync forever.
     const curSyncSnap = JSON.stringify(pickSyncFields(this.state));
     if (!this._applyingRemote && this._lastSyncSnap !== undefined && curSyncSnap !== this._lastSyncSnap){
-      this._lastLocalChangeAt = Date.now();
+      this._lastLocalChangeAt = this.syncNow();
       try { localStorage.setItem('hustle_last_local_change', String(this._lastLocalChangeAt)); } catch(e){}
     }
+    this._roundEndHooks(!this._applyingRemote && this._lastSyncSnap !== undefined && curSyncSnap !== this._lastSyncSnap);
     if (curSyncSnap !== this._lastSyncSnap || !this._prevMaps) this._stampCells();
     this._lastSyncSnap = curSyncSnap;
     this.pushStateDebounced();
@@ -2491,7 +2618,7 @@ class Component extends DCLogic {
     const prev = this._prevMaps;
     this._prevMaps = cur;
     if (!prev || this._applyingRemote) return;
-    const now = Date.now();
+    const now = this.syncNow();
     let changed = null;
     for (const p in cur) if (prev[p] !== cur[p]) (changed = changed || {})[p] = now;
     for (const p in prev) if (!(p in cur)) (changed = changed || {})[p] = now;
@@ -2519,10 +2646,12 @@ class Component extends DCLogic {
     // seconds to actually land on the server before trusting an incoming poll —
     // otherwise a poll racing ahead of our own pending push stomps it right back.
     // (force=true bypasses this — used when deliberately switching session codes.)
-    if (!force && this._lastLocalChangeAt && Date.now() - this._lastLocalChangeAt < 2500) return;
+    if (!force && this._lastLocalChangeAt && this.syncNow() - this._lastLocalChangeAt < 2500) return;
     try {
+      const sentAt = Date.now();
       const res = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`);
       const json = await res.json();
+      this._noteServerTime(json, sentAt);
       if (json && !json.empty && json.data) {
         // Guard against a stale poll clobbering a not-yet-confirmed local edit:
         // only apply if the remote snapshot is at least as new as our last local
@@ -2550,13 +2679,15 @@ class Component extends DCLogic {
   }
   async pushState(){
     if (!USE_LIVE_SYNC || !SYNC_ENDPOINT) return;
-    const attemptedAt = Date.now();
+    const attemptedAt = this.syncNow();
     let payloadData = pickSyncFields(this.state);
     try {
       // Blend in anything another phone saved since we last looked, so this push
       // never wipes their scores.
+      const sent0 = Date.now();
       const cur = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`);
       const cj = await cur.json();
+      this._noteServerTime(cj, sent0);
       if (cj && !cj.empty && cj.data){
         payloadData = mergeStates(this.state, cj.data, true);
         if (stableStr(payloadData) !== stableStr(pickSyncFields(this.state))){
@@ -2569,6 +2700,7 @@ class Component extends DCLogic {
       // Group is sent BOTH in the URL and the body — the feed's write endpoint
       // resolves it from either, but sending both means a write and a read always
       // agree on which row they mean, however the endpoint is deployed.
+      const sent1 = Date.now();
       const res = await fetch(`${SYNC_ENDPOINT}?group=${encodeURIComponent(this.state.groupKey)}`, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
@@ -2579,6 +2711,7 @@ class Component extends DCLogic {
         })
       });
       if (res.ok) {
+        try { this._noteServerTime(await res.clone().json(), sent1); } catch(e){}
         this._lastConfirmedPushAt = attemptedAt;
         try { localStorage.setItem('hustle_last_confirmed_push', String(attemptedAt)); } catch(e){}
         this._pushFailCount = 0;
@@ -2711,7 +2844,7 @@ class Component extends DCLogic {
     // auto-clear the round (it's already safely logged in History) so Leaderboard
     // and Scorecard come up blank instead of showing the finished round's old data.
     if (this.state.eventEnded && this.state.screen === 'settle' && name !== 'settle'){
-      this.clearRound();
+      this.maybeClearEndedRound();
     }
     const patch = {screen: name};
     if (name === 'games') patch.setupStep = 3;
@@ -2743,12 +2876,14 @@ class Component extends DCLogic {
 
     let extra = {};
     const par = this.course.par[hole-1];
-    if (this.state.junk.rrc && this.state.junk.rrc.active && newGross === par - 1 && this.state.rrcHolder !== playerId){
+    const rg = this.groupOf(playerId);
+    const rrc = this.withGroup(rg, () => ({on: !!(this.state.junk.rrc && this.state.junk.rrc.active), holder: this.state.rrcHolder}));
+    if (rrc.on && newGross === par - 1 && rrc.holder !== playerId){
       const winner = this.state.roster.find(p => p.id === playerId);
-      const loser = this.state.roster.find(p => p.id === this.state.rrcHolder);
+      const loser = this.state.roster.find(p => p.id === rrc.holder);
       extra = {
-        rrcHolder: playerId,
-        activeNotif: {kind:'rrc', winner: winner ? winner.name : '', loser: loser ? loser.name : null}
+        ...this.trackPatch(rg, {rrcHolder: playerId}),
+        activeNotif: {kind:'rrc', winner: winner ? winner.name : '', loser: loser ? loser.name : null, group: this.splitJunk() ? rg : undefined}
       };
     }
     this.setState({scores, ...extra}, () => this.refreshGreenieSweep(true));
@@ -2828,9 +2963,71 @@ class Component extends DCLogic {
   }
 
   setGreenieWinner(hole, playerId){
-    const greenieWinners = {...this.state.greenieWinners};
-    greenieWinners[hole] = greenieWinners[hole] === playerId ? null : playerId;
-    this.setState({greenieWinners}, () => this.refreshGreenieSweep(true));
+    const g = this.groupOf(playerId);
+    if (g === 'A'){
+      const greenieWinners = {...this.state.greenieWinners};
+      greenieWinners[hole] = greenieWinners[hole] === playerId ? null : playerId;
+      this.setState({greenieWinners}, () => this.refreshGreenieSweep(true));
+      return;
+    }
+    const all = {...(this.state.groupGreenies || {})};
+    const mine = {...(all[g] || {})};
+    mine[hole] = mine[hole] === playerId ? null : playerId;
+    all[g] = mine;
+    this.setState({groupGreenies: all}, () => this.refreshGreenieSweep(true));
+  }
+
+  // Per-foursome junk. With Group Match on and 2+ groups playing, each group has its
+  // own junk settings, greenie winners, sweep tracking and RRC. Group A keeps using the
+  // original top-level fields, so older rounds load and settle exactly as before.
+  groupKeys(){
+    const gm = this.state.games && this.state.games.groupmatch;
+    if (!gm || !gm.active) return ['A'];
+    const act = (this.state.roster || []).filter(p => p.active);
+    const ks = ['A','B','C'].filter(k => act.some(p => (p.group || 'A') === k));
+    return ks.length ? ks : ['A'];
+  }
+  splitJunk(){ return this.groupKeys().length > 1; }
+  groupOf(playerId){
+    if (!this.splitJunk()) return 'A';
+    const p = (this.state.roster || []).find(x => x.id === playerId);
+    return (p && p.group) || 'A';
+  }
+  junkFor(g){ return g === 'A' ? this.state.junk : ((this.state.groupJunk || {})[g] || this.state.junk); }
+  // Run read-only helpers as if only group g's junk existed. Never call setState inside.
+  withGroup(g, fn){
+    if (!this.splitJunk()) return fn();
+    const real = this.state;
+    const scoped = {...real, junk: this.junkFor(g), __junkGroup: g,
+      greenieWinners: g === 'A' ? real.greenieWinners : ((real.groupGreenies || {})[g] || {})};
+    if (g !== 'A'){ const t = (real.groupTrack || {})[g] || {}; GROUP_TRACK_KEYS.forEach(k => { scoped[k] = t[k]; }); }
+    this.state = scoped;
+    try { return fn(); } finally { this.state = real; }
+  }
+  trackPatch(g, patch, base){
+    if (g === 'A') return patch;
+    const all = {...((base && base.groupTrack) || this.state.groupTrack || {})};
+    all[g] = {...(all[g] || {}), ...patch};
+    return {groupTrack: all};
+  }
+  editJunk(g, fn, cb){
+    if (this.lockedOut()) return;
+    if (g === 'A'){ const junk = JSON.parse(JSON.stringify(this.state.junk)); fn(junk); this.setState({junk}, cb); return; }
+    const gj = {...(this.state.groupJunk || {})};
+    const j = JSON.parse(JSON.stringify(gj[g] || this.state.junk)); fn(j); gj[g] = j;
+    this.setState({groupJunk: gj}, cb);
+  }
+  setJunkEditGroup(g){
+    const gj = {...(this.state.groupJunk || {})};
+    if (g !== 'A' && !gj[g] && !this.betsLocked()){ gj[g] = JSON.parse(JSON.stringify(this.state.junk)); this.setState({junkEditGroup: g, groupJunk: gj}); }
+    else this.setState({junkEditGroup: g});
+  }
+  copyJunkFromA(g){
+    if (this.lockedOut()) return;
+    const gj = {...(this.state.groupJunk || {})};
+    const targets = g === 'A' ? this.groupKeys().filter(k => k !== 'A') : [g];
+    targets.forEach(k => { gj[k] = JSON.parse(JSON.stringify(this.state.junk)); });
+    this.setState({groupJunk: gj}, () => this.refreshGreenieSweep(true));
   }
 
   // Pure, derived from source-of-truth (greenieWinners + scores), walked in ascending
@@ -2844,7 +3041,8 @@ class Component extends DCLogic {
   resolveGreenies(){
     const course = this.course;
     const total = this.totalHolesForRound();
-    const active = (this.state.roster || []).filter(p => p.active);
+    const jg = this.state.__junkGroup;
+    const active = (this.state.roster || []).filter(p => p.active && (!jg || (p.group || 'A') === jg));
     const gw = this.state.greenieWinners || {};
     const scoreOf = (id, h) => (this.state.scores[id] || {})[h];
     // A hole only counts as over once play has moved on: scores on a later hole, or
@@ -2915,7 +3113,27 @@ class Component extends DCLogic {
   // quiet = true while scores/greenies are being entered on a hole: the sweep status
   // updates, but no alert pops until Save & Next Hole is tapped.
   refreshGreenieSweep(quiet){
-    if (!this.state.junk.greenies || !this.state.junk.greenies.active) return;
+    const split = this.splitJunk();
+    let out = {}, notif = null, deferred = false;
+    this.groupKeys().forEach(g => {
+      const r = this.withGroup(g, () => this.sweepPatch(quiet));
+      if (!r) return;
+      let {patch, activeNotif} = r;
+      if (activeNotif && notif){
+        // Another foursome's alert is showing; hold this one until it's dismissed.
+        delete patch.sweepDeadAnnounced; delete patch.sweepAnnouncedCount; delete patch.carryAnnounced;
+        activeNotif = null; deferred = true;
+      }
+      if (activeNotif) notif = split ? {...activeNotif, group: g} : activeNotif;
+      if (g === 'A') Object.assign(out, patch);
+      else if (Object.keys(patch).length) Object.assign(out, this.trackPatch(g, patch, out.groupTrack ? out : null));
+    });
+    this._deferredGroupNotif = deferred && !quiet;
+    if (!Object.keys(out).length && !notif) return;
+    this.setState({...out, ...(notif ? {activeNotif: notif} : {})});
+  }
+  sweepPatch(quiet){
+    if (!this.state.junk.greenies || !this.state.junk.greenies.active) return null;
     const s = this.state;
     const next = this.computeGreenieSweep();
     const nameOf = id => { const p = (s.roster || []).find(x => x.id === id); return p ? p.name : ''; };
@@ -2966,9 +3184,9 @@ class Component extends DCLogic {
       delete patch.sweepDeadAnnounced;
       delete patch.sweepAnnouncedCount;
     }
-    const same = Object.keys(patch).every(k => s[k] === patch[k]);
-    if (same && !activeNotif) return;
-    this.setState({...patch, ...(activeNotif ? {activeNotif} : {})});
+    Object.keys(patch).forEach(k => { if (s[k] === patch[k]) delete patch[k]; });
+    if (!Object.keys(patch).length && !activeNotif) return null;
+    return {patch, activeNotif};
   }
 
   togglePressPicker(){ this.setState({pressPickerOpen: !this.state.pressPickerOpen, pressMode:'individual', pressAssign:{}}); }
@@ -2983,11 +3201,11 @@ class Component extends DCLogic {
   callPress(playerId){
     const player = this.state.roster.find(p => p.id === playerId);
     if (!player) return;
-    const presses = [...this.state.presses, {hole: this.state.currentHole, playerId, playerName: player.name}];
+    const presses = [...this.state.presses, {id: 'pr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), hole: this.state.currentHole, playerId, playerName: player.name}];
     this.setState({presses, pressPickerOpen:false, activeNotif:{kind:'press', name: player.name, hole: this.state.currentHole}});
   }
   callTeamPress(teamName, playerIds){
-    const presses = [...this.state.presses, {hole: this.state.currentHole, playerId: null, playerName: teamName, teamIds: playerIds}];
+    const presses = [...this.state.presses, {id: 'pr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), hole: this.state.currentHole, playerId: null, playerName: teamName, teamIds: playerIds}];
     this.setState({presses, pressPickerOpen:false, activeNotif:{kind:'press', name: teamName, hole: this.state.currentHole}});
   }
   callAssignedTeamPress(side){
@@ -3001,18 +3219,22 @@ class Component extends DCLogic {
   toggleSixPairings(){ this.setState({sixPairingsOpen: !this.state.sixPairingsOpen}); }
 
   addCustomJunk(){
+    if (this.lockedOut()) return;
     const label = this.state.newJunkLabel.trim();
     if (!label) return;
     const customJunk = [...this.state.customJunk, {id:'cj'+Date.now(), label: label.toUpperCase(), sub:'Custom junk bet', value:2, active:true}];
     this.setState({customJunk, newJunkLabel:''});
   }
   removeCustomJunk(id){
+    if (this.lockedOut()) return;
     this.setState({customJunk: this.state.customJunk.filter(j => j.id !== id)});
   }
   toggleCustomJunk(id){
+    if (this.lockedOut()) return;
     this.setState({customJunk: this.state.customJunk.map(j => j.id===id ? {...j, active:!j.active} : j)});
   }
   setCustomJunkValue(id, val){
+    if (this.lockedOut()) return;
     const n = parseFloat(val);
     this.setState({customJunk: this.state.customJunk.map(j => j.id===id ? {...j, value: isNaN(n)?0:n} : j)});
   }
@@ -3035,12 +3257,24 @@ class Component extends DCLogic {
     return active.length > 0 && active.every(p => (this.state.scores[p.id] || {})[total] != null);
   }
   attemptEndEvent(){
+    if (this.lockedOut('end')) return;
     this.commitDefaultScores(this.state.currentHole);
     this.setState({showEndConfirm:true});
   }
   finalizeEndEvent(){
     // Rules added for this round go away once it ends; the preset checkboxes stay.
     this._clearCustomRulesAfterEnd = true;
+    const {payouts, snapshot, format} = this.buildRecordParts();
+    const editingId = this.state.editingHistoryId;
+    if (editingId){
+      // Re-settling an edited past round: update that record in place.
+      const history = this.state.history.map(h => h.id === editingId ? {...h, course: this.state.courseName, format, payouts, snapshot, edited: true, endedAt: Date.now()} : h);
+      this.setState({history, showEndConfirm:false, eventEnded:true, editingHistoryId:null, screen:'settle'});
+      return;
+    }
+    this.saveNewRecord(payouts, snapshot, format);
+  }
+  buildRecordParts(){
     const settlement = this.computeSettlement();
     const active = this.state.roster.filter(p => p.active);
     const activeGames = [];
@@ -3050,13 +3284,10 @@ class Component extends DCLogic {
     const payouts = active.map(p => ({name:p.name, amount: Math.round((settlement.netRows.find(r=>r.id===p.id)||{amount:0}).amount * 100) / 100}));
     const snapshot = JSON.parse(JSON.stringify(ROUND_SNAPSHOT_KEYS.reduce((o,k) => { o[k] = this.state[k]; return o; }, {})));
     const format = activeGames.length ? activeGames.join(' + ') : 'No games active';
-    const editingId = this.state.editingHistoryId;
-    if (editingId){
-      // Re-settling an edited past round: update that record in place.
-      const history = this.state.history.map(h => h.id === editingId ? {...h, course: this.state.courseName, format, payouts, snapshot, edited: true, endedAt: Date.now()} : h);
-      this.setState({history, showEndConfirm:false, eventEnded:true, editingHistoryId:null, screen:'settle'});
-      return;
-    }
+    return {payouts, snapshot, format, course: this.state.courseName};
+  }
+  saveNewRecord(payouts, snapshot, format){
+    const me = this.deviceId, now = this.syncNow();
     const record = {
       id: 'h' + Date.now(),
       title: this.state.eventName.trim() || (this.state.roundType === 'tournament' ? 'Untitled Tournament' : 'Untitled Round'),
@@ -3069,7 +3300,100 @@ class Component extends DCLogic {
       snapshot,
       endedAt: Date.now()
     };
-    this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle'});
+    this.setState({history: [record, ...this.state.history], showEndConfirm:false, eventEnded:true, screen:'settle',
+      roundEnd: {at: now, by: me, historyId: record.id},
+      endAcks: {...(this.state.endAcks || {}), [me]: now},
+      adminDeviceId: this.state.adminDeviceId || me});
+  }
+  // ----- Round admin + end-of-round sync -----
+  get deviceId(){
+    if (!this._devId){
+      try { this._devId = localStorage.getItem('hustle_device_id'); } catch(e){}
+      if (!this._devId){
+        this._devId = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+        try { localStorage.setItem('hustle_device_id', this._devId); } catch(e){}
+      }
+    }
+    return this._devId;
+  }
+  // Edit times are stamped on the feed's clock, so a phone with a wrong clock can't
+  // make an old edit look newer than a real one.
+  syncNow(){
+    if (this._clockOffset == null){
+      let v = null; try { v = parseFloat(localStorage.getItem('hustle_clock_offset')); } catch(e){}
+      this._clockOffset = isFinite(v) ? v : 0;
+    }
+    return Math.round(Date.now() + this._clockOffset);
+  }
+  _noteServerTime(json, sentAt){
+    if (!json || typeof json.serverNow !== 'number') return;
+    const off = json.serverNow - (sentAt + Date.now()) / 2;
+    this._clockOffset = this._clockOffset == null || !this._clockSynced ? off : this._clockOffset * 0.7 + off * 0.3;
+    this._clockSynced = true;
+    try { localStorage.setItem('hustle_clock_offset', String(this._clockOffset)); } catch(e){}
+  }
+  isAdmin(){ return !this.state.adminDeviceId || this.state.adminDeviceId === this.deviceId; }
+  betsLocked(){ return this.isRoundLive() && !!this.state.adminDeviceId && this.state.adminDeviceId !== this.deviceId; }
+  adminLabel(){ return this.state.adminName ? `${this.state.adminName.split(' ')[0]}'s phone` : 'the phone that started the round'; }
+  lockedOut(kind){
+    if (kind === 'end' ? this.isAdmin() : !this.betsLocked()) return false;
+    if (this._lockT) clearTimeout(this._lockT);
+    this.setState({lockNotice: kind === 'end' ? 'end' : 'bets'});
+    this._lockT = setTimeout(() => this.setState({lockNotice: null}), 3500);
+    return true;
+  }
+  // Phones that made changes this round but haven't checked in since it ended.
+  pendingPhones(){
+    const s = this.state;
+    if (!s.roundEnd) return [];
+    const acks = s.endAcks || {};
+    return Object.keys(s.devices || {}).filter(id => !acks[id]);
+  }
+  maybeClearEndedRound(){
+    const s = this.state;
+    if (!s.eventEnded) return;
+    if (!s.roundEnd){ this.clearRound(); return; }
+    if (this.isAdmin() && !this.pendingPhones().length) this.clearRound();
+  }
+  _roundEndHooks(localChange){
+    const s = this.state, me = this.deviceId;
+    if (localChange && this.isRoundLive() && !(s.devices || {})[me]){
+      setTimeout(() => { if (!(this.state.devices || {})[me]) this.setState({devices: {...(this.state.devices || {}), [me]: this.syncNow()}}); }, 0);
+    }
+    if (s.roundEnd && !(s.endAcks || {})[me]){
+      setTimeout(() => { const t = this.state; if (t.roundEnd && !(t.endAcks || {})[me]) this.setState({endAcks: {...(t.endAcks || {}), [me]: this.syncNow()}, eventEnded: true}); }, 0);
+    }
+    // An ended round stays ended on every phone, even after the app is closed or reloaded.
+    if (s.roundEnd && !s.eventEnded && !s.editingHistoryId){
+      setTimeout(() => { if (this.state.roundEnd && !this.state.eventEnded && !this.state.editingHistoryId) this.setState({eventEnded: true}); }, 0);
+    }
+    // Once every phone has synced, the admin's phone clears the ended round on its own
+    // (as soon as it's not on the Bets screen), so old scores never linger as "live".
+    if (s.eventEnded && s.roundEnd && !s.editingHistoryId && s.screen !== 'settle' && !s.clearEndedConfirm && this.isAdmin() && !this.pendingPhones().length && !this._autoClearT){
+      this._autoClearT = setTimeout(() => {
+        this._autoClearT = null;
+        const t = this.state;
+        if (t.eventEnded && t.roundEnd && t.screen !== 'settle' && this.isAdmin() && !this.pendingPhones().length) this.clearRound();
+      }, 1500);
+    }
+    if (this._seenRoundId && s.roundId !== this._seenRoundId && s.eventEnded && !s.roundEnd && !s.editingHistoryId){
+      setTimeout(() => this.setState({eventEnded: false}), 0);
+    }
+    this._seenRoundId = s.roundId;
+    if (s.roundEnd && s.roundEnd.historyId && !s.editingHistoryId && !this._recT){
+      this._recT = setTimeout(() => { this._recT = null; this.refreshEndedRecord(); }, 300);
+    }
+  }
+  // Late scores (a phone that was out of coverage when the round ended) update the
+  // History record instead of being dropped.
+  refreshEndedRecord(){
+    const s = this.state, re = s.roundEnd;
+    if (!re || s.editingHistoryId) return;
+    const rec = (s.history || []).find(h => h.id === re.historyId);
+    if (!rec) return;
+    const parts = this.buildRecordParts();
+    if (stableStr(parts.snapshot) === stableStr(rec.snapshot)) return;
+    this.setState({history: s.history.map(h => h.id === rec.id ? {...h, ...parts, lateUpdated: this.syncNow()} : h)});
   }
   roundInProgress(){
     return !this.state.eventEnded && !this.state.editingHistoryId && Object.values(this.state.scores || {}).some(ps => ps && Object.keys(ps).length > 0);
@@ -3114,6 +3438,12 @@ class Component extends DCLogic {
     this.setState({history: this.state.history.map(h => h.id===id ? {...h, [field]: value} : h)});
   }
   deleteHistoryRecord(id){
+    if (id && id === this.state.editingHistoryId){
+      if (this._lockT) clearTimeout(this._lockT);
+      this.setState({historyDeleteId: null, lockNotice: 'editDelete'});
+      this._lockT = setTimeout(() => this.setState({lockNotice: null}), 3500);
+      return;
+    }
     const idx = this.state.history.findIndex(h => h.id === id);
     if (idx < 0){ this.setState({historyDeleteId: null}); return; }
     const rec = this.state.history[idx];
@@ -3172,7 +3502,11 @@ class Component extends DCLogic {
     setTimeout(() => this.refreshGreenieSweep(false), 0);
   }
 
-  dismissNotif(){ this.setState({activeNotif: null}); }
+  dismissNotif(){
+    this.setState({activeNotif: null}, () => {
+      if (this._deferredGroupNotif){ this._deferredGroupNotif = false; this.refreshGreenieSweep(false); }
+    });
+  }
   replaySweep(){
     const total = this.course.par.filter(p=>p===3).length;
     this.setState({activeNotif: {kind:'sweep', name: this.state.sweepBannerName, count: this.state.sweepCount, total}});
@@ -3180,7 +3514,7 @@ class Component extends DCLogic {
 
   goSettings(){ this.setState({screen:'settings'}); }
   goBoard(){
-    if (this.state.eventEnded && this.state.screen === 'settle') this.clearRound();
+    if (this.state.eventEnded && this.state.screen === 'settle') this.maybeClearEndedRound();
     this.setState({screen:'board'});
   }
   goSettle(){ this.setState({screen:'settle'}); }
@@ -3373,6 +3707,15 @@ class Component extends DCLogic {
         for (let i=0; i+1 < active.length; i+=2){
           teams.push({label:`${active[i].name} & ${active[i+1].name}`, players:[active[i], active[i+1]]});
         }
+        // Odd number (e.g. a fivesome): the last player either plays solo against each
+        // team, or joins the last team as a 3-player best ball.
+        if (active.length % 2 === 1 && teams.length){
+          const odd = active[active.length - 1];
+          if (this.state.games.bestball.oddMode === 'three'){
+            const t = teams[teams.length - 1];
+            t.players = [...t.players, odd]; t.label = t.players.map(p => p.name).join(' & ');
+          } else teams.push({label: `${odd.name} (solo)`, players: [odd]});
+        }
         const teamTotals = teams.map(t => {
           let bestSum = 0, secondSum = 0, any = false;
           for (let h=1; h<=18; h++){
@@ -3380,7 +3723,8 @@ class Component extends DCLogic {
             if (vals.length < t.players.length) continue;
             any = true;
             bestSum += Math.min(...vals);
-            secondSum += Math.max(...vals);
+            const sorted = vals.slice().sort((a, b) => a - b);
+            secondSum += sorted.length > 1 ? sorted[1] : sorted[0];
           }
           return {...t, bestSum, secondSum, any};
         });
@@ -3620,7 +3964,7 @@ class Component extends DCLogic {
     }});
     const groups = this.activeGroups(active);
     groups.forEach(g => {
-      this.settleIndividualGames(g.players, ledger, recorder(groups.length > 1 ? this.groupName(g.key).toUpperCase() : ''), mode);
+      this.withGroup(g.key, () => this.settleIndividualGames(g.players, ledger, recorder(groups.length > 1 ? this.groupName(g.key).toUpperCase() : ''), mode));
     });
     this.settleGroupMatch(active, ledger, recorder(''), mode);
 
@@ -3680,29 +4024,29 @@ class Component extends DCLogic {
   }
 
   toggleGame(key){
+    if (this.lockedOut()) return;
     const games = JSON.parse(JSON.stringify(this.state.games));
     games[key].active = !games[key].active;
     this.setState({games});
   }
   toggleGameFlag(key, field){
+    if (this.lockedOut()) return;
     const games = JSON.parse(JSON.stringify(this.state.games));
     games[key][field] = !games[key][field];
     this.setState({games});
   }
   setGameValue(key, field, val){
+    if (this.lockedOut()) return;
     const games = JSON.parse(JSON.stringify(this.state.games));
     const n = parseFloat(val); games[key][field] = (val === '' || isNaN(n)) ? '' : n;
     this.setState({games});
   }
-  toggleJunk(key){
-    const junk = JSON.parse(JSON.stringify(this.state.junk));
-    junk[key].active = !junk[key].active;
-    this.setState({junk});
+  toggleJunk(key, g){
+    this.editJunk(g || 'A', j => { j[key].active = !j[key].active; });
   }
-  setJunkValue(key, val){
-    const junk = JSON.parse(JSON.stringify(this.state.junk));
-    const n = parseFloat(val); junk[key].value = (val === '' || isNaN(n)) ? '' : n;
-    this.setState({junk});
+  setJunkValue(key, val, g){
+    const n = parseFloat(val);
+    this.editJunk(g || 'A', j => { j[key].value = (val === '' || isNaN(n)) ? '' : n; });
   }
 
   // Run read-only scoring helpers against a saved round's snapshot.
@@ -3752,7 +4096,7 @@ class Component extends DCLogic {
           const g = (s.scores[p.id] || {})[h];
           const dots = this.strokesAllocated(ch[p.id], si);
           let junk = '';
-          if (s.greenieWinners && s.greenieWinners[h] === p.id) junk += 'G';
+          if ((s.greenieWinners && s.greenieWinners[h] === p.id) || Object.values(s.groupGreenies || {}).some(m => m && m[h] === p.id)) junk += 'G';
           if (flag(s.sandyFlags, h, p.id)) junk += 'S';
           if (flag(s.polyFlags, h, p.id)) junk += 'P';
           if (flag(s.chippyFlags, h, p.id)) junk += 'C';
@@ -3954,7 +4298,8 @@ class Component extends DCLogic {
     const block = this.setupBlocker(3);
     if (block){ this.setState({setupNotice: block, setupStep: block.step, screen:'settings'}); return; }
     this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true,
-      roundId: this.state.roundId || newRoundId(), roundIdAt: this.state.roundId ? this.state.roundIdAt : Date.now()});
+      roundId: this.state.roundId || newRoundId(), roundIdAt: this.state.roundId ? this.state.roundIdAt : this.syncNow(),
+      adminDeviceId: this.state.adminDeviceId || this.deviceId});
   }
   // A round counts as live once Start Round is tapped, or if scores already exist
   // (covers rounds that were in progress before this update).
@@ -4237,6 +4582,7 @@ class Component extends DCLogic {
     };
   }
   setGroupMatchFormat(fmt){
+    if (this.lockedOut()) return;
     const games = JSON.parse(JSON.stringify(this.state.games));
     games.groupmatch.format = fmt;
     this.setState({games});
@@ -4343,6 +4689,35 @@ class Component extends DCLogic {
       color: s.greenieWinners[n] === p.id ? '#fff' : '#1a2733',
       onClick: () => this.setGreenieWinner(n, p.id)
     })) : [];
+
+    const hjSplit = this.splitJunk();
+    const notifTag = s.activeNotif && s.activeNotif.group ? this.groupName(s.activeNotif.group).toUpperCase() + ' · ' : '';
+    const flagChips = (map, players, toggle) => players.map(p => {
+      const on = !!(map[n] && map[n][p.id]);
+      return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => toggle(n, p.id)};
+    });
+    const holeJunk = this.groupKeys().map(g => this.withGroup(g, () => {
+      const S = this.state, J = S.junk, gw = S.greenieWinners || {};
+      const players = hjSplit ? active.filter(p => (p.group || 'A') === g) : active;
+      const res = this.resolveGreenies();
+      const cf = res.carryAt[n] || [];
+      const on = k => !!(J[k] && J[k].active);
+      const modeTag = hjSplit ? (this.greenieMode() === 'modified' ? ' · MODIFIED' : ' · TRADITIONAL') : '';
+      return {
+        key: g, hasTag: hjSplit, tag: this.groupName(g).toUpperCase(), tagBg: GROUP_COLORS[g].bg, tagFg: GROUP_COLORS[g].fg,
+        showGreenie: on('greenies') && (isPar3 || cf.length > 0),
+        greenieLabel: (cf.length
+          ? `GREENIE CARRYOVER FROM #${cf.join(', #')} — CLOSEST TO THE PIN (must also par)${isPar3 ? ' · ALSO THIS HOLE' : ''}`
+          : 'GREENIE — CLOSEST TO THE PIN (must also par)') + modeTag,
+        greenieChips: players.map(p => ({id:p.id, initials:p.initials,
+          bg: gw[n] === p.id ? '#0f2a4a' : '#f3f1ea', color: gw[n] === p.id ? '#fff' : '#1a2733',
+          onClick: () => this.setGreenieWinner(n, p.id)})),
+        sandyActive: on('sandies'), sandyChips: on('sandies') ? flagChips(s.sandyFlags, players, (hh, id) => this.toggleSandy(hh, id)) : [],
+        polyActive: on('polies'), polyChips: on('polies') ? flagChips(s.polyFlags, players, (hh, id) => this.togglePoly(hh, id)) : [],
+        barkyActive: on('barkies'), barkyChips: on('barkies') ? flagChips(s.barkyFlags, players, (hh, id) => this.toggleBarky(hh, id)) : [],
+        chippyActive: on('chippies'), chippyChips: on('chippies') ? flagChips(s.chippyFlags, players, (hh, id) => this.toggleChippy(hh, id)) : []
+      };
+    }));
 
     const sandyActive = !!(s.junk.sandies && s.junk.sandies.active);
     const sandyChips = sandyActive ? active.map(p => {
@@ -4514,13 +4889,41 @@ class Component extends DCLogic {
       onChange: (e)=>this.setGameValue('bestball','value',e.target.value),
       tiebreakBg: s.games.bestball.secondBallTiebreak ? '#0f2a4a' : '#fff',
       tiebreakCheck: s.games.bestball.secondBallTiebreak ? '✓' : '',
-      onToggleTiebreak: () => this.toggleGameFlag('bestball', 'secondBallTiebreak')
+      onToggleTiebreak: () => this.toggleGameFlag('bestball', 'secondBallTiebreak'),
+      ...(() => {
+        const om = s.games.bestball.oddMode === 'three' ? 'three' : 'solo';
+        return {
+          showOdd: this.activeGroups(s.roster.filter(p => p.active)).some(g => g.players.length >= 3 && g.players.length % 2 === 1),
+          oddSub: om === 'three' ? 'Odd number in a group: the last player joins the last team as a 3-player best ball.' : 'Odd number in a group: the last player plays his own ball against each team.',
+          oddOptions: [['solo','ODD PLAYER SOLO'],['three','ODD PLAYER JOINS A TEAM']].map(([k, l]) => ({
+            label: l, bg: om === k ? '#0f2a4a' : '#f3f1ea', color: om === k ? '#fff' : '#1a2733',
+            onClick: () => { if (this.lockedOut()) return; const games = JSON.parse(JSON.stringify(this.state.games)); games.bestball.oddMode = k; this.setState({games}); }
+          }))
+        };
+      })()
     };
-    const rrcHolderName = (s.roster.find(p => p.id === s.rrcHolder) || {}).name;
-    const gMode = (s.junk.greenies && s.junk.greenies.sweepMode === 'modified') ? 'modified' : 'traditional';
-    const setGMode = (m) => { const junk = JSON.parse(JSON.stringify(s.junk)); junk.greenies.sweepMode = m; this.setState({junk}, () => this.refreshGreenieSweep()); };
+    const jKeys = this.groupKeys();
+    const jSplit = jKeys.length > 1;
+    const jg = jSplit && jKeys.includes(s.junkEditGroup) ? s.junkEditGroup : 'A';
+    const J = this.junkFor(jg);
+    const rrcHolderName = (s.roster.find(p => p.id === this.withGroup(jg, () => this.state.rrcHolder)) || {}).name;
+    const gMode = (J.greenies && J.greenies.sweepMode === 'modified') ? 'modified' : 'traditional';
+    const setGMode = (m) => this.editJunk(jg, j => { j.greenies.sweepMode = m; }, () => this.refreshGreenieSweep());
+    const junkSig = g => stableStr(this.junkFor(g));
+    const junkTabs = {
+      show: jSplit,
+      tabs: jKeys.map(k => ({
+        label: this.groupName(k).toUpperCase(),
+        bg: k === jg ? '#0f2a4a' : 'transparent', color: k === jg ? '#fff' : '#5a6672',
+        differs: k !== jg && junkSig(k) !== junkSig(jg),
+        onClick: () => this.setJunkEditGroup(k)
+      })),
+      players: s.roster.filter(p => p.active && (p.group || 'A') === jg).map(p => p.name.split(' ')[0]).join(', '),
+      copyLabel: jg === 'A' ? `COPY ${this.groupName('A').toUpperCase()} JUNK TO ALL GROUPS` : `MATCH ${this.groupName('A').toUpperCase()} JUNK`,
+      onCopy: () => this.copyJunkFromA(jg)
+    };
     const greenieModeBits = {
-      greenieModeVisible: !!(s.junk.greenies && s.junk.greenies.active),
+      greenieModeVisible: !!(J.greenies && J.greenies.active),
       greenieModeSub: gMode === 'modified'
         ? 'Modified: if nobody hits the green on a par 3, that greenie carries to the next hole (any par) until someone is closest and makes par. Sweeps stay alive through the carry.'
         : 'Traditional: greenies are decided on the par 3s only. Nobody on the green means no greenie, and no sweep.',
@@ -4530,15 +4933,15 @@ class Component extends DCLogic {
     };
     const junkList = ['birdies','greenies','sandies','polies','barkies','chippies','rrc'].map(k => ({
       key:k,
-      label:s.junk[k].label,
-      sub: k==='rrc' ? (rrcHolderName ? `Current holder: ${rrcHolderName}` : s.junk[k].sub) : s.junk[k].sub,
-      value:s.junk[k].value, active:s.junk[k].active,
-      bg: s.junk[k].active ? '#0f2a4a' : '#e9e5dc', knob: s.junk[k].active ? '18px' : '2px',
-      onToggle: () => this.toggleJunk(k),
-      onChange: (e)=>this.setJunkValue(k,e.target.value),
+      label:J[k].label,
+      sub: k==='rrc' ? (rrcHolderName ? `Current holder: ${rrcHolderName}` : J[k].sub) : J[k].sub,
+      value:J[k].value, active:J[k].active,
+      bg: J[k].active ? '#0f2a4a' : '#e9e5dc', knob: J[k].active ? '18px' : '2px',
+      onToggle: () => this.toggleJunk(k, jg),
+      onChange: (e)=>this.setJunkValue(k,e.target.value, jg),
       deletable:false,
       isPriceless: k==='rrc',
-      showSweepMode: k==='greenies' && !!s.junk[k].active
+      showSweepMode: k==='greenies' && !!J[k].active
     })).concat(s.customJunk.map(j => ({
       key:j.id, label:j.label, sub:j.sub, value:j.value, active:j.active,
       bg: j.active ? '#0f2a4a' : '#e9e5dc', knob: j.active ? '18px' : '2px',
@@ -4555,7 +4958,7 @@ class Component extends DCLogic {
       chev: h.expanded ? '\u2212' : '+',
       onToggle: () => this.toggleHistory(h.id),
       onToggleEdit: (e) => { e.stopPropagation(); this.toggleHistoryEdit(h.id); },
-      onDelete: (e) => { e.stopPropagation(); this.setState({historyDeleteId: h.id}); },
+      onDelete: (e) => { e.stopPropagation(); if (h.id === s.editingHistoryId) this.deleteHistoryRecord(h.id); else this.setState({historyDeleteId: h.id}); },
       canEditScores: !!h.snapshot,
       editedLabel: h.edited ? ' · EDITED' : '',
       editBlocked: s.editBlockedId === h.id,
@@ -4660,7 +5063,7 @@ class Component extends DCLogic {
     return {
       isOffline: !!s.isOffline, isOnlineNow: !s.isOffline,
       isEditingHistory: !!s.editingHistoryId,
-      editingHistoryTitle: ((s.history || []).find(h => h.id === s.editingHistoryId) || {}).title || '',
+      editingHistoryTitle: ((s.history || []).find(h => h.id === s.editingHistoryId) || {}).title || 'Untitled round',
       onSaveHistoryEdits: () => this.saveHistoryEdits(),
       onCancelHistoryEdits: () => this.cancelHistoryEdits(),
       unlocked: s.unlocked, pwInput: s.pwInput, pwError: s.pwError,
@@ -4707,6 +5110,7 @@ class Component extends DCLogic {
       onCloseRules: () => this.setState({rulesModalOpen: false}),
       isScoreboardView: s.screen==='scoreboard',
       isLiveRound: this.isRoundLive(),
+      liveBadgeText: s.editingHistoryId ? 'EDITING' : (s.eventEnded ? 'FINAL' : 'LIVE'),
       heroOnBoard: !this.isRoundLive() && s.screen==='board',
       showBoardRows: this.isRoundLive() && s.screen==='board',
       ...this.buildStrokesView(),
@@ -4836,8 +5240,13 @@ class Component extends DCLogic {
       scoringModes: scoringModesStyled,
       leaderboardRows,
       gamesChips,
-      sweepAchieved: s.sweepCount > 0 && s.sweepCandidate != null && !s.sweepDead && s.sweepCount === this.course.par.filter(p=>p===3).length,
-      sweepBannerName: (this.state.roster.find(p=>p.id===s.sweepCandidate)||{}).name || '',
+      ...(() => {
+        const tot = this.course.par.filter(p=>p===3).length;
+        let hit = null;
+        this.groupKeys().forEach(g => { if (hit) return; const id = this.withGroup(g, () => { const S = this.state; return S.sweepCount > 0 && S.sweepCandidate != null && !S.sweepDead && S.sweepCount === tot ? S.sweepCandidate : null; }); if (id != null) hit = {id, g}; });
+        const nm = hit ? ((s.roster.find(p=>p.id===hit.id)||{}).name || '') : '';
+        return {sweepAchieved: !!hit, sweepBannerName: hit && this.splitJunk() ? `${nm} (${this.groupName(hit.g)})` : nm};
+      })(),
       sweepBannerTotal: this.course.par.filter(p=>p===3).length,
       onReplaySweep: () => this.replaySweep(),
       holeChips, frontChips, backChips, currentHoleObj,
@@ -4847,7 +5256,41 @@ class Component extends DCLogic {
       showEndConfirm: s.showEndConfirm,
       onDismissEndConfirm: () => this.dismissEndConfirm(),
       onForceEndEvent: () => this.finalizeEndEvent(),
-      onEndEarly: () => this.setState({showEarlyConfirm:true, earlyText:''}),
+      ...(() => {
+        const me = this.deviceId, admin = s.adminDeviceId, isAdm = this.isAdmin();
+        const pending = this.pendingPhones(), re = s.roundEnd, n = pending.length;
+        return {
+          adminCard: {
+            isAdmin: !!admin && admin === me,
+            canTake: !!admin && admin !== me,
+            badge: !admin ? 'NOT SET' : (admin === me ? 'THIS PHONE' : 'ANOTHER PHONE'),
+            badgeBg: admin && admin === me ? '#0f2a4a' : '#f3f1ea', badgeFg: admin && admin === me ? '#fff' : '#5a6672',
+            text: !admin ? 'The phone that taps Start Round becomes the round admin. Only the admin can change bets after tee-off or end the round.'
+              : admin === me ? 'This phone is the round admin. Only this phone can change bets during the round or end it.'
+              : `Round admin: ${this.adminLabel()}. Bets are locked on this phone during the round.`,
+            chips: (s.roster || []).filter(p => p.active).map(p => ({name: p.name.split(' ')[0],
+              bg: s.adminName === p.name ? '#0f2a4a' : '#f3f1ea', color: s.adminName === p.name ? '#fff' : '#1a2733',
+              onClick: () => this.setState({adminName: p.name})})),
+            onTake: () => this.setState({adminConfirmOpen: true})
+          },
+          adminConfirmOpen: !!s.adminConfirmOpen,
+          onConfirmTakeAdmin: () => this.setState({adminDeviceId: me, adminName: '', adminConfirmOpen: false}),
+          onCancelTakeAdmin: () => this.setState({adminConfirmOpen: false}),
+          showLockNotice: !!s.lockNotice,
+          lockNoticeText: s.lockNotice === 'editDelete' ? 'You\u2019re editing this round. Save or cancel the edit before deleting it.' : s.lockNotice === 'end' ? `Only the round admin (${this.adminLabel()}) can end the round.` : `Bets are locked during the round. Only the round admin (${this.adminLabel()}) can change them.`,
+          showRoundFinal: !!re,
+          roundFinalLine: isAdm
+            ? (n ? `Waiting on ${n} phone${n > 1 ? 's' : ''} to sync. Late score fixes still update the History record.` : 'Every phone has synced. Clear the round when you\u2019re done.')
+            : `Ended by ${this.adminLabel()}. Late score fixes still update the History record.`,
+          roundFinalCanClear: !!re && isAdm,
+          onRoundFinalClear: () => n ? this.setState({clearEndedConfirm: true}) : this.clearRound(),
+          clearEndedConfirm: !!s.clearEndedConfirm,
+          clearEndedText: `${n} phone${n === 1 ? ' has' : 's have'} not synced since the round ended. Scores ${n === 1 ? 'it hasn\u2019t' : 'they haven\u2019t'} sent won\u2019t reach History.`,
+          onClearEndedAnyway: () => { this.setState({clearEndedConfirm: false}); this.clearRound(); },
+          onCancelClearEnded: () => this.setState({clearEndedConfirm: false})
+        };
+      })(),
+      onEndEarly: () => { if (!this.lockedOut('end')) this.setState({showEarlyConfirm:true, earlyText:''}); },
       showEarlyConfirm: s.showEarlyConfirm,
       earlyText: s.earlyText,
       onEarlyText: e => this.setState({earlyText: e.target.value}),
@@ -4895,7 +5338,7 @@ class Component extends DCLogic {
       onTeamACallsPress: () => this.callAssignedTeamPress('A'),
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
-      nassau, groupMatch, simpleGames, bestBall, junkList, historyList,
+      nassau, groupMatch, simpleGames, bestBall, junkList, junkTabs, holeJunk, historyList,
       sixSix, sixSixGroups,
       newJunkLabel,
       onNewJunkLabelChange: (e)=>this.setState({newJunkLabel:e.target.value}),
@@ -4973,20 +5416,20 @@ class Component extends DCLogic {
       showRRC: !!s.activeNotif && s.activeNotif.kind==='rrc',
       rrcToast: s.activeNotif && s.activeNotif.kind==='rrc' ? {
         winner: s.activeNotif.winner,
-        line: s.activeNotif.loser ? `Takes the RRC from ${s.activeNotif.loser} — well played, clown.` : 'Claims the RRC with a gross birdie.'
+        line: notifTag + (s.activeNotif.loser ? `Takes the RRC from ${s.activeNotif.loser} — well played, clown.` : 'Claims the RRC with a gross birdie.')
       } : {winner:'', line:''},
       sweepToast: s.activeNotif && s.activeNotif.kind==='sweep' ? {
-        name: s.activeNotif.name, line: `Won all ${s.activeNotif.total} par-3s — ${s.activeNotif.count} for ${s.activeNotif.total}`
+        name: s.activeNotif.name, line: `${notifTag}Won all ${s.activeNotif.total} par-3s — ${s.activeNotif.count} for ${s.activeNotif.total}`
       } : {name:'', line:''},
       showSweepAlive: !!s.activeNotif && s.activeNotif.kind==='sweepAlive',
       sweepAliveToast: s.activeNotif && s.activeNotif.kind==='sweepAlive' ? {
-        name: s.activeNotif.name, line: `Greenie sweep still on the table — ${s.activeNotif.count} of ${s.activeNotif.total} par-3s`
+        name: s.activeNotif.name, line: `${notifTag}Greenie sweep still on the table — ${s.activeNotif.count} of ${s.activeNotif.total} par-3s`
       } : {name:'', line:''},
       showSweepDead: !!s.activeNotif && s.activeNotif.kind==='sweepDead',
       sweepDeadToast: s.activeNotif && s.activeNotif.kind==='sweepDead' ? {
-        line: s.activeNotif.reason === 'bogey' ? `${s.activeNotif.name} was closest on #${s.activeNotif.hole} but didn't make par, so no greenie and no sweep`
+        line: notifTag + (s.activeNotif.reason === 'bogey' ? `${s.activeNotif.name} was closest on #${s.activeNotif.hole} but didn't make par, so no greenie and no sweep`
           : s.activeNotif.reason === 'none' ? `Nobody hit the green on #${s.activeNotif.hole}, so nobody can sweep the par 3s`
-          : (s.activeNotif.priorName ? `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so ${s.activeNotif.priorName}'s sweep is dead` : `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`)
+          : (s.activeNotif.priorName ? `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so ${s.activeNotif.priorName}'s sweep is dead` : `${s.activeNotif.name} takes a greenie on #${s.activeNotif.hole}, so nobody can sweep the par 3s`))
       } : {line:''},
       showRoundSummary: !!s.activeNotif && s.activeNotif.kind==='roundSummary',
       roundToast: (() => {
@@ -5002,7 +5445,7 @@ class Component extends DCLogic {
         const n = s.activeNotif;
         const again = n.from !== n.origin;
         return {
-          title: again ? `#${n.origin} GREENIE CARRIES AGAIN · #${n.from} → #${n.to}` : `GREENIE CARRIES OVER · #${n.from} → #${n.to}`,
+          title: notifTag + (again ? `#${n.origin} GREENIE CARRIES AGAIN · #${n.from} → #${n.to}` : `GREENIE CARRIES OVER · #${n.from} → #${n.to}`),
           line: `Nobody won the #${n.origin} greenie${again ? ` on #${n.from}` : ''}. It's live on #${n.to}.`,
           hasSweep: !!n.sweepName,
           sweepLine: n.sweepName ? `${n.sweepName} has won ${n.sweepCount} of ${n.sweepTotal} par 3s. If ${n.sweepName.split(' ')[0]} wins this carryover, the sweep stays alive.` : ''
