@@ -1737,6 +1737,23 @@ input, select, textarea { font-size:16px !important; }
       </div>
     </sc-if>
 
+    <!-- ============ SWEEP CHANGED BY A CORRECTION ============ -->
+    <sc-if value="{{ showSweepEdit }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
+        <div style="background:#0f2a4a;border:1.5px solid #d4a017;border-radius:12px;padding:16px 18px;box-shadow:0 12px 30px rgba(0,0,0,.3);width:100%;max-width:340px;animation:mb-pop .2s ease-out;display:flex;flex-direction:column;gap:8px;">
+          <div style="font:800 11px Archivo,sans-serif;color:#d4a017;letter-spacing:.6px;">GREENIE SWEEP CHANGED</div>
+          <div style="font:700 14px/1.35 Archivo,sans-serif;color:#fff;text-wrap:pretty;">{{ sweepEditToast.line }}</div>
+          <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;background:#1d3a5c;border-radius:8px;padding:10px 12px;">
+            <div style="font:800 10px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.5px;padding-top:2px;">BEFORE</div>
+            <div style="font:600 12px/1.35 Archivo,sans-serif;color:#cdd8e4;">{{ sweepEditToast.before }}</div>
+            <div style="font:800 10px Archivo,sans-serif;color:#d4a017;letter-spacing:.5px;padding-top:2px;">NOW</div>
+            <div style="font:800 12px/1.35 Archivo,sans-serif;color:#fff;">{{ sweepEditToast.after }}</div>
+          </div>
+          <div style="text-align:right;font:700 10px Archivo,sans-serif;color:#a9bdd4;cursor:pointer;" onClick="{{ dismissNotif }}">GOT IT</div>
+        </div>
+      </div>
+    </sc-if>
+
     <!-- ============ PRESS CALLED ============ -->
     <sc-if value="{{ showPress }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px;">
@@ -2979,6 +2996,7 @@ class Component extends DCLogic {
     let extra = {};
     const par = this.course.par[hole-1];
     const rg = this.groupOf(playerId);
+    const sweepBefore = this.sweepSummary(rg);
     const rrc = this.withGroup(rg, () => ({on: !!(this.state.junk.rrc && this.state.junk.rrc.active), holder: this.state.rrcHolder}));
     if (rrc.on && newGross === par - 1 && rrc.holder !== playerId){
       const winner = this.state.roster.find(p => p.id === playerId);
@@ -2988,7 +3006,7 @@ class Component extends DCLogic {
         activeNotif: {kind:'rrc', winner: winner ? winner.name : '', loser: loser ? loser.name : null, group: this.splitJunk() ? rg : undefined}
       };
     }
-    this.setState({scores, ...extra}, () => this.refreshGreenieSweep(true));
+    this.setState({scores, ...extra}, () => { this.refreshGreenieSweep(true); if (!extra.activeNotif) this.checkSweepEdit(hole, rg, sweepBefore); });
   }
 
   wolfForHole(hole, active){
@@ -3064,19 +3082,45 @@ class Component extends DCLogic {
     this.setState({bbbPoints});
   }
 
+  // Plain-language state of group g's greenie sweep, used to spot corrections that change it.
+  sweepSummary(g){
+    return this.withGroup(g, () => {
+      const J = this.state.junk;
+      if (!J.greenies || !J.greenies.active) return null;
+      const sw = this.computeGreenieSweep();
+      const p = (this.state.roster || []).find(x => x.id === sw.candidate);
+      if (sw.dead) return 'Sweep is dead';
+      if (p && sw.count) return sw.count === sw.totalPar3 ? `${p.name} swept all ${sw.totalPar3} par 3s` : `${p.name} alive for the sweep, ${sw.count} of ${sw.totalPar3}`;
+      return 'No sweep in progress';
+    });
+  }
+  // A hole counts as already played once anyone in its group has a score on a later hole.
+  holeIsPast(hole, g){
+    const ps = (this.state.roster || []).filter(p => p.active && (!this.splitJunk() || (p.group || 'A') === g));
+    return ps.some(p => Object.keys(this.state.scores[p.id] || {}).some(k => Number(k) > hole && this.state.scores[p.id][k] != null));
+  }
+  // After a correction on a past hole, pop an alert if it changed the greenie sweep.
+  checkSweepEdit(hole, g, before){
+    if (before == null || !this.holeIsPast(hole, g)) return;
+    const after = this.sweepSummary(g);
+    if (after === before) return;
+    this.setState({activeNotif: {kind:'sweepEdit', hole, before, after, group: this.splitJunk() ? g : undefined}});
+  }
   setGreenieWinner(hole, playerId){
     const g = this.groupOf(playerId);
+    const before = this.sweepSummary(g);
+    const done = () => { this.refreshGreenieSweep(true); this.checkSweepEdit(hole, g, before); };
     if (g === 'A'){
       const greenieWinners = {...this.state.greenieWinners};
       greenieWinners[hole] = greenieWinners[hole] === playerId ? null : playerId;
-      this.setState({greenieWinners}, () => this.refreshGreenieSweep(true));
+      this.setState({greenieWinners}, done);
       return;
     }
     const all = {...(this.state.groupGreenies || {})};
     const mine = {...(all[g] || {})};
     mine[hole] = mine[hole] === playerId ? null : playerId;
     all[g] = mine;
-    this.setState({groupGreenies: all}, () => this.refreshGreenieSweep(true));
+    this.setState({groupGreenies: all}, done);
   }
 
   // Per-foursome junk. With Group Match on and 2+ groups playing, each group has its
@@ -5661,6 +5705,11 @@ class Component extends DCLogic {
           sweepLine: n.sweepName ? `${n.sweepName} has won ${n.sweepCount} of ${n.sweepTotal} par 3s. If ${n.sweepName.split(' ')[0]} wins this carryover, the sweep stays alive.` : ''
         };
       })() : {title:'', line:'', hasSweep:false, sweepLine:''},
+      showSweepEdit: !!s.activeNotif && s.activeNotif.kind==='sweepEdit',
+      sweepEditToast: s.activeNotif && s.activeNotif.kind==='sweepEdit' ? {
+        line: `${notifTag}Your correction on #${s.activeNotif.hole} changed the greenie sweep.`,
+        before: s.activeNotif.before, after: s.activeNotif.after
+      } : {line:'', before:'', after:''},
       showPress: !!s.activeNotif && s.activeNotif.kind==='press',
       pressToast: s.activeNotif && s.activeNotif.kind==='press' ? {
         line: `${s.activeNotif.name} called a press on hole ${s.activeNotif.hole}`
