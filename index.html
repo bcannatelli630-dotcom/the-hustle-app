@@ -5096,7 +5096,9 @@ class Component extends DCLogic {
       activeColor: p.active ? '#1e7a3d' : '#98928a',
       onToggleActive: () => this.toggleActive(p.id),
       onRemove: () => this.removePlayer(p.id),
-      showGroups: !!gmState.active,
+      // Group buttons show once there's more than a foursome, even before Group Match
+      // is turned on in the next step (Bets), so groups can be set up in order.
+      showGroups: !!gmState.active || s.roster.filter(x => x.active).length > 4,
       groupChips: ['A','B','C'].map(k => {
         const on = (p.group || 'A') === k;
         const full = !on && gmCounts[k] >= 5;
