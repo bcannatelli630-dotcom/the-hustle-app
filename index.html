@@ -4286,12 +4286,13 @@ class Component extends DCLogic {
       const c = mode === 'gross' ? 0 : this.getScoringCH(p, mode, active);
       return c > 0 ? `${p.name} (+${c})` : p.name;
     }).join(', ') : 'No players yet';
-    const games = Object.entries(s.games || {}).filter(([k,g]) => g && g.active).map(([k,g]) => {
+    const games = Object.entries(s.games || {}).filter(([k,g]) => g && g.active && k !== 'groupmatch').map(([k,g]) => {
       const name = k === 'nassau' ? 'Nassau' : (g.label || k);
       if (k === 'nassau') return `Nassau $${g.front}/$${g.back}/$${g.overall}`;
       return g.value != null ? `${name} $${g.value}` : name;
     });
     const junkCount = Object.values(s.junk || {}).filter(j => j && j.active).length;
+    if (s.games.groupmatch && s.games.groupmatch.active && !this.splitJunk()) games.unshift('Group Match (needs players in 2+ groups)');
     const betsParts = games.concat(junkCount ? [`${junkCount} junk`] : []);
     // With Group Match across groups: the bet between groups, then each group's own games and junk.
     const splitReview = this.splitJunk();
@@ -4300,7 +4301,7 @@ class Component extends DCLogic {
       Object.entries(G).forEach(([k, x]) => {
         if (k === 'groupmatch' || !x || !x.active) return;
         const lb = String(x.label || k).toLowerCase().replace(/\b[a-z]/g, m => m.toUpperCase());
-        out.push(k === 'nassau' ? `Nassau ${x.front}/${x.back}/${x.overall}` : `${lb} ${x.value}`);
+        out.push(k === 'nassau' ? `Nassau $${x.front}/$${x.back}/$${x.overall}` : `${lb} $${x.value}`);
       });
       Object.entries(Jk).forEach(([k, x]) => {
         if (!x || !x.active) return;
