@@ -676,6 +676,10 @@ input, select, textarea { font-size:16px !important; }
               <sc-if value="{{ adminCard.canTake }}" hint-placeholder-val="{{ false }}">
                 <div style="text-align:center;padding:9px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.4px;cursor:pointer;background:#f3f1ea;color:#0f2a4a;" onClick="{{ adminCard.onTake }}">MAKE THIS PHONE ADMIN</div>
               </sc-if>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #f3f1ea;padding-top:8px;">
+                <div style="font:600 10px Archivo,sans-serif;color:#5a6672;line-height:1.4;min-width:0;">{{ ownerText }}</div>
+                <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.4px;cursor:pointer;flex:none;padding:6px 0;" onClick="{{ onOwnerOpen }}">{{ ownerBtn }}</div>
+              </div>
             </div>
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;margin-top:6px;">SCORING MODE</div>
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
@@ -1795,6 +1799,34 @@ input, select, textarea { font-size:16px !important; }
         <div style="background:#0f2a4a;border:1.5px solid #ffa62f;border-radius:10px;padding:11px 14px;max-width:420px;width:100%;box-sizing:border-box;font:700 12px Archivo,sans-serif;color:#fff;line-height:1.4;box-shadow:0 12px 30px rgba(0,0,0,.3);">{{ lockNoticeText }}</div>
       </div>
     </sc-if>
+    <sc-if value="{{ ownerOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:12px;">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;">Owner phone</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;">This phone becomes round admin by default. If someone taps Make This Phone Admin during a round, it stays with them until the round ends.</div>
+          <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">WHO OWNS THIS PHONE?</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <sc-for list="{{ ownerChips }}" as="oc" hint-placeholder-count="4">
+              <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ oc.bg }};color:{{ oc.color }};" onClick="{{ oc.onClick }}">{{ oc.name }}</div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ ownerNoPlayers }}" hint-placeholder-val="{{ false }}">
+            <div style="font:600 11px Archivo,sans-serif;color:#98928a;">Add players to the round first.</div>
+          </sc-if>
+          <input type="password" value="{{ ownerPw }}" onChange="{{ onOwnerPw }}" placeholder="Master password" style="width:100%;box-sizing:border-box;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px;font:600 13px Archivo,sans-serif;outline:none;"/>
+          <sc-if value="{{ ownerPwErr }}" hint-placeholder-val="{{ false }}">
+            <div style="font:700 11px Archivo,sans-serif;color:#c8102e;">Wrong master password.</div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onOwnerSave }}">SAVE</div>
+            <sc-if value="{{ ownerHasCurrent }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;color:#c8102e;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onOwnerClear }}">TURN OFF</div>
+            </sc-if>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onOwnerCancel }}">CANCEL</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
     <sc-if value="{{ adminConfirmOpen }}" hint-placeholder-val="{{ false }}">
       <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
         <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
@@ -1984,6 +2016,7 @@ const HISTORY_DEFAULT = [];
 // on the lock screen) via MASTER_PASSWORD below — no redeploy needed for a reset.
 const SITE_PASSWORD_DEFAULT = 'OhNo2026';
 const MASTER_PASSWORD = 'HustleMaster2026'; // admin-only: resets/changes the group password + wipes data
+function shortName(n){ const w = String(n || '').trim().split(/\s+/); return w.length > 1 ? `${w[0]} ${w[w.length-1][0].toUpperCase()}.` : w[0]; }
 const UNLOCK_STORAGE_KEY = 'hustle_unlocked';
 const SITE_PASSWORD_STORAGE_KEY = 'hustle_site_password';
 const LOCAL_STATE_KEY = 'hustle_local_state';
@@ -2037,7 +2070,7 @@ const SYNC_KEYS = [
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGames', 'groupGreenies', 'groupTrack',
   'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
-  'adminDeviceId', 'adminName', 'roundEnd', 'devices', 'endAcks'
+  'adminDeviceId', 'adminName', 'adminPinned', 'roundEnd', 'devices', 'endAcks'
 ];
 const RULE_PRESETS = [
   ['breakfast', 'Breakfast ball'],
@@ -2055,7 +2088,7 @@ const GROUP_TRACK_KEYS = ['sweepCandidate','sweepCount','sweepDead','sweepDeadAn
 const GROUP_COLORS = {A:{bg:'#0f2a4a', fg:'#fff'}, B:{bg:'#ffa62f', fg:'#0f2a4a'}, C:{bg:'#1e7a3d', fg:'#fff'}};
 // Everything needed to fully rebuild a finished round (scores, flags, bets) so it
 // can be reopened from History, edited, and re-settled.
-const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => !['history','showHero','editingHistoryId','cellStamps','roundId','roundIdAt','adminDeviceId','adminName','roundEnd','devices','endAcks'].includes(k));
+const ROUND_SNAPSHOT_KEYS = SYNC_KEYS.filter(k => !['history','showHero','editingHistoryId','cellStamps','roundId','roundIdAt','adminDeviceId','adminName','adminPinned','roundEnd','devices','endAcks'].includes(k));
 function pickSyncFields(obj){
   const out = {};
   SYNC_KEYS.forEach(k => { if (obj[k] !== undefined) out[k] = obj[k]; });
@@ -2070,7 +2103,7 @@ function pickSyncFields(obj){
 // id; the newer round wins outright so an old round can't come back.
 // Single values merged as one cell each (newest edit wins), instead of riding along
 // with whichever phone saved last.
-const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','tournamentDays','eventName','roundLive','adminDeviceId','adminName','roundEnd'];
+const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','tournamentDays','eventName','roundLive','adminDeviceId','adminName','adminPinned','roundEnd'];
 // Lists merged item by item.
 const LIST_MERGE_KEYS = ['roster','history','presses','customJunk'];
 const MERGE_KEYS = ['scores','greenieWinners','groupGreenies','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history',
@@ -2213,8 +2246,9 @@ class Component extends DCLogic {
     activeNotif: null,
     rrcHolder: null,
     greenieWinners: {},
-    groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+    groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', adminPinned: false,
     greenieResolved: {},
+    ownerName: '', ownerOpen: false, ownerPw: '', ownerPwErr: false, ownerPick: '',
     wolfPicks: {},
     sandyFlags: {},
     polyFlags: {},
@@ -2546,7 +2580,7 @@ class Component extends DCLogic {
       games: offAll(this.state.games), junk: offAll(this.state.junk),
       groupJunk: Object.fromEntries(Object.entries(this.state.groupJunk || {}).map(([k,v]) => [k, offAll(v)])),
       groupGames: Object.fromEntries(Object.entries(this.state.groupGames || {}).map(([k,v]) => [k, offAll(v)])), groupGreenies: {}, groupTrack: {},
-      roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', clearEndedConfirm: false,
+      roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', adminPinned: false, clearEndedConfirm: false,
       customJunk: (this.state.customJunk || []).map(j => ({...j, active: false})),
       roundId: newRoundId(), roundIdAt: this.syncNow(), cellStamps: {},
       roster: [],
@@ -2567,7 +2601,7 @@ class Component extends DCLogic {
   // Settings-tab action rather than a locked-down admin one.
   resetRosterAndSettings(){
     this.setState({
-      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', adminPinned: false,
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2586,7 +2620,7 @@ class Component extends DCLogic {
       localStorage.removeItem('hustle_known_players');
     }
     const fresh = {
-      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '',
+      groupJunk: {}, groupGames: {}, groupGreenies: {}, groupTrack: {}, junkEditGroup: 'A', roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', adminPinned: false,
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
@@ -2602,6 +2636,7 @@ class Component extends DCLogic {
   // ── Live sync stubs — see USE_LIVE_SYNC block above ──
   componentDidMount(){
     if (typeof window !== 'undefined') window.scrollTo(0, 0);
+    try { const o = localStorage.getItem('hustle_owner_name'); if (o) this.setState({ownerName: o}); } catch(e){}
     try {
       const saved = JSON.parse(localStorage.getItem('hustle_known_players') || '[]');
       const dead = JSON.parse(localStorage.getItem('hustle_player_tombstones') || '{}') || {};
@@ -3547,6 +3582,15 @@ class Component extends DCLogic {
   }
   _roundEndHooks(localChange){
     const s = this.state, me = this.deviceId;
+    // Owner phone takes admin by default, unless someone deliberately took it this round.
+    if (s.ownerName && this.isRoundLive() && !s.roundEnd && !s.eventEnded && s.adminDeviceId && s.adminDeviceId !== me && !s.adminPinned && !this._ownerClaimT){
+      this._ownerClaimT = setTimeout(() => {
+        this._ownerClaimT = null;
+        const t = this.state;
+        if (t.ownerName && !t.roundEnd && !t.adminPinned && t.adminDeviceId && t.adminDeviceId !== this.deviceId)
+          this.setState({adminDeviceId: this.deviceId, adminName: t.ownerName, adminPinned: 'owner'});
+      }, 0);
+    }
     if (localChange && this.isRoundLive() && !(s.devices || {})[me]){
       setTimeout(() => { if (!(this.state.devices || {})[me]) this.setState({devices: {...(this.state.devices || {}), [me]: this.syncNow()}}); }, 0);
     }
@@ -3604,7 +3648,7 @@ class Component extends DCLogic {
   dismissEndConfirm(){ this.setState({showEndConfirm:false}); }
   confirmEarlyEnd(){
     if (this.state.earlyText.trim().toUpperCase() !== 'END') return;
-    this.setState({showEarlyConfirm:false, earlyText:'', pendingEndAt: Date.now() + 30000}, () => this.startEndPendingTimer());
+    this.setState({showEarlyConfirm:false, earlyText:'', pendingEndAt: Date.now() + 10000}, () => this.startEndPendingTimer());
   }
   startEndPendingTimer(){
     if (this._endPendingTimer) clearInterval(this._endPendingTimer);
@@ -4527,7 +4571,8 @@ class Component extends DCLogic {
     if (block){ this.setState({setupNotice: block, setupStep: block.step, screen:'settings'}); return; }
     this.setState({screen:'board', currentHole:1, setupStep:1, roundLive:true,
       roundId: this.state.roundId || newRoundId(), roundIdAt: this.state.roundId ? this.state.roundIdAt : this.syncNow(),
-      adminDeviceId: this.state.adminDeviceId || this.deviceId});
+      adminDeviceId: this.state.adminDeviceId || this.deviceId,
+      ...(!this.state.adminDeviceId && this.state.ownerName ? {adminName: this.state.ownerName, adminPinned: 'owner'} : {})});
   }
   // A round counts as live once Start Round is tapped, or if scores already exist
   // (covers rounds that were in progress before this update).
@@ -5158,7 +5203,7 @@ class Component extends DCLogic {
         differs: k !== jg && junkSig(k) !== junkSig(jg),
         onClick: () => this.setJunkEditGroup(k)
       })),
-      players: s.roster.filter(p => p.active && (p.group || 'A') === jg).map(p => p.name.split(' ')[0]).join(', '),
+      players: s.roster.filter(p => p.active && (p.group || 'A') === jg).map(p => shortName(p.name)).join(', '),
       copyLabel: jg === 'A' ? `COPY ${this.groupName('A').toUpperCase()} GAMES & JUNK TO ALL GROUPS` : `MATCH ${this.groupName('A').toUpperCase()} GAMES & JUNK`,
       onCopy: () => this.copyJunkFromA(jg)
     };
@@ -5518,7 +5563,30 @@ class Component extends DCLogic {
             onTake: () => this.setState({adminConfirmOpen: true})
           },
           adminConfirmOpen: !!s.adminConfirmOpen,
-          onConfirmTakeAdmin: () => this.setState({adminDeviceId: me, adminName: '', adminConfirmOpen: false}),
+          onConfirmTakeAdmin: () => this.setState({adminDeviceId: me, adminName: s.ownerName || '', adminPinned: true, adminConfirmOpen: false}),
+          ownerText: s.ownerName ? `Owner phone: ${s.ownerName}. Takes admin by default each round.` : 'Owner phone: off',
+          ownerBtn: s.ownerName ? 'CHANGE' : 'SET UP',
+          onOwnerOpen: () => this.setState({ownerOpen: true, ownerPw: '', ownerPwErr: false, ownerPick: s.ownerName || ''}),
+          ownerOpen: !!s.ownerOpen,
+          ownerPw: s.ownerPw, ownerPwErr: !!s.ownerPwErr,
+          onOwnerPw: (e) => this.setState({ownerPw: e.target.value, ownerPwErr: false}),
+          ownerChips: (s.roster || []).filter(p => p.active || p.name === s.ownerPick).map(p => ({name: shortName(p.name),
+            bg: s.ownerPick === p.name ? '#0f2a4a' : '#f3f1ea', color: s.ownerPick === p.name ? '#fff' : '#1a2733',
+            onClick: () => this.setState({ownerPick: p.name})})),
+          ownerNoPlayers: !(s.roster || []).some(p => p.active),
+          ownerHasCurrent: !!s.ownerName,
+          onOwnerSave: () => {
+            if (s.ownerPw !== MASTER_PASSWORD){ this.setState({ownerPwErr: true}); return; }
+            if (!s.ownerPick) return;
+            try { localStorage.setItem('hustle_owner_name', s.ownerPick); } catch(e){}
+            this.setState({ownerName: s.ownerPick, ownerOpen: false, ownerPw: ''});
+          },
+          onOwnerClear: () => {
+            if (s.ownerPw !== MASTER_PASSWORD){ this.setState({ownerPwErr: true}); return; }
+            try { localStorage.removeItem('hustle_owner_name'); } catch(e){}
+            this.setState({ownerName: '', ownerOpen: false, ownerPw: ''});
+          },
+          onOwnerCancel: () => this.setState({ownerOpen: false, ownerPw: ''}),
           onCancelTakeAdmin: () => this.setState({adminConfirmOpen: false}),
           showLockNotice: !!s.lockNotice,
           lockNoticeText: s.lockNotice === 'sync' ? (s.syncMsg || '') : s.lockNotice === 'editDelete' ? 'You\u2019re editing this round. Save or cancel the edit before deleting it.' : s.lockNotice === 'end' ? `Only the round admin (${this.adminLabel()}) can end the round.` : `Bets are locked during the round. Only the round admin (${this.adminLabel()}) can change them.`,
@@ -5587,7 +5655,7 @@ class Component extends DCLogic {
       gmSplit: jSplit, gamesHeadingShow: !jSplit,
       gmMatchupText: rGroups.map(g => this.groupName(g)).join(' vs '),
       gmModeLabel: ({gross:'Gross', full:'Full HDCP', low:'Low HDCP'})[s.scoringMode] || 'Low HDCP',
-      gmGroupRows: rGroups.map(g => { const ps = s.roster.filter(p => p.active && (p.group || 'A') === g); return {name: this.groupName(g), players: ps.map(p => p.name.split(' ')[0]).join(', ') + ' · ' + ps.length}; }),
+      gmGroupRows: rGroups.map(g => { const ps = s.roster.filter(p => p.active && (p.group || 'A') === g); return {name: this.groupName(g), players: ps.map(p => shortName(p.name)).join(', ') + ' · ' + ps.length}; }),
       betsTabs: (rGroups.length > 1 ? [['groupmatch','GROUP MATCH'],['games','GAMES'],['junk','JUNK']] : [['games','GAMES'],['junk','JUNK']]).map(([k, l]) => {
         const on = bView === k, gm = k === 'groupmatch';
         return {label: l, bg: on ? (gm ? '#f5a524' : '#0f2a4a') : 'transparent', color: on ? (gm ? '#0f2a4a' : '#fff') : '#5a6672',
