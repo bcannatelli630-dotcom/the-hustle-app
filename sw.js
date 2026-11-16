@@ -1,7 +1,7 @@
 // The Hustle — offline shell. Lets the app open with zero cell service once it has
 // been loaded online at least once. Live data is NOT cached here (the app saves
 // rounds on the phone itself); this only caches the app's code, fonts and images.
-const CACHE = 'hustle-shell-v13';
+const CACHE = 'hustle-shell-v14';
 const PRECACHE = [
   './', './index.html', './support.js', './manifest.json',
   './assets/course-photo.jpg', './assets/icon-180.png', './assets/icon-192.png', './assets/icon-512.png',

@@ -612,6 +612,52 @@ input, select, textarea { font-size:16px !important; }
           </div>
         </div>
         <div data-setup-scroll="1" style="flex:1;padding:14px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+        <sc-if value="{{ betsGmView }}" hint-placeholder-val="{{ false }}">
+          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">BETWEEN GROUPS</div>
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="flex:1;">
+                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">{{ gmMatchupText }} · Nassau style. The only bet between groups.</div>
+              </div>
+              <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
+                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
+              </div>
+            </div>
+            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;margin-top:12px;">
+                <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
+                  <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};-webkit-text-fill-color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:10px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
+                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
+                </div>
+              </div>
+              <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push.</div>
+            </sc-if>
+          </div>
+          <div style="background:#f3f1ea;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+            <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">GROUPS</div>
+            <sc-for list="{{ gmGroupRows }}" as="gr" hint-placeholder-count="2">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">
+                <div style="font:800 12px Archivo,sans-serif;color:#1a2733;flex:none;">{{ gr.name }}</div>
+                <div style="font:600 10px Archivo,sans-serif;color:#5a6672;text-align:right;min-width:0;text-wrap:pretty;">{{ gr.players }}</div>
+              </div>
+            </sc-for>
+            <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">Scored using the {{ gmModeLabel }} scoring mode set on the Games tab. Change groups on the Players step.</div>
+          </div>
+        </sc-if>
           <sc-if value="{{ betsGamesView }}" hint-placeholder-val="{{ true }}">
             <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -641,44 +687,11 @@ input, select, textarea { font-size:16px !important; }
             </div>
 
 
-          <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">{{ gamesHeading }}</div>
-
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="flex:1;">
-                <div style="font:800 13px Archivo,sans-serif;color:#0f2a4a;">GROUP MATCH</div>
-                <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;">Group vs group, Nassau style. The only bet between groups.</div>
-              </div>
-              <div style="width:38px;height:22px;border-radius:11px;background:{{ groupMatch.bg }};position:relative;cursor:pointer;flex:none;" onClick="{{ groupMatch.onToggle }}">
-                <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:{{ groupMatch.knob }};transition:left .15s;"></div>
-              </div>
-            </div>
-            <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;gap:6px;margin-top:12px;">
-                <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
-                  <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
-                </sc-for>
-              </div>
-              <div style="display:flex;gap:8px;margin-top:10px;">
-                <div style="flex:1;min-width:0;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">FRONT</div>
-                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.front }}" onChange="{{ groupMatch.onFront }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">BACK</div>
-                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.back }}" onChange="{{ groupMatch.onBack }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="font:600 9px Archivo,sans-serif;color:#98928a;margin-bottom:4px;">OVERALL</div>
-                  <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ groupMatch.overall }}" onChange="{{ groupMatch.onOverall }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
-                </div>
-              </div>
-              <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:10px;line-height:1.4;">Each losing-group player pays the amount to the winning group. Ties push. Name the teams and assign players in Let's Play.</div>
-            </sc-if>
-          </div>
+          <sc-if value="{{ gamesHeadingShow }}" hint-placeholder-val="{{ true }}">
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:-2px;">GAMES</div>
+          </sc-if>
           <sc-if value="{{ gmSplit }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:6px;">
-              <div style="height:1px;background:#e9e5dc;margin:4px 0 6px;"></div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">WITHIN EACH GROUP · OPTIONAL</div>
               <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">Games and junk played only among each group's own players. Leave everything off for no side bets.</div>
               <div style="display:flex;gap:6px;background:#f3f1ea;border-radius:8px;padding:4px;">
@@ -4390,7 +4403,7 @@ class Component extends DCLogic {
         {label:'ROUND', text: roundText, color: noCourse ? '#c8102e' : '#1a2733', onEdit: () => this.goSetupStep(1)},
         {label:'PLAYERS', text: playersText, color: active.length ? '#1a2733' : '#c8102e', onEdit: () => this.goSetupStep(2)},
         ...(splitReview ? [
-          {label:`BETWEEN GROUPS · ${modeLabel}`, text: gmText, color:'#1a2733', onEdit: () => this.goSetupStep(3)},
+          {label:`BETWEEN GROUPS · ${modeLabel}`, text: gmText, color:'#1a2733', onEdit: () => { this.setState({betsView: 'groupmatch'}); this.goSetupStep(3); }},
           ...this.groupKeys().map(g => ({label: `${this.groupName(g).toUpperCase()} · WITHIN GROUP`, text: groupBetText(g), color:'#1a2733', onEdit: () => { this.setState({junkEditGroup: g, betsView: 'games'}); this.goSetupStep(3); }}))
         ] : [
           {label:`BETS · ${modeLabel}`, text: betsParts.length ? betsParts.join(' · ') : 'No bets on', color:'#1a2733', onEdit: () => this.goSetupStep(3)}
@@ -5077,6 +5090,8 @@ class Component extends DCLogic {
     };
     const jKeys = this.groupKeys();
     const jSplit = jKeys.length > 1;
+    const rGroups = [...new Set(s.roster.filter(p => p.active).map(p => p.group || 'A'))].sort();
+    const bView = s.betsView === 'groupmatch' && rGroups.length < 2 ? 'games' : (s.betsView || 'games');
     const jg = jSplit && jKeys.includes(s.junkEditGroup) ? s.junkEditGroup : 'A';
     const J = this.junkFor(jg);
     const rrcHolderName = (s.roster.find(p => p.id === this.withGroup(jg, () => this.state.rrcHolder)) || {}).name;
@@ -5516,11 +5531,14 @@ class Component extends DCLogic {
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
       nassau, groupMatch, simpleGames, bestBall, junkList, junkTabs, holeJunk, historyList,
-      betsGamesView: s.betsView !== 'junk', betsJunkView: s.betsView === 'junk',
-      gmSplit: jSplit, gamesHeading: jSplit ? 'BETWEEN GROUPS' : 'GAMES',
-      betsTabs: [['games','GAMES'],['junk','JUNK']].map(([k, l]) => {
-        const on = (s.betsView === 'junk') === (k === 'junk');
-        return {label: l, bg: on ? '#0f2a4a' : 'transparent', color: on ? '#fff' : '#5a6672',
+      betsGmView: bView === 'groupmatch', betsGamesView: bView === 'games', betsJunkView: bView === 'junk',
+      gmSplit: jSplit, gamesHeadingShow: !jSplit,
+      gmMatchupText: rGroups.map(g => this.groupName(g)).join(' vs '),
+      gmModeLabel: ({gross:'Gross', full:'Full HDCP', low:'Low HDCP'})[s.scoringMode] || 'Low HDCP',
+      gmGroupRows: rGroups.map(g => { const ps = s.roster.filter(p => p.active && (p.group || 'A') === g); return {name: this.groupName(g), players: ps.map(p => p.name.split(' ')[0]).join(', ') + ' · ' + ps.length}; }),
+      betsTabs: (rGroups.length > 1 ? [['groupmatch','GROUP MATCH'],['games','GAMES'],['junk','JUNK']] : [['games','GAMES'],['junk','JUNK']]).map(([k, l]) => {
+        const on = bView === k, gm = k === 'groupmatch';
+        return {label: l, bg: on ? (gm ? '#f5a524' : '#0f2a4a') : 'transparent', color: on ? (gm ? '#0f2a4a' : '#fff') : '#5a6672',
           onClick: () => this.setState({betsView: k}, () => { const el = document.querySelector('[data-setup-scroll]'); if (el) el.scrollTop = 0; })};
       }),
       sixSix, sixSixGroups,
