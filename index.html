@@ -965,7 +965,23 @@ input, select, textarea { font-size:16px !important; }
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">WHO PAYS WHO</div>
               <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
                 <sc-for list="{{ settleTransactions }}" as="t" hint-placeholder-count="2">
-                  <div style="padding:9px 0;border-bottom:1px solid #f3f1ea;font:700 13px Archivo,sans-serif;color:#1a2733;">{{ t.text }}</div>
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f3f1ea;">
+                    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">
+                      <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ t.text }}</div>
+                      <sc-if value="{{ t.hasSub }}" hint-placeholder-val="{{ false }}">
+                        <div style="font:600 10px Archivo,sans-serif;color:{{ t.subColor }};">{{ t.sub }}</div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ t.canPay }}" hint-placeholder-val="{{ false }}">
+                      <a href="{{ t.url }}" target="_blank" rel="noopener" style="font:800 10px Archivo,sans-serif;background:#0f2a4a;color:#fff;padding:9px 11px;border-radius:6px;letter-spacing:.3px;text-decoration:none;flex:none;">PAY</a>
+                    </sc-if>
+                    <sc-if value="{{ t.canRequest }}" hint-placeholder-val="{{ false }}">
+                      <a href="{{ t.url }}" target="_blank" rel="noopener" style="font:800 10px Archivo,sans-serif;background:#fff;color:#0f2a4a;border:1.5px solid #0f2a4a;padding:7.5px 9px;border-radius:6px;letter-spacing:.3px;text-decoration:none;flex:none;">REQUEST</a>
+                    </sc-if>
+                    <sc-if value="{{ t.needsHandle }}" hint-placeholder-val="{{ false }}">
+                      <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;padding:9px 4px;cursor:pointer;flex:none;" onClick="{{ t.onAdd }}">ADD</div>
+                    </sc-if>
+                  </div>
                 </sc-for>
               </div>
             </div>
@@ -1441,6 +1457,7 @@ input, select, textarea { font-size:16px !important; }
                     </sc-for>
                   </div>
                 </sc-if>
+                <input placeholder="Venmo handle (optional)" value="{{ newVenmo }}" onChange="{{ onNewVenmo }}" autoCapitalize="off" autoCorrect="off" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                 <div style="display:flex;gap:8px;">
                   <input placeholder="Index (e.g. 12.4)" value="{{ newIndex }}" onChange="{{ onNewIndex }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                   <select value="{{ newTee }}" onChange="{{ onNewTee }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;">
@@ -1461,9 +1478,10 @@ input, select, textarea { font-size:16px !important; }
               <sc-if value="{{ savedPlayersOpen }}" hint-placeholder-val="{{ false }}">
                 <div style="flex:none;background:#fff;border-radius:10px;box-shadow:0 1px 2px rgba(15,42,74,.06);overflow:hidden;">
                   <sc-for list="{{ savedPlayerRows }}" as="sp" hint-placeholder-count="3">
-                    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid #f3f1ea;">
+                    <div style="display:flex;flex-direction:column;gap:6px;padding:9px 12px;border-bottom:1px solid #f3f1ea;">
+                    <div style="display:flex;align-items:center;gap:8px;">
                       <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ sp.name }}</div>
-                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;flex:none;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" inputMode="decimal" value="{{ sp.index }}" onChange="{{ sp.onIndex }}" style="border:none;background:transparent;width:4.5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;flex:none;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" inputMode="decimal" value="{{ sp.index }}" onChange="{{ sp.onIndex }}" onBlur="{{ sp.onIndexBlur }}" style="border:none;background:transparent;width:4.5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
                       <sc-if value="{{ sp.canAdd }}" hint-placeholder-val="{{ true }}">
                         <div style="font:800 10px Archivo,sans-serif;background:#0f2a4a;color:#fff;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ sp.onAdd }}">ADD</div>
                       </sc-if>
@@ -1471,6 +1489,12 @@ input, select, textarea { font-size:16px !important; }
                         <div style="font:800 9px Archivo,sans-serif;color:#1e7a3d;flex:none;">PLAYING</div>
                       </sc-if>
                       <div style="font:800 14px Archivo,sans-serif;color:#c8102e;cursor:pointer;padding:0 2px;flex:none;" onClick="{{ sp.onAskRemove }}">×</div>
+                    </div>
+                    <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:5px 8px;gap:4px;">
+                      <span style="font:600 9px Archivo,sans-serif;color:#98928a;width:42px;flex:none;">VENMO</span>
+                      <span style="font:700 12px Archivo,sans-serif;color:#98928a;">@</span>
+                      <input type="text" value="{{ sp.venmo }}" onChange="{{ sp.onVenmo }}" placeholder="Add handle" autoCapitalize="off" autoCorrect="off" spellCheck="false" style="flex:1;min-width:0;border:none;background:transparent;font:700 12px Archivo,sans-serif;color:#1a2733;outline:none;padding:0;"/>
+                    </div>
                     </div>
                   </sc-for>
                 </div>
@@ -1806,6 +1830,22 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ showLockNotice }}" hint-placeholder-val="{{ false }}">
       <div style="position:fixed;left:12px;right:12px;top:16px;z-index:46;display:flex;justify-content:center;pointer-events:none;">
         <div style="background:#0f2a4a;border:1.5px solid #ffa62f;border-radius:10px;padding:11px 14px;max-width:420px;width:100%;box-sizing:border-box;font:700 12px Archivo,sans-serif;color:#fff;line-height:1.4;box-shadow:0 12px 30px rgba(0,0,0,.3);">{{ lockNoticeText }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ venmoAskOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;inset:0;background:rgba(15,42,74,.55);display:flex;align-items:center;justify-content:center;z-index:40;padding:24px;">
+        <div style="background:#fff;border-radius:14px;padding:22px;width:100%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:12px;">
+          <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;">Venmo for {{ venmoAskName }}</div>
+          <div style="font:600 12px Archivo,sans-serif;color:#5a6672;line-height:1.5;">Saved to their player profile and shared with every phone.</div>
+          <div style="display:flex;align-items:center;gap:4px;border:1.5px solid #e9e5dc;border-radius:6px;padding:10px;">
+            <span style="font:700 13px Archivo,sans-serif;color:#98928a;">@</span>
+            <input type="text" value="{{ venmoAskVal }}" onChange="{{ onVenmoAskVal }}" placeholder="handle" autoCapitalize="off" autoCorrect="off" spellCheck="false" style="flex:1;min-width:0;border:none;outline:none;font:700 13px Archivo,sans-serif;color:#1a2733;padding:0;"/>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#0f2a4a;color:#fff;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;" onClick="{{ onVenmoAskSave }}">SAVE</div>
+            <div style="background:#fff;color:#5a6672;text-align:center;padding:12px;border-radius:8px;font:800 12px Archivo,sans-serif;cursor:pointer;border:1.5px solid #e9e5dc;" onClick="{{ onVenmoAskCancel }}">CANCEL</div>
+          </div>
+        </div>
       </div>
     </sc-if>
     <sc-if value="{{ ownerOpen }}" hint-placeholder-val="{{ false }}">
@@ -2510,7 +2550,7 @@ class Component extends DCLogic {
     } catch(e){}
     this.setState({knownPlayers: known, playerTombstones: dead || {}}, () => this.pushPlayers());
   }
-  savePlayerRecord(name, index, tee, auto){
+  savePlayerRecord(name, index, tee, auto, venmo){
     const k = this.playerKey(name);
     if (!k) return;
     // Background saves (round end, roster tweaks) never bring back a deleted player.
@@ -2518,12 +2558,30 @@ class Component extends DCLogic {
     const known = (this.state.knownPlayers || []).slice();
     const i = known.findIndex(p => this.playerKey(p.name) === k);
     const prev = i >= 0 ? known[i] : null;
-    const rec = {name: prev ? prev.name : name.trim(), index, tee: tee || (prev && prev.tee) || 'White', updatedAt: Math.max(this.syncNow(), ((this.state.playerTombstones || {})[k] || 0) + 1)};
-    if (prev && prev.index === rec.index && prev.tee === rec.tee) return;
+    const rec = {name: prev ? prev.name : name.trim(), index, tee: tee || (prev && prev.tee) || 'White', venmo: venmo !== undefined ? venmo : ((prev && prev.venmo) || ''), updatedAt: Math.max(this.syncNow(), ((this.state.playerTombstones || {})[k] || 0) + 1)};
+    if (prev && prev.index === rec.index && prev.tee === rec.tee && (prev.venmo || '') === rec.venmo) return;
     if (i >= 0) known.splice(i, 1);
     known.unshift(rec);
     const dead = {...(this.state.playerTombstones || {})}; delete dead[k];
     this.persistPlayers(known, dead);
+  }
+  cleanVenmo(v){ return String(v || '').replace(/^@+/, '').replace(/\s+/g, ''); }
+  venmoFor(name){
+    const k = this.playerKey(name);
+    const p = (this.state.knownPlayers || []).find(x => this.playerKey(x.name) === k);
+    return (p && p.venmo) || '';
+  }
+  setPlayerVenmo(name, v){
+    const k = this.playerKey(name);
+    const p = (this.state.knownPlayers || []).find(x => this.playerKey(x.name) === k);
+    const rp = (this.state.roster || []).find(x => this.playerKey(x.name) === k);
+    const src = p || rp || {};
+    this.savePlayerRecord(src.name || name, src.index ?? 0, src.tee, false, this.cleanVenmo(v));
+  }
+  venmoUrl(handle, txn, amount){
+    const c = this.state.courseName && this.state.courseName !== 'No Course Selected' ? ` · ${this.state.courseName}` : '';
+    const d = new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+    return `https://venmo.com/${encodeURIComponent(handle)}?txn=${txn}&amount=${amount.toFixed(2)}&note=${encodeURIComponent(`The Hustle${c} · ${d}`)}`;
   }
   removeSavedPlayer(name){
     const k = this.playerKey(name);
@@ -4912,11 +4970,11 @@ class Component extends DCLogic {
     const tee = this.state.newTee || 'White';
     const roster = [...this.state.roster, {id, name, initials, index: idx, tee, active:true}];
 
-    this.savePlayerRecord(name, idx, tee);
-    this.setState({roster, newName:'', newIndex:'', newTee:'White', showAddForm:false, showHero:false, showNameSuggestions:false});
+    this.savePlayerRecord(name, idx, tee, false, this.state.newVenmo ? this.cleanVenmo(this.state.newVenmo) : undefined);
+    this.setState({roster, newName:'', newIndex:'', newTee:'White', newVenmo:'', showAddForm:false, showHero:false, showNameSuggestions:false});
   }
   selectKnownPlayer(p){
-    this.setState({newName:p.name, newIndex:String(p.index || ''), newTee:p.tee || 'White', showNameSuggestions:false});
+    this.setState({newName:p.name, newIndex:String(p.index || ''), newTee:p.tee || 'White', newVenmo: p.venmo || '', showNameSuggestions:false});
   }
 
   renderVals(){
@@ -5351,9 +5409,23 @@ class Component extends DCLogic {
       name: r.name, amountLabel: (r.amount>=0?'+$':'-$')+Math.abs(r.amount).toFixed(2),
       color: r.amount > 0 ? '#1e7a3d' : (r.amount < 0 ? '#c8102e' : '#5a6672')
     }));
-    const settleTransactions = settlement.transactions.map(t => ({
-      text: `${t.from} pays ${t.to} $${t.amount.toFixed(2)}`
-    }));
+    const meKey = s.ownerName ? this.playerKey(s.ownerName) : '';
+    const settleTransactions = settlement.transactions.map(t => {
+      const amt = `$${t.amount.toFixed(2)}`;
+      const iPay = !!meKey && this.playerKey(t.from) === meKey, iGet = !!meKey && this.playerKey(t.to) === meKey;
+      const other = iPay ? t.to : (iGet ? t.from : t.to);
+      const handle = this.venmoFor(other);
+      const first = String(other).split(' ')[0];
+      const text = iPay ? `You pay ${shortName(t.to)} ${amt}` : (iGet ? `${shortName(t.from)} pays you ${amt}` : `${shortName(t.from)} pays ${shortName(t.to)} ${amt}`);
+      const mine = iPay || iGet;
+      return {text,
+        hasSub: !!handle || mine,
+        sub: handle ? (mine ? `@${handle}` : `${first}: @${handle}`) : `No Venmo saved for ${first}`,
+        subColor: handle ? '#98928a' : '#c8102e',
+        canPay: iPay && !!handle, canRequest: iGet && !!handle, needsHandle: mine && !handle,
+        url: handle ? this.venmoUrl(handle, iPay ? 'pay' : 'charge', t.amount) : '',
+        onAdd: () => this.setState({venmoAsk: other, venmoAskVal: ''})};
+    });
     const settleCats = this.settleCategories(settlement.entries).map(c => {
       const open = !!(s.settleOpen || {})[c.key];
       return {...c, open, chev: open ? '▾' : '▸', hasHole: true,
@@ -5497,6 +5569,10 @@ class Component extends DCLogic {
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(), settleBtnLabel: s.eventEnded ? 'SETTLE UP' : 'BETS', settleHeaderLabel: s.eventEnded ? 'SETTLE UP · FINAL' : 'BETS · BASED ON HOLES ENTERED SO FAR',
       settleNetRows, settleTransactions, settleCats, settleGrossTotals, hasSettleData,
+      venmoAskOpen: !!s.venmoAsk, venmoAskName: s.venmoAsk ? shortName(s.venmoAsk) : '', venmoAskVal: s.venmoAskVal || '',
+      onVenmoAskVal: (e) => this.setState({venmoAskVal: e.target.value}),
+      onVenmoAskSave: () => { const v = this.cleanVenmo(s.venmoAskVal); if (v) this.setPlayerVenmo(s.venmoAsk, v); this.setState({venmoAsk: null, venmoAskVal: ''}); },
+      onVenmoAskCancel: () => this.setState({venmoAsk: null, venmoAskVal: ''}),
       showNav: true,
       viewTabs,
       storageError: !!s.storageError,
@@ -5529,11 +5605,18 @@ class Component extends DCLogic {
           savedPlayerRows: known.slice().sort((a,b) => a.name.localeCompare(b.name)).map(p => {
             const on = onRosterKeys.has(this.playerKey(p.name));
             return {
-              name: p.name, index: p.index == null ? '' : p.index, onRoster: on, canAdd: !on && !full,
+              name: p.name, onRoster: on, canAdd: !on && !full,
+              index: (s.savedIdxDraft || {})[p.name] != null ? s.savedIdxDraft[p.name] : (p.index == null ? '' : p.index),
+              // Keep the raw text while typing so "12." survives; save the number underneath.
               onIndex: (e) => {
-                const v = parseFloat(e.target.value);
-                this.savePlayerRecord(p.name, isNaN(v) ? e.target.value : v, p.tee);
+                const raw = e.target.value;
+                this.setState(st => ({savedIdxDraft: {...(st.savedIdxDraft || {}), [p.name]: raw}}));
+                const v = parseFloat(raw);
+                if (!isNaN(v)) this.savePlayerRecord(p.name, v, p.tee);
               },
+              venmo: p.venmo || '',
+              onVenmo: (e) => this.setPlayerVenmo(p.name, e.target.value),
+              onIndexBlur: () => this.setState(st => { const d = {...(st.savedIdxDraft || {})}; delete d[p.name]; return {savedIdxDraft: d}; }),
               onAdd: () => this.setState({newName: p.name, newIndex: String(p.index ?? ''), newTee: p.tee || 'White'}, () => this.addPlayer()),
               onAskRemove: () => this.setState({savedPlayerAsk: p.name})
             };
@@ -5727,6 +5810,7 @@ class Component extends DCLogic {
           .map(k => ({name: k.index != null && k.index !== '' ? `${k.name} · ${k.index} index` : k.name, onSelect: () => this.selectKnownPlayer(k)}));
       })(),
       onNewIndex: (e)=>this.setState({newIndex:e.target.value}),
+      newVenmo: s.newVenmo || '', onNewVenmo: (e)=>this.setState({newVenmo:e.target.value}),
       onNewTee: (e)=>this.setState({newTee:e.target.value}),
       onAddPlayer: () => this.addPlayer(),
       courseName: s.courseName,
