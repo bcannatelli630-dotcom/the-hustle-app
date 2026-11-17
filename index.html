@@ -88,16 +88,27 @@ input, select, textarea { font-size:16px !important; }
                   <div style="background:#fff;color:#c8102e;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;border:1.5px solid #c8102e;" onClick="{{ onOpenClearDataConfirm }}">CLEAR ALL SAVED DATA</div>
                 </sc-if>
                 <sc-if value="{{ clearDataConfirmOpen }}" hint-placeholder-val="{{ false }}">
-                  <div style="font:700 10px Archivo,sans-serif;color:#c8102e;margin-bottom:6px;">This wipes the roster, scores, and settings on this device for good. Sure?</div>
+                  <div style="font:700 10px Archivo,sans-serif;color:#c8102e;margin-bottom:6px;line-height:1.4;">This wipes the roster, scores, history and settings on this device. You'll have 30 seconds to undo. Type DELETE to confirm.</div>
+                  <input type="text" value="{{ clearDataText }}" onChange="{{ onClearDataText }}" placeholder="DELETE" autoCapitalize="characters" autoCorrect="off" spellCheck="false" style="width:100%;box-sizing:border-box;border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;margin-bottom:8px;letter-spacing:.5px;"/>
                   <div style="display:flex;gap:8px;">
                     <div style="flex:1;text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;cursor:pointer;background:#f3f1ea;color:#5a6672;" onClick="{{ onDismissClearDataConfirm }}">CANCEL</div>
-                    <div style="flex:1;text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;cursor:pointer;background:#c8102e;color:#fff;" onClick="{{ onClearAllSavedData }}">YES, CLEAR IT</div>
+                    <div style="flex:1;text-align:center;padding:8px;border-radius:6px;font:800 10px Archivo,sans-serif;cursor:pointer;background:{{ clearDataBtnBg }};color:#fff;" onClick="{{ onClearAllSavedData }}">CLEAR IT</div>
                   </div>
                 </sc-if>
               </div>
             </sc-if>
           </div>
         </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ dataUndoActive }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;left:12px;right:12px;bottom:76px;z-index:70;display:flex;justify-content:center;pointer-events:none;transform:translate({{ undoDX }}px,{{ undoDY }}px);">
+        <div style="background:#1a2733;color:#fff;border-radius:10px;padding:11px 14px 11px 10px;display:flex;align-items:center;gap:10px;width:100%;max-width:380px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;" onPointerDown="{{ onUndoDragStart }}">
+          <div style="display:flex;gap:3px;flex:none;opacity:.5;"><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div><div style="width:2px;height:18px;border-radius:1px;background:#fff;"></div></div>
+          <div style="flex:1;min-width:0;font:700 11px Archivo,sans-serif;line-height:1.4;">All saved data on this phone will be cleared</div>
+          <div data-undo-btn="1" style="background:#ffa62f;color:#0f2a4a;font:800 11px Archivo,sans-serif;padding:8px 12px;border-radius:6px;cursor:pointer;flex:none;" onClick="{{ onUndoDataWipe }}">UNDO · {{ dataUndoSeconds }}s</div>
+        </div>
       </div>
     </sc-if>
 
@@ -2577,8 +2588,26 @@ class Component extends DCLogic {
       this.setState({eventEnded:false, editingHistoryId:null, editBlockedId:null, clearRoundConfirmOpen:false});
     });
   }
-  openClearDataConfirm(){ this.setState({clearDataConfirmOpen:true}); }
-  dismissClearDataConfirm(){ this.setState({clearDataConfirmOpen:false}); }
+  openClearDataConfirm(){ this.setState({clearDataConfirmOpen:true, clearDataText:''}); }
+  dismissClearDataConfirm(){ this.setState({clearDataConfirmOpen:false, clearDataText:''}); }
+  // The wipe waits 30 seconds so an accident can be undone; nothing is touched until then.
+  requestClearAllSavedData(){
+    if ((this.state.clearDataText || '').trim().toUpperCase() !== 'DELETE') return;
+    if (this._dataWipeTimer) clearInterval(this._dataWipeTimer);
+    this.setState({clearDataConfirmOpen:false, clearDataText:'', dataWipeAt: Date.now() + 30000});
+    this._dataWipeTimer = setInterval(() => {
+      if (!this.state.dataWipeAt){ clearInterval(this._dataWipeTimer); this._dataWipeTimer = null; return; }
+      if (Date.now() >= this.state.dataWipeAt){
+        clearInterval(this._dataWipeTimer); this._dataWipeTimer = null;
+        this.setState({dataWipeAt: null});
+        this.clearAllSavedData();
+      } else this.forceUpdate();
+    }, 1000);
+  }
+  undoDataWipe(){
+    if (this._dataWipeTimer){ clearInterval(this._dataWipeTimer); this._dataWipeTimer = null; }
+    this.setState({dataWipeAt: null});
+  }
   openClearRoundConfirm(){ this.setState({clearRoundConfirmOpen:true}); }
   dismissClearRoundConfirm(){ this.setState({clearRoundConfirmOpen:false}); }
   // Wipes the round in progress — scores, every game/junk record (RRC, sandies,
@@ -2894,6 +2923,7 @@ class Component extends DCLogic {
     if (this._endPendingTimer) clearInterval(this._endPendingTimer);
     if (this._histUndoTimer) clearInterval(this._histUndoTimer);
     if (this._clubUndoTimer) clearInterval(this._clubUndoTimer);
+    if (this._dataWipeTimer) clearInterval(this._dataWipeTimer);
     if (this._syncTimer) clearInterval(this._syncTimer);
     document.removeEventListener('visibilitychange', this._onHide);
     window.removeEventListener('pagehide', this._flushLocal);
@@ -5540,9 +5570,15 @@ class Component extends DCLogic {
       newMasterMsgColor: s.newMasterMsg === 'saved' ? '#1e7a3d' : '#c8102e',
       onNewSitePasswordChange: (e)=>this.onNewSitePasswordChange(e), onSaveNewSitePassword: () => this.saveNewSitePassword(),
       clearDataConfirmOpen: s.clearDataConfirmOpen,
+      clearDataText: s.clearDataText || '',
+      onClearDataText: (e) => this.setState({clearDataText: e.target.value}),
+      clearDataBtnBg: (s.clearDataText || '').trim().toUpperCase() === 'DELETE' ? '#c8102e' : '#e3b8bf',
+      dataUndoActive: !!s.dataWipeAt && s.dataWipeAt > Date.now(),
+      dataUndoSeconds: s.dataWipeAt ? Math.max(0, Math.ceil((s.dataWipeAt - Date.now()) / 1000)) : 0,
+      onUndoDataWipe: () => this.undoDataWipe(),
       onOpenClearDataConfirm: () => this.openClearDataConfirm(),
       onDismissClearDataConfirm: () => this.dismissClearDataConfirm(),
-      onClearAllSavedData: () => this.clearAllSavedData(),
+      onClearAllSavedData: () => this.requestClearAllSavedData(),
       clearRoundConfirmOpen: s.clearRoundConfirmOpen,
       onOpenClearRoundConfirm: () => this.openClearRoundConfirm(),
       onDismissClearRoundConfirm: () => this.dismissClearRoundConfirm(),
