@@ -2510,13 +2510,15 @@ class Component extends DCLogic {
     } catch(e){}
     this.setState({knownPlayers: known, playerTombstones: dead || {}}, () => this.pushPlayers());
   }
-  savePlayerRecord(name, index, tee){
+  savePlayerRecord(name, index, tee, auto){
     const k = this.playerKey(name);
     if (!k) return;
+    // Background saves (round end, roster tweaks) never bring back a deleted player.
+    if (auto && (this.state.playerTombstones || {})[k]) return;
     const known = (this.state.knownPlayers || []).slice();
     const i = known.findIndex(p => this.playerKey(p.name) === k);
     const prev = i >= 0 ? known[i] : null;
-    const rec = {name: prev ? prev.name : name.trim(), index, tee: tee || (prev && prev.tee) || 'White', updatedAt: Date.now()};
+    const rec = {name: prev ? prev.name : name.trim(), index, tee: tee || (prev && prev.tee) || 'White', updatedAt: Math.max(this.syncNow(), ((this.state.playerTombstones || {})[k] || 0) + 1)};
     if (prev && prev.index === rec.index && prev.tee === rec.tee) return;
     if (i >= 0) known.splice(i, 1);
     known.unshift(rec);
@@ -2525,16 +2527,26 @@ class Component extends DCLogic {
   }
   removeSavedPlayer(name){
     const k = this.playerKey(name);
-    const known = (this.state.knownPlayers || []).filter(p => this.playerKey(p.name) !== k);
-    this.persistPlayers(known, {...(this.state.playerTombstones || {}), [k]: Date.now()});
+    const all = this.state.knownPlayers || [];
+    (this._freshDeletes = this._freshDeletes || new Set()).add(k);
+    const known = all.filter(p => this.playerKey(p.name) !== k);
+    // Stamp the delete later than any copy of this player we've seen, so a phone with a
+    // fast clock can't make the old record look newer and bring it back.
+    const newest = all.filter(p => this.playerKey(p.name) === k).reduce((m, p) => Math.max(m, Math.min(p.updatedAt || 0, this.syncNow())), 0);
+    this.persistPlayers(known, {...(this.state.playerTombstones || {}), [k]: Math.max(this.syncNow(), Date.now(), newest + 1)});
     this.setState({savedPlayerAsk: null});
   }
   mergePlayers(a, aDead, b, bDead){
     const dead = {...(aDead || {})};
     Object.entries(bDead || {}).forEach(([k,t]) => { if (!dead[k] || t > dead[k]) dead[k] = t; });
+    const capD = this.syncNow() + 60000;
+    Object.keys(dead).forEach(k => { if (dead[k] > capD) dead[k] = capD; });
     const by = {};
+    // Records stamped in the future (bad phone clock / test data) would beat every delete. Treat them as oldest.
+    const cap = this.syncNow() + 60000;
     [...(a || []), ...(b || [])].forEach(p => {
       if (!p || !p.name) return;
+      if ((p.updatedAt || 0) > cap) p = {...p, updatedAt: 1};
       const k = this.playerKey(p.name);
       if (!by[k] || (p.updatedAt || 0) > (by[k].updatedAt || 0)) by[k] = {...p, name: by[k] ? by[k].name : p.name};
     });
@@ -2561,6 +2573,11 @@ class Component extends DCLogic {
         const r = await fetch(`${SYNC_ENDPOINT}?group=player-directory`);
         const j = await r.json();
         const rem = (j && j.data) || {};
+        if (this._freshDeletes && this._freshDeletes.size){
+          dead = {...dead};
+          (rem.players || []).forEach(p => { const k = p && this.playerKey(p.name); if (k && this._freshDeletes.has(k) && (p.updatedAt || 0) >= (dead[k] || 0) && (p.updatedAt || 0) <= this.syncNow() + 60000) dead[k] = (p.updatedAt || 0) + 1; });
+          this._freshDeletes.clear();
+        }
         const m = this.mergePlayers(list, dead, rem.players, rem.tombstones);
         list = m.list; dead = m.dead;
         if (stableStr(list) !== stableStr(this.state.knownPlayers || [])){
@@ -2580,7 +2597,7 @@ class Component extends DCLogic {
     }, 900);
   }
   rememberRoster(){
-    (this.state.roster || []).forEach(p => this.savePlayerRecord(p.name, p.index, p.tee));
+    (this.state.roster || []).forEach(p => this.savePlayerRecord(p.name, p.index, p.tee, true));
   }
   rememberRosterOld(){
     let known = (this.state.knownPlayers || []).slice();
@@ -4753,7 +4770,7 @@ class Component extends DCLogic {
     this.setState({roster});
   }  _syncSavedFromRoster(id){
     const p = (this.state.roster || []).find(x => x.id === id);
-    if (p) this.savePlayerRecord(p.name, p.index, p.tee);
+    if (p) this.savePlayerRecord(p.name, p.index, p.tee, true);
   }
 
   updatePlayerTee(id, tee){
