@@ -65,6 +65,15 @@ input, select, textarea { font-size:16px !important; }
               <sc-if value="{{ newSitePasswordSaved }}" hint-placeholder-val="{{ false }}">
                 <div style="font:700 10px Archivo,sans-serif;color:#1e7a3d;">Saved — use it next time you unlock.</div>
               </sc-if>
+              <div style="border-top:1px solid #e9e5dc;margin-top:4px;padding-top:10px;display:flex;flex-direction:column;gap:8px;">
+                <div style="font:700 11px Archivo,sans-serif;color:#0f2a4a;">Change master password</div>
+                <input type="password" value="{{ newMasterPw }}" onChange="{{ onNewMasterPw }}" placeholder="New master password" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
+                <input type="password" value="{{ newMasterPw2 }}" onChange="{{ onNewMasterPw2 }}" placeholder="Type it again" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:9px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
+                <div style="background:#0f2a4a;color:#fff;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;" onClick="{{ onSaveNewMaster }}">SAVE MASTER PASSWORD</div>
+                <sc-if value="{{ hasNewMasterMsg }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:700 10px Archivo,sans-serif;color:{{ newMasterMsgColor }};">{{ newMasterMsgText }}</div>
+                </sc-if>
+              </div>
               <div style="border-top:1px solid #e9e5dc;margin-top:4px;padding-top:10px;">
                 <sc-if value="{{ !clearDataConfirmOpen }}" hint-placeholder-val="{{ true }}">
                   <div style="background:#fff;color:#c8102e;text-align:center;padding:9px;border-radius:6px;font:800 11px Archivo,sans-serif;cursor:pointer;border:1.5px solid #c8102e;" onClick="{{ onOpenClearDataConfirm }}">CLEAR ALL SAVED DATA</div>
@@ -2203,6 +2212,9 @@ function formatClockTime(d){
   const m = String(d.getMinutes()).padStart(2, '0');
   return `${h}:${m}`;
 }
+function getMasterPassword(){
+  try { return localStorage.getItem('hustle_master_password') || MASTER_PASSWORD; } catch(e){ return MASTER_PASSWORD; }
+}
 function getSitePassword(){
   if (typeof localStorage === 'undefined') return SITE_PASSWORD_DEFAULT;
   return localStorage.getItem(SITE_PASSWORD_STORAGE_KEY) || SITE_PASSWORD_DEFAULT;
@@ -2222,6 +2234,7 @@ class Component extends DCLogic {
     masterPwError: false,
     newSitePasswordInput: '',
     newSitePasswordSaved: false,
+    newMasterPw: '', newMasterPw2: '', newMasterMsg: '',
     clearDataConfirmOpen: false,
     clearRoundConfirmOpen: false,
     currentTime: formatClockTime(new Date()),
@@ -2423,13 +2436,20 @@ class Component extends DCLogic {
   }
   onMasterPwChange(e){ this.setState({masterPwInput: e.target.value, masterPwError:false}); }
   submitMasterPassword(){
-    if (this.state.masterPwInput === MASTER_PASSWORD){
+    if (this.state.masterPwInput === getMasterPassword()){
       this.setState({masterUnlocked:true, masterPwError:false, masterPwInput:''});
     } else {
       this.setState({masterPwError:true});
     }
   }
   onNewSitePasswordChange(e){ this.setState({newSitePasswordInput: e.target.value, newSitePasswordSaved:false}); }
+  saveNewMasterPassword(){
+    const a = (this.state.newMasterPw || '').trim(), b = (this.state.newMasterPw2 || '').trim();
+    if (a.length < 6){ this.setState({newMasterMsg: 'short'}); return; }
+    if (a !== b){ this.setState({newMasterMsg: 'mismatch'}); return; }
+    try { localStorage.setItem('hustle_master_password', a); } catch(e){}
+    this.setState({newMasterPw: '', newMasterPw2: '', newMasterMsg: 'saved'});
+  }
   saveNewSitePassword(){
     const val = this.state.newSitePasswordInput.trim();
     if (!val) return;
@@ -5361,6 +5381,13 @@ class Component extends DCLogic {
       masterUnlocked: s.masterUnlocked, masterPwInput: s.masterPwInput, masterPwError: s.masterPwError,
       onMasterPwChange: (e)=>this.onMasterPwChange(e), onSubmitMasterPassword: () => this.submitMasterPassword(),
       newSitePasswordInput: s.newSitePasswordInput, newSitePasswordSaved: s.newSitePasswordSaved,
+      newMasterPw: s.newMasterPw, newMasterPw2: s.newMasterPw2,
+      onNewMasterPw: (e) => this.setState({newMasterPw: e.target.value, newMasterMsg: ''}),
+      onNewMasterPw2: (e) => this.setState({newMasterPw2: e.target.value, newMasterMsg: ''}),
+      onSaveNewMaster: () => this.saveNewMasterPassword(),
+      hasNewMasterMsg: !!s.newMasterMsg,
+      newMasterMsgText: ({short: 'Use at least 6 characters.', mismatch: 'The two entries don\u2019t match.', saved: 'Master password changed on this phone.'})[s.newMasterMsg] || '',
+      newMasterMsgColor: s.newMasterMsg === 'saved' ? '#1e7a3d' : '#c8102e',
       onNewSitePasswordChange: (e)=>this.onNewSitePasswordChange(e), onSaveNewSitePassword: () => this.saveNewSitePassword(),
       clearDataConfirmOpen: s.clearDataConfirmOpen,
       onOpenClearDataConfirm: () => this.openClearDataConfirm(),
@@ -5576,13 +5603,13 @@ class Component extends DCLogic {
           ownerNoPlayers: !(s.roster || []).some(p => p.active),
           ownerHasCurrent: !!s.ownerName,
           onOwnerSave: () => {
-            if (s.ownerPw !== MASTER_PASSWORD){ this.setState({ownerPwErr: true}); return; }
+            if (s.ownerPw !== getMasterPassword()){ this.setState({ownerPwErr: true}); return; }
             if (!s.ownerPick) return;
             try { localStorage.setItem('hustle_owner_name', s.ownerPick); } catch(e){}
             this.setState({ownerName: s.ownerPick, ownerOpen: false, ownerPw: ''});
           },
           onOwnerClear: () => {
-            if (s.ownerPw !== MASTER_PASSWORD){ this.setState({ownerPwErr: true}); return; }
+            if (s.ownerPw !== getMasterPassword()){ this.setState({ownerPwErr: true}); return; }
             try { localStorage.removeItem('hustle_owner_name'); } catch(e){}
             this.setState({ownerName: '', ownerOpen: false, ownerPw: ''});
           },
