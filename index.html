@@ -421,6 +421,9 @@ input, select, textarea { font-size:16px !important; }
         </sc-if>
 
         <div style="flex:none;display:flex;flex-direction:column;gap:6px;padding:10px 18px;border-bottom:1px solid #e9e5dc;background:#fff;">
+          <sc-if value="{{ hasShotgun }}" hint-placeholder-val="{{ false }}">
+            <div style="font:800 9px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;">{{ shotgunText }}</div>
+          </sc-if>
           <div style="display:flex;gap:6px;">
             <sc-for list="{{ frontChips }}" as="h" hint-placeholder-count="9">
               <div style="flex:1;height:34px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font:800 11px Georgia,serif;background:{{ h.bg }};color:{{ h.color }};border:{{ h.border }};" onClick="{{ h.onClick }}">
@@ -1425,6 +1428,17 @@ input, select, textarea { font-size:16px !important; }
                   </div>
                 </div>
               </sc-if>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">
+                  <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">STARTING HOLE</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;">{{ startHoleNote }}</div>
+                </div>
+                <select value="{{ startHoleVal }}" onChange="{{ onStartHole }}" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 13px Georgia,serif;outline:none;background:#fbfaf7;color:#1a2733;">
+                  <sc-for list="{{ startHoleOpts }}" as="so" hint-placeholder-count="18">
+                    <option value="{{ so.v }}">{{ so.label }}</option>
+                  </sc-for>
+                </select>
+              </div>
             </div>
 
             <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:2px;">TOURNAMENT NAME</div>
@@ -1970,6 +1984,9 @@ input, select, textarea { font-size:16px !important; }
         <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;max-height:85%;overflow-y:auto;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:12px;">
           <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;">Check the bets before tee-off</div>
           <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.4;">Bets lock once the round starts.</div>
+          <sc-if value="{{ betsCheckHasStart }}" hint-placeholder-val="{{ false }}">
+            <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ betsCheckStart }}</div>
+          </sc-if>
           <sc-if value="{{ betsCheckHasGm }}" hint-placeholder-val="{{ false }}">
             <div style="font:800 12px Archivo,sans-serif;color:#1a2733;">{{ betsCheckGm }}</div>
           </sc-if>
@@ -2313,7 +2330,7 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGames', 'groupGreenies', 'groupTrack',
-  'roundType', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
+  'roundType', 'startHole', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
   'adminDeviceId', 'adminName', 'adminPinned', 'roundEnd', 'devices', 'endAcks'
 ];
 const RULE_PRESETS = [
@@ -2347,7 +2364,7 @@ function pickSyncFields(obj){
 // id; the newer round wins outright so an old round can't come back.
 // Single values merged as one cell each (newest edit wins), instead of riding along
 // with whichever phone saved last.
-const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','tournamentDays','eventName','roundLive','adminDeviceId','adminName','adminPinned','roundEnd'];
+const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','startHole','tournamentDays','eventName','roundLive','adminDeviceId','adminName','adminPinned','roundEnd'];
 // Lists merged item by item.
 const LIST_MERGE_KEYS = ['roster','history','presses','customJunk'];
 const MERGE_KEYS = ['scores','greenieWinners','groupGreenies','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history',
@@ -2537,6 +2554,7 @@ class Component extends DCLogic {
     clubTombstones: (() => { try { return JSON.parse(localStorage.getItem('hustle_club_tombstones') || '{}') || {}; } catch(e){ return {}; } })(),
     clubDeleteName: null, clubUndo: null, clubDup: null, clubExpanded: {},
     roundType: '18',
+    startHole: 1,
     tournamentDays: 2,
     eventName: '',
     showHero: true
@@ -2934,7 +2952,7 @@ class Component extends DCLogic {
       scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
-      presses: [], currentHole: 1,
+      presses: [], currentHole: 1, startHole: 1,
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false,
       activeNotif: null, clearRoundConfirmOpen: false, eventEnded: false, showHero: true, editingHistoryId: null, editBlockedId: null, roundLive: false, setupStep: 1
     });
@@ -2952,7 +2970,7 @@ class Component extends DCLogic {
       roster: [], scores: {}, greenieWinners: {}, greenieResolved: {}, wolfPicks: {},
       sandyFlags: {}, polyFlags: {}, barkyFlags: {}, chippyFlags: {}, vegasTeams: {},
       taFlips: {}, bbbPoints: {},
-      presses: [], currentHole: 1, screen: 'board',
+      presses: [], currentHole: 1, startHole: 1, screen: 'board',
       rrcHolder: null, sweepCandidate: null, sweepCount: 0, sweepDead: false, activeNotif: null,
       games: JSON.parse(JSON.stringify(GAMES_DEFAULT)), junk: JSON.parse(JSON.stringify(JUNK_DEFAULT)),
       courseName: 'No Course Selected',
@@ -3400,7 +3418,7 @@ class Component extends DCLogic {
 
   wolfForHole(hole, active){
     if (!active.length) return null;
-    return active[(hole-1) % active.length];
+    return active[this.holePos(hole) % active.length];
   }
   setWolfPartner(hole, partnerId){
     const wolfPicks = {...this.state.wolfPicks, [hole]: {partnerId, lone:false}};
@@ -3620,14 +3638,15 @@ class Component extends DCLogic {
     // A hole only counts as over once play has moved on: scores on a later hole, or
     // everyone scored AND the scorecard has advanced past it. Entering scores before
     // tapping the greenie chip never decides anything early.
-    const playedAfter = h => active.some(p => { for (let x = h + 1; x <= total; x++) if (scoreOf(p.id, x) != null) return true; return false; });
+    const order = this.playOrder(), pos = x => this.holePos(x);
+    const playedAfter = h => active.some(p => order.slice(pos(h) + 1).some(x => scoreOf(p.id, x) != null));
     const finished = h => active.length > 0 && (playedAfter(h) ||
-      (active.every(p => scoreOf(p.id, h) != null) && (this.state.currentHole || 1) > h));
+      (active.every(p => scoreOf(p.id, h) != null) && pos(this.state.currentHole || this.startHole()) > pos(h)));
     const modified = this.greenieMode() === 'modified';
     const list = [], carryAt = {};
     // lead = the player who has won every greenie so far (the one on track for sweeps).
     let lead = null, leadOk = true;
-    for (let h = 1; h <= total; h++){
+    for (const h of order){
       if (course.par[h-1] !== 3) continue;
       const entry = {hole: h, wonOn: null, winner: null, status: 'pending', reason: null};
       let at = h;
@@ -3647,8 +3666,9 @@ class Component extends DCLogic {
         if (carry){
           if (!finished(at)){ entry.status = 'pending'; break; }
           if (!modified){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = at; break; }
-          at++;
-          if (at > total){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = total; break; }
+          const nx = this.nextHole(at);
+          if (nx == null){ entry.status = 'lost'; entry.reason = 'none'; entry.wonOn = at; break; }
+          at = nx;
           (carryAt[at] = carryAt[at] || []).push(h);
         }
       }
@@ -3814,6 +3834,13 @@ class Component extends DCLogic {
   totalHolesForRound(){
     return this.state.roundType === '9' ? 9 : 18;
   }
+  // Shotgun starts: play runs from the starting hole around to the hole before it.
+  startHole(){ const t = this.totalHolesForRound(), n = parseInt(this.state.startHole, 10); return n >= 1 && n <= t ? n : 1; }
+  playOrder(){ const t = this.totalHolesForRound(), s = this.startHole(); return Array.from({length: t}, (_, i) => ((s - 1 + i) % t) + 1); }
+  holePos(h){ const t = this.totalHolesForRound(); return ((h - this.startHole()) % t + t) % t; }
+  lastHole(){ const o = this.playOrder(); return o[o.length - 1]; }
+  nextHole(h){ const o = this.playOrder(), i = this.holePos(h); return i < o.length - 1 ? o[i + 1] : null; }
+  setStartHole(n){ if (this.lockedOut()) return; this.setState({startHole: n, ...(this.isRoundLive() ? {} : {currentHole: n})}); }
   allScoresComplete(){
     const active = this.state.roster.filter(p => p.active);
     const total = this.totalHolesForRound();
@@ -3826,7 +3853,7 @@ class Component extends DCLogic {
   lastHoleComplete(){
     const active = this.state.roster.filter(p => p.active);
     const total = this.totalHolesForRound();
-    return active.length > 0 && active.every(p => (this.state.scores[p.id] || {})[total] != null);
+    return active.length > 0 && active.every(p => (this.state.scores[p.id] || {})[this.lastHole()] != null);
   }
   attemptEndEvent(){
     if (this.lockedOut('end')) return;
@@ -4084,7 +4111,7 @@ class Component extends DCLogic {
 
   saveAdvance(){
     this.commitDefaultScores(this.state.currentHole);
-    const next = Math.min(18, this.state.currentHole + 1);
+    const next = this.nextHole(this.state.currentHole) || this.state.currentHole;
     this.selectHole(next);
     // The greenie sweep alert for this hole pops now, after the hole is saved.
     setTimeout(() => this.refreshGreenieSweep(false), 0);
@@ -4138,18 +4165,19 @@ class Component extends DCLogic {
     if (!x) return grp;
     return [w, x].concat(grp.filter(p => p.id !== w.id && p.id !== x.id));
   }
+  sixRanges(){
+    const o = this.playOrder();
+    return [0, 1, 2].map(k => { const hs = o.slice(k * 6, k * 6 + 6); return {holes: hs, start: hs[0], end: hs[hs.length - 1], text: hs[0] + '–' + hs[hs.length - 1]}; });
+  }
   buildSixSixSegments(active){
     const groups = [];
     for (let i=0; i<active.length; i+=4){
       const grp = active.slice(i, i+4);
       if (grp.length < 4) continue;
       const [w,x,y,z] = this.sixSixOrder(grp);
-      const c = i / 4;
-      groups.push(
-        {chunk:c, idx:0, label:'HOLES 1-6', start:1, end:6, teamA:[w,x], teamB:[y,z]},
-        {chunk:c, idx:1, label:'HOLES 7-12', start:7, end:12, teamA:[w,y], teamB:[x,z]},
-        {chunk:c, idx:2, label:'HOLES 13-18', start:13, end:18, teamA:[w,z], teamB:[x,y]}
-      );
+      const c = i / 4, rs = this.sixRanges();
+      const mk = (k, a, b) => ({chunk:c, idx:k, label:'HOLES ' + rs[k].start + '-' + rs[k].end, start: rs[k].start, end: rs[k].end, holes: rs[k].holes, teamA:a, teamB:b});
+      groups.push(mk(0, [w,x], [y,z]), mk(1, [w,y], [x,z]), mk(2, [w,z], [x,y]));
     }
     return groups;
   }
@@ -4158,7 +4186,7 @@ class Component extends DCLogic {
     return this.buildSixSixSegments(active).map(seg => {
       let up = 0, played = 0, last = 0;
       const holes = [];
-      for (let h = seg.start; h <= seg.end; h++){
+      for (const h of seg.holes){
         const av = seg.teamA.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
         const bv = seg.teamB.map(p => this.netToParAt(p, h, mode, active)).filter(v => v != null);
         if (!av.length || !bv.length){ holes.push({h, done:false}); continue; }
@@ -4366,7 +4394,7 @@ class Component extends DCLogic {
         const val = this.state.games.skins.value;
         const carryoverOn = !!this.state.games.skins.carryover;
         let carry = 0;
-        for (let h = 1; h <= 18; h++){
+        for (const h of this.playOrder()){
           const vals = active.map(p => ({p, v: this.netToParAt(p, h, mode, active)}));
           if (vals.some(x => x.v == null)) continue;
           const minV = Math.min(...vals.map(x => x.v));
@@ -4790,7 +4818,7 @@ class Component extends DCLogic {
     // Full reset for a new round: players (kept in Saved Players), bets, junk, scores
     // and the course. Club Directory and Saved Players are untouched.
     this.clearRound();
-    this.setState({roundType:'18', tournamentDays:2, eventName:'', courseName:'No Course Selected', courseSearch:'', courseSearchOpen:false, setupConfirm:null});
+    this.setState({roundType:'18', startHole:1, tournamentDays:2, eventName:'', courseName:'No Course Selected', courseSearch:'', courseSearchOpen:false, setupConfirm:null});
   }
   clearAllPlayers(){
     this.rememberRoster();
@@ -4945,7 +4973,7 @@ class Component extends DCLogic {
     const block = this.setupBlocker(3);
     if (block){ this.setState({setupNotice: block, setupStep: block.step, screen:'settings'}); return; }
     if (!confirmed){ this.setState({betsCheckOpen: true}); return; }
-    this.setState({betsCheckOpen: false, screen:'board', currentHole:1, setupStep:1, roundLive:true,
+    this.setState({betsCheckOpen: false, screen:'board', currentHole:this.startHole(), setupStep:1, roundLive:true,
       roundId: this.state.roundId || newRoundId(), roundIdAt: this.state.roundId ? this.state.roundIdAt : this.syncNow(),
       adminDeviceId: this.state.adminDeviceId || this.deviceId,
       ...(!this.state.adminDeviceId && this.state.ownerName ? {adminName: this.state.ownerName, adminPinned: 'owner'} : {})});
@@ -4963,7 +4991,7 @@ class Component extends DCLogic {
       if (G.sixsixsix && G.sixsixsix.active){
         for (let i = 0; i + 4 <= g.players.length; i += 4){
           const o = this.sixSixOrder(g.players.slice(i, i + 4));
-          games.push('6-6-6 holes 1–6: ' + shortName(o[0].name) + ' & ' + shortName(o[1].name) + ' vs ' + shortName(o[2].name) + ' & ' + shortName(o[3].name));
+          games.push('6-6-6 holes ' + this.sixRanges()[0].text + ': ' + shortName(o[0].name) + ' & ' + shortName(o[1].name) + ' vs ' + shortName(o[2].name) + ' & ' + shortName(o[3].name));
         }
       }
       const on = JK.filter(k => J[k] && J[k].active).map(k => ({text: (J[k].label.length <= 3 ? J[k].label : J[k].label.charAt(0) + J[k].label.slice(1).toLowerCase()) + ' $' + J[k].value}))
@@ -4974,7 +5002,8 @@ class Component extends DCLogic {
         junkOn: on, hasJunkOn: on.length > 0, junkOff: off.join(', '), hasJunkOff: off.length > 0};
     }));
     const gm = s.games.groupmatch;
-    return {betsCheckOpen: !!s.betsCheckOpen, betsCheckGroups: out,
+    const sh = this.startHole();
+    return {betsCheckStart: sh !== 1 ? 'Shotgun start on #' + sh + ' · finish on #' + this.lastHole() : '', betsCheckHasStart: sh !== 1, betsCheckOpen: !!s.betsCheckOpen, betsCheckGroups: out,
       betsCheckHasGm: !!(gm && gm.active && multi), betsCheckGm: gm ? 'Group Match $' + gm.front + '/$' + gm.back + '/$' + gm.overall : '',
       onBetsCheckOk: () => this.startEvent(true),
       onBetsCheckEdit: () => { this.setState({betsCheckOpen: false}); this.goSetupStep(3); }};
@@ -4997,7 +5026,7 @@ class Component extends DCLogic {
         const tag = multi ? this.groupName(g.key).toUpperCase() : (chunks.length > 1 ? 'FOURSOME ' + (c + 1) : '');
         const tagBg = multi ? GROUP_COLORS[g.key].bg : '#0f2a4a', tagFg = multi ? GROUP_COLORS[g.key].fg : '#fff';
         const range = x => 'HOLES ' + x.start + '–' + x.end;
-        const cseg = cs.find(x => cur >= x.start && cur <= x.end) || cs[cs.length - 1];
+        const cseg = cs.find(x => x.holes.includes(cur)) || cs[cs.length - 1];
         const lead = cseg.up < 0 ? cseg.teamB : cseg.teamA;
         live.push({hasTag: !!tag, tag, tagBg, tagFg, range: range(cseg),
           aNames: nm(cseg.teamA), bNames: nm(cseg.teamB),
@@ -5382,6 +5411,9 @@ class Component extends DCLogic {
     const overallThru = rows.length ? Math.max(...rows.map(r=>r.thru)) : 0;
 
     const courseLabel = s.courseName.toUpperCase();
+    const startHoleVal = String(this.startHole());
+    const startHoleOpts = Array.from({length: this.totalHolesForRound()}, (_, i) => ({v: String(i + 1), label: '#' + (i + 1)}));
+    const startHoleNote = this.startHole() === 1 ? 'Normal start' : 'Shotgun · plays #' + this.startHole() + ' through #' + this.lastHole();
     const roundTypes = [
       {key:'9', label:'9 HOLES'},
       {key:'18', label:'18 HOLES'},
@@ -5416,6 +5448,7 @@ class Component extends DCLogic {
         color: n===s.currentHole ? '#fff' : '#1a2733',
         border: n===s.currentHole ? '2px solid #d4a017' : '1px solid #e9e5dc',
         dot: anyScore ? '#d4a017' : 'transparent',
+        startMark: n === this.startHole() && this.startHole() !== 1,
         onClick: () => this.selectHole(n)
       });
     }
@@ -5611,7 +5644,7 @@ class Component extends DCLogic {
       value: EG.sixsixsix.value,
       sub: this.splitJunk() && egPlayers.length !== 4 ? `Needs exactly 4 players. ${this.groupName(egKey)} has ${egPlayers.length}.` : 'Match play, new partners every 6',
       pickers: (() => { const out = []; for (let i = 0; i + 4 <= egPlayers.length; i += 4){ const grp = egPlayers.slice(i, i + 4), o = this.sixSixOrder(grp, EG.sixsixsix), w = grp[0];
-        out.push({title: shortName(w.name).toUpperCase() + "'S PARTNER FOR HOLES 1–6", chips: grp.slice(1).map(p => ({name: shortName(p.name), bg: o[1].id === p.id ? '#0f2a4a' : '#f3f1ea', color: o[1].id === p.id ? '#fff' : '#1a2733', onClick: () => this.setSixPartner(w.id, p.id)}))}); } return out; })(),
+        out.push({title: shortName(w.name).toUpperCase() + "'S PARTNER FOR HOLES " + this.sixRanges()[0].text, chips: grp.slice(1).map(p => ({name: shortName(p.name), bg: o[1].id === p.id ? '#0f2a4a' : '#f3f1ea', color: o[1].id === p.id ? '#fff' : '#1a2733', onClick: () => this.setSixPartner(w.id, p.id)}))}); } return out; })(),
       onChange: (e)=>this.setGameValue('sixsixsix','value',e.target.value),
       pairingsOpen: s.sixPairingsOpen,
       pairingsLabel: s.sixPairingsOpen ? 'HIDE PAIRINGS' : 'SHOW PAIRINGS',
@@ -5632,9 +5665,9 @@ class Component extends DCLogic {
         sixSixGroups.push({
           groupLabel: `GROUP ${sixSixGroups.length+1}`,
           segments: [
-            {range:'HOLES 1–6', a: `${w.name} / ${x.name}`, b: `${y.name} / ${z.name}`},
-            {range:'HOLES 7–12', a: `${w.name} / ${y.name}`, b: `${x.name} / ${z.name}`},
-            {range:'HOLES 13–18', a: `${w.name} / ${z.name}`, b: `${x.name} / ${y.name}`}
+            {range:'HOLES ' + this.sixRanges()[0].text, a: `${w.name} / ${x.name}`, b: `${y.name} / ${z.name}`},
+            {range:'HOLES ' + this.sixRanges()[1].text, a: `${w.name} / ${y.name}`, b: `${x.name} / ${z.name}`},
+            {range:'HOLES ' + this.sixRanges()[2].text, a: `${w.name} / ${z.name}`, b: `${x.name} / ${y.name}`}
           ]
         });
       }
@@ -6077,8 +6110,12 @@ class Component extends DCLogic {
       sweepBannerTotal: this.course.par.filter(p=>p===3).length,
       onReplaySweep: () => this.replaySweep(),
       holeChips, frontChips, backChips, currentHoleObj,
+      startHoleVal, startHoleOpts, startHoleNote,
+      onStartHole: (e) => this.setStartHole(parseInt(e.target.value, 10) || 1),
+      hasShotgun: this.startHole() !== 1,
+      shotgunText: 'SHOTGUN · STARTED #' + this.startHole() + ' · FINISH #' + this.lastHole() + ' · HOLE ' + (this.holePos(n) + 1) + ' OF ' + this.totalHolesForRound(),
       onSaveAdvance: () => this.saveAdvance(),
-      isLastHole: n === this.totalHolesForRound(),
+      isLastHole: n === this.lastHole(),
       onEndEvent: () => this.attemptEndEvent(),
       showEndConfirm: s.showEndConfirm,
       onDismissEndConfirm: () => this.dismissEndConfirm(),
