@@ -1548,7 +1548,7 @@ input, select, textarea { font-size:16px !important; }
                   </div>
                 </div>
                 <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="number" step="0.1" value="{{ p.index }}" onChange="{{ p.onIndexChange }}" style="border:none;background:transparent;width:5ch;font:700 11px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                  <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" value="{{ p.index }}" onChange="{{ p.onIndexChange }}" onBlur="{{ p.onIndexBlur }}" autoCorrect="off" spellCheck="false" style="border:none;background:transparent;width:5ch;font:700 11px Georgia,serif;color:#1a2733;outline:none;"/></div>
                   <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:3px 6px;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">TEE</span><select value="{{ p.tee }}" onChange="{{ p.onTeeChange }}" style="border:none;background:transparent;font:700 11px Archivo,sans-serif;color:#1a2733;outline:none;">
                     <sc-for list="{{ p.tees }}" as="t" hint-placeholder-count="3">
                       <option value="{{ t }}">{{ t }}</option>
@@ -1572,7 +1572,7 @@ input, select, textarea { font-size:16px !important; }
                 </sc-if>
                 <input placeholder="Venmo handle (optional)" value="{{ newVenmo }}" onChange="{{ onNewVenmo }}" autoCapitalize="off" autoCorrect="off" style="border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                 <div style="display:flex;gap:8px;">
-                  <input placeholder="Index (e.g. 12.4)" value="{{ newIndex }}" onChange="{{ onNewIndex }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
+                  <input placeholder="Index (12.4, or +4.3 for plus)" autoCorrect="off" spellCheck="false" value="{{ newIndex }}" onChange="{{ onNewIndex }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;"/>
                   <select value="{{ newTee }}" onChange="{{ onNewTee }}" style="flex:1;border:1.5px solid #e9e5dc;border-radius:6px;padding:8px 10px;font:700 12px Archivo,sans-serif;outline:none;background:#fff;">
                     <sc-for list="{{ availableTees }}" as="t" hint-placeholder-count="3">
                       <option value="{{ t }}">{{ t }}</option>
@@ -1594,7 +1594,7 @@ input, select, textarea { font-size:16px !important; }
                     <div style="display:flex;flex-direction:column;gap:6px;padding:9px 12px;border-bottom:1px solid #f3f1ea;">
                     <div style="display:flex;align-items:center;gap:8px;">
                       <div style="flex:1;min-width:0;font:700 12px Archivo,sans-serif;color:#1a2733;">{{ sp.name }}</div>
-                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;flex:none;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" inputMode="decimal" value="{{ sp.index }}" onChange="{{ sp.onIndex }}" onBlur="{{ sp.onIndexBlur }}" style="border:none;background:transparent;width:4.5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
+                      <div style="display:flex;align-items:center;background:#f3f1ea;border-radius:5px;padding:4px 6px;flex:none;"><span style="font:600 9px Archivo,sans-serif;color:#98928a;margin-right:4px;">IDX</span><input type="text" value="{{ sp.index }}" autoCorrect="off" spellCheck="false" onChange="{{ sp.onIndex }}" onBlur="{{ sp.onIndexBlur }}" style="border:none;background:transparent;width:4.5ch;font:700 12px Georgia,serif;color:#1a2733;outline:none;"/></div>
                       <sc-if value="{{ sp.canAdd }}" hint-placeholder-val="{{ true }}">
                         <div style="font:800 10px Archivo,sans-serif;background:#0f2a4a;color:#fff;padding:6px 9px;border-radius:5px;cursor:pointer;flex:none;" onClick="{{ sp.onAdd }}">ADD</div>
                       </sc-if>
@@ -2245,6 +2245,21 @@ const HISTORY_DEFAULT = [];
 // on the lock screen) via MASTER_PASSWORD below — no redeploy needed for a reset.
 const SITE_PASSWORD_DEFAULT = 'OhNo2026';
 const MASTER_PASSWORD = 'HustleMaster2026'; // admin-only: resets/changes the group password + wipes data
+// Plus handicaps are stored as negative numbers (+4.3 → -4.3) so the math works unchanged.
+function parseIndex(raw){
+  const t = String(raw == null ? '' : raw).trim();
+  if (!t) return NaN;
+  const n = parseFloat(t.replace(/[+\s]/g, ''));
+  if (isNaN(n)) return NaN;
+  return t.includes('+') ? -Math.abs(n) : n;
+}
+function fmtIndex(v){
+  if (v == null || v === '') return '';
+  const n = Number(v);
+  if (isNaN(n)) return String(v);
+  return n < 0 ? '+' + String(Math.abs(n)) : String(n);
+}
+function fmtCH(v){ const n = Number(v); return !isNaN(n) && n < 0 ? '+' + Math.abs(n) : String(v); }
 function shortName(n){ const w = String(n || '').trim().split(/\s+/); return w.length > 1 ? `${w[0]} ${w[w.length-1][0].toUpperCase()}.` : w[0]; }
 const UNLOCK_STORAGE_KEY = 'hustle_unlocked';
 const SITE_PASSWORD_STORAGE_KEY = 'hustle_site_password';
@@ -3287,7 +3302,11 @@ class Component extends DCLogic {
   }
 
   strokesAllocated(ch, si){
-    if (ch <= 0) return 0;
+    if (ch < 0){
+      const n = -ch;
+      return -(Math.floor(n / 18) + (si > 18 - (n % 18) ? 1 : 0));
+    }
+    if (ch === 0) return 0;
     const base = Math.floor(ch / 18);
     const extra = ch % 18;
     return base + (si <= extra ? 1 : 0);
@@ -5194,7 +5213,7 @@ class Component extends DCLogic {
   }
 
   updatePlayerIndex(id, val){
-    const n = parseFloat(val);
+    const n = parseIndex(val);
     const roster = this.state.roster.map(p => p.id === id ? {...p, index: isNaN(n) ? p.index : n} : p);
     this.setState({roster});
   }  _syncSavedFromRoster(id){
@@ -5337,7 +5356,7 @@ class Component extends DCLogic {
     const id = Math.max(0, ...this.state.roster.map(p=>p.id)) + 1;
     const name = this.savedPlayerName(this.state.newName.trim());
     const initials = name.split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
-    const idx = parseFloat(this.state.newIndex) || 0;
+    const idx = parseIndex(this.state.newIndex) || 0;
     const tee = this.state.newTee || 'White';
     const roster = [...this.state.roster, {id, name, initials, index: idx, tee, active:true}];
 
@@ -5345,7 +5364,7 @@ class Component extends DCLogic {
     this.setState({roster, newName:'', newIndex:'', newTee:'White', newVenmo:'', showAddForm:false, showHero:false, showNameSuggestions:false});
   }
   selectKnownPlayer(p){
-    this.setState({newName:p.name, newIndex:String(p.index || ''), newTee:p.tee || 'White', newVenmo: p.venmo || '', showNameSuggestions:false});
+    this.setState({newName:p.name, newIndex:fmtIndex(p.index), newTee:p.tee || 'White', newVenmo: p.venmo || '', showNameSuggestions:false});
   }
 
   renderVals(){
@@ -5357,7 +5376,7 @@ class Component extends DCLogic {
       rankBorder: i===0 ? '#d4a017' : 'transparent',
       initials: r.initials, name: r.name, thru: r.thru, gross: r.gross,
       front: r.front || 0, back: r.back || 0,
-      strokesLabel: `CH ${r.ch} · ${r.strokesTotal} STROKES`,
+      strokesLabel: r.strokesTotal < 0 ? `CH ${fmtCH(r.ch)} · GIVES ${-r.strokesTotal}` : `CH ${fmtCH(r.ch)} · ${r.strokesTotal} STROKES`,
       netLabel: this.netLabel(r.net), netColor: this.netColor(r.net)
     }));
     const overallThru = rows.length ? Math.max(...rows.map(r=>r.thru)) : 0;
@@ -5734,8 +5753,9 @@ class Component extends DCLogic {
     }));
 
     const rosterList = s.roster.map(p => ({
-      id:p.id, name:p.name, initials:p.initials, index:p.index, tee:p.tee, tees: Object.keys(this.course.tees),
-      ch: this.courseHandicap(p.index, p.tee),
+      id:p.id, name:p.name, initials:p.initials, tee:p.tee, tees: Object.keys(this.course.tees),
+      index: (s.rosterIdxDraft || {})[p.id] != null ? s.rosterIdxDraft[p.id] : fmtIndex(p.index),
+      ch: fmtCH(this.courseHandicap(p.index, p.tee)),
       strokesToday: p.active ? this.getScoringCH(p, s.scoringMode, s.roster.filter(x => x.active)) : '—',
       activeLabel: p.active ? 'ACTIVE TODAY' : 'BENCHED',
       activeColor: p.active ? '#1e7a3d' : '#98928a',
@@ -5749,7 +5769,8 @@ class Component extends DCLogic {
         const full = !on && gmCounts[k] >= 5;
         return {label:k, bg: on ? '#0f2a4a' : '#f3f1ea', color: on ? '#fff' : (full ? '#c9c3b6' : '#1a2733'), onClick: () => this.setPlayerGroup(p.id, k)};
       }),
-      onIndexChange: (e)=>{ this.updatePlayerIndex(p.id, e.target.value); setTimeout(() => this._syncSavedFromRoster(p.id), 0); },
+      onIndexChange: (e)=>{ const raw = e.target.value; this.setState(st => ({rosterIdxDraft: {...(st.rosterIdxDraft || {}), [p.id]: raw}})); this.updatePlayerIndex(p.id, raw); setTimeout(() => this._syncSavedFromRoster(p.id), 0); },
+      onIndexBlur: () => this.setState(st => { const d = {...(st.rosterIdxDraft || {})}; delete d[p.id]; return {rosterIdxDraft: d}; }),
       onTeeChange: (e)=>{ this.updatePlayerTee(p.id, e.target.value); setTimeout(() => this._syncSavedFromRoster(p.id), 0); }
     }));
 
@@ -5993,18 +6014,18 @@ class Component extends DCLogic {
             const on = onRosterKeys.has(this.playerKey(p.name));
             return {
               name: p.name, onRoster: on, canAdd: !on && !full,
-              index: (s.savedIdxDraft || {})[p.name] != null ? s.savedIdxDraft[p.name] : (p.index == null ? '' : p.index),
+              index: (s.savedIdxDraft || {})[p.name] != null ? s.savedIdxDraft[p.name] : fmtIndex(p.index),
               // Keep the raw text while typing so "12." survives; save the number underneath.
               onIndex: (e) => {
                 const raw = e.target.value;
                 this.setState(st => ({savedIdxDraft: {...(st.savedIdxDraft || {}), [p.name]: raw}}));
-                const v = parseFloat(raw);
+                const v = parseIndex(raw);
                 if (!isNaN(v)) this.savePlayerRecord(p.name, v, p.tee);
               },
               venmo: p.venmo || '',
               onVenmo: (e) => this.setPlayerVenmo(p.name, e.target.value),
               onIndexBlur: () => this.setState(st => { const d = {...(st.savedIdxDraft || {})}; delete d[p.name]; return {savedIdxDraft: d}; }),
-              onAdd: () => this.setState({newName: p.name, newIndex: String(p.index ?? ''), newTee: p.tee || 'White'}, () => this.addPlayer()),
+              onAdd: () => this.setState({newName: p.name, newIndex: fmtIndex(p.index), newTee: p.tee || 'White'}, () => this.addPlayer()),
               onAskRemove: () => this.setState({savedPlayerAsk: p.name, savedDelText: ''})
             };
           }),
@@ -6199,7 +6220,7 @@ class Component extends DCLogic {
         return (s.knownPlayers || [])
           .filter(k => k.name.toLowerCase().includes(q) && k.name.toLowerCase() !== q && !rosterNames.has(k.name.toLowerCase()))
           .slice(0, 5)
-          .map(k => ({name: k.index != null && k.index !== '' ? `${k.name} · ${k.index} index` : k.name, onSelect: () => this.selectKnownPlayer(k)}));
+          .map(k => ({name: k.index != null && k.index !== '' ? `${k.name} · ${fmtIndex(k.index)} index` : k.name, onSelect: () => this.selectKnownPlayer(k)}));
       })(),
       onNewIndex: (e)=>this.setState({newIndex:e.target.value}),
       newVenmo: s.newVenmo || '', onNewVenmo: (e)=>this.setState({newVenmo:e.target.value}),
