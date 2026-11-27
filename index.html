@@ -769,6 +769,13 @@ input, select, textarea { font-size:16px !important; }
                 <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ autoPress.gm.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;">{{ autoPress.gm.mark }}</div>
                 <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Auto-press when 2 down</div>
               </div>
+              <div style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ gmTogether.onToggle }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ gmTogether.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;flex:none;">{{ gmTogether.mark }}</div>
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Playing as one group on the course</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;line-height:1.4;">{{ gmTogether.sub }}</div>
+                </div>
+              </div>
               <div style="display:flex;gap:6px;margin-top:12px;">
                 <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
                   <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};-webkit-text-fill-color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
@@ -2889,9 +2896,6 @@ class Component extends DCLogic {
   openClearRoundConfirm(){ this.setState({clearRoundConfirmOpen:true}); }
   dismissClearRoundConfirm(){ this.setState({clearRoundConfirmOpen:false}); }
   // Wipes the round in progress — scores, every game/junk record (RRC, sandies,
-  // greenie sweep, presses, Vegas teams, etc.) — but keeps the roster, course,
-  // scoring mode, and wager settings exactly as configured, so you can tee off
-  // again without resetting your whole setup.
   // Saves everyone on the roster (latest index and tee) to this phone's player list,
   // so their names autofill next time, including players added on another phone.
   // Saved players: one record per name (matched ignoring capitals and spaces), so a
@@ -3032,8 +3036,10 @@ class Component extends DCLogic {
   clearRound(){
     this.rememberRoster();
     const offAll = o => { const c = JSON.parse(JSON.stringify(o || {})); Object.keys(c).forEach(k => { if (c[k] && typeof c[k] === 'object') c[k].active = false; }); return c; };
+    // A new round goes back to the automatic one-group rule (5 or fewer players share junk).
+    const offGames = o => { const c = offAll(o); if (c.groupmatch) delete c.groupmatch.together; return c; };
     this.setState({
-      games: offAll(this.state.games), junk: offAll(this.state.junk),
+      games: offGames(this.state.games), junk: offAll(this.state.junk),
       groupJunk: Object.fromEntries(Object.entries(this.state.groupJunk || {}).map(([k,v]) => [k, offAll(v)])),
       groupGames: Object.fromEntries(Object.entries(this.state.groupGames || {}).map(([k,v]) => [k, offAll(v)])), groupGreenies: {}, groupTrack: {},
       roundEnd: null, devices: {}, endAcks: {}, adminDeviceId: null, adminName: '', adminPinned: false, clearEndedConfirm: false,
@@ -3624,9 +3630,24 @@ class Component extends DCLogic {
   // Per-foursome junk. With Group Match on and 2+ groups playing, each group has its
   // own junk settings, greenie winners, sweep tracking and RRC. Group A keeps using the
   // original top-level fields, so older rounds load and settle exactly as before.
+  // Groups that exist for Group Match (A vs B vs C), whether or not junk is shared.
+  gmGroupCount(){
+    const gm = this.state.games && this.state.games.groupmatch;
+    if (!gm || !gm.active) return 0;
+    const act = (this.state.roster || []).filter(p => p.active);
+    return ['A','B','C'].filter(k => act.some(p => (p.group || 'A') === k)).length;
+  }
+  // Groups playing together on the course share one set of games and junk; only the
+  // Group Match is scored A vs B. Defaults on for 5 or fewer players.
+  gmTogether(){
+    const gm = this.state.games && this.state.games.groupmatch;
+    if (!gm || !gm.active) return false;
+    if (gm.together === true || gm.together === false) return gm.together;
+    return (this.state.roster || []).filter(p => p.active).length <= 5;
+  }
   groupKeys(){
     const gm = this.state.games && this.state.games.groupmatch;
-    if (!gm || !gm.active) return ['A'];
+    if (!gm || !gm.active || this.gmTogether()) return ['A'];
     const act = (this.state.roster || []).filter(p => p.active);
     const ks = ['A','B','C'].filter(k => act.some(p => (p.group || 'A') === k));
     return ks.length ? ks : ['A'];
@@ -3984,7 +4005,7 @@ class Component extends DCLogic {
     const settlement = this.computeSettlement();
     const active = this.state.roster.filter(p => p.active);
     const activeGames = [];
-    if (this.state.games.groupmatch && this.state.games.groupmatch.active && this.splitJunk()) activeGames.push('Group Match');
+    if (this.state.games.groupmatch && this.state.games.groupmatch.active && this.gmGroupCount() > 1) activeGames.push('Group Match');
     this.groupKeys().forEach(g => this.withGroup(g, () => {
       const G = this.state.games, add = x => { if (!activeGames.includes(x)) activeGames.push(x); };
       if (G.nassau.active) add('Nassau');
@@ -4667,9 +4688,9 @@ class Component extends DCLogic {
 
   // Players grouped for Group Match. With Group Match off everyone is one group,
   // so individual games behave exactly as before.
-  activeGroups(allActive){
+  activeGroups(allActive, real){
     const gm = this.state.games.groupmatch;
-    if (!gm || !gm.active) return [{key:'A', players: allActive}];
+    if (!gm || !gm.active || (!real && this.gmTogether())) return [{key:'A', players: allActive}];
     return ['A','B','C'].map(k => ({key:k, players: allActive.filter(p => (p.group || 'A') === k)})).filter(g => g.players.length);
   }
 
@@ -4678,7 +4699,7 @@ class Component extends DCLogic {
   settleGroupMatch(allActive, ledger, lines, mode){
     const gm = this.state.games.groupmatch;
     if (!gm || !gm.active) return;
-    const groups = this.activeGroups(allActive);
+    const groups = this.activeGroups(allActive, true);
     if (groups.length < 2) return;
     const segs = [
       {label:'FRONT 9', start:1, end:9, value: gm.front},
@@ -4993,7 +5014,7 @@ class Component extends DCLogic {
       return g.value != null ? `${name} $${g.value}` : name;
     });
     const junkCount = Object.values(s.junk || {}).filter(j => j && j.active).length;
-    if (s.games.groupmatch && s.games.groupmatch.active && !this.splitJunk()) games.unshift('Group Match (needs players in 2+ groups)');
+    if (s.games.groupmatch && s.games.groupmatch.active) games.unshift(this.gmGroupCount() < 2 ? 'Group Match (needs players in 2+ groups)' : 'Group Match · shared junk');
     const betsParts = games.concat(junkCount ? [`${junkCount} junk`] : []);
     // With Group Match across groups: the bet between groups, then each group's own games and junk.
     const splitReview = this.splitJunk();
@@ -5133,7 +5154,7 @@ class Component extends DCLogic {
     const gm = s.games.groupmatch;
     const sh = this.startHole();
     return {betsCheckFormat: this.isMatchPlay() ? 'Match play' : 'Stroke play', betsCheckStart: sh !== 1 ? 'Shotgun start on #' + sh + ' · finish on #' + this.lastHole() : '', betsCheckHasStart: sh !== 1, betsCheckOpen: !!s.betsCheckOpen, betsCheckGroups: out,
-      betsCheckHasGm: !!(gm && gm.active && multi), betsCheckGm: gm ? 'Group Match $' + gm.front + '/$' + gm.back + '/$' + gm.overall + (gm.autoPress ? ' · auto-press when 2 down' : '') : '',
+      betsCheckHasGm: !!(gm && gm.active && this.gmGroupCount() > 1), betsCheckGm: gm ? 'Group Match $' + gm.front + '/$' + gm.back + '/$' + gm.overall + (gm.autoPress ? ' · auto-press when 2 down' : '') : '',
       onBetsCheckOk: () => this.startEvent(true),
       onBetsCheckEdit: () => { this.setState({betsCheckOpen: false}); this.goSetupStep(3); }};
   }
@@ -5182,10 +5203,10 @@ class Component extends DCLogic {
         });
       }
     }));
-    const gm = s.games.groupmatch;
-    if (gm && gm.active && multi){
-      for (let i = 0; i < groups.length; i++) for (let j = i + 1; j < groups.length; j++){
-        const A = groups[i], B = groups[j];
+    const gm = s.games.groupmatch, rg = this.activeGroups(all, true);
+    if (gm && gm.active && rg.length > 1){
+      for (let i = 0; i < rg.length; i++) for (let j = i + 1; j < rg.length; j++){
+        const A = rg[i], B = rg[j];
         const balls = gm.format === 'best1' ? 1 : gm.format === 'best2' ? 2 : Math.min(A.players.length, B.players.length);
         if (A.players.length < balls || B.players.length < balls) continue;
         const side = (ps, hh) => { const v = ps.map(p => this.netToParAt(p, hh, mode, all)).filter(x => x != null).sort((a, b) => a - b); return v.length < balls ? null : v.slice(0, balls).reduce((t, x) => t + x, 0); };
@@ -5636,7 +5657,7 @@ class Component extends DCLogic {
   buildScoreboard(){
     const allActive = this.state.roster.filter(p => p.active);
     const mode = this.state.scoringMode;
-    const groups = this.activeGroups(allActive);
+    const groups = this.activeGroups(allActive, true);
     const playerRow = (p, field) => {
       let net = 0, thru = 0;
       for (let h = 1; h <= 18; h++){ const v = this.netToParAt(p, h, mode, field); if (v != null){ net += v; thru++; } }
@@ -5786,7 +5807,7 @@ class Component extends DCLogic {
     }));
 
     const activeGamesList = [];
-    if (s.games.groupmatch && s.games.groupmatch.active && this.splitJunk()) activeGamesList.push(`GROUP MATCH $${s.games.groupmatch.front}`);
+    if (s.games.groupmatch && s.games.groupmatch.active && this.gmGroupCount() > 1) activeGamesList.push(`GROUP MATCH $${s.games.groupmatch.front}`);
     this.groupKeys().forEach(g => this.withGroup(g, () => {
       const G = this.state.games, add = x => { if (!activeGamesList.includes(x)) activeGamesList.push(x); };
       if (G.nassau.active) add(`NASSAU $${G.nassau.front}`);
@@ -6601,6 +6622,10 @@ class Component extends DCLogic {
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
       nassau, groupMatch, simpleGames, bestBall, junkList, junkTabs, holeJunk, historyList,
+      gmTogether: (() => { const on = this.gmTogether();
+        return {bg: on ? '#0f2a4a' : '#fff', mark: on ? '✓' : '',
+          sub: on ? 'Games and junk count across everyone. Only the Group Match is A vs B.' : 'Each group has its own games and junk.',
+          onToggle: () => this.editGames('groupmatch', x => { x.together = !on; })}; })(),
       autoPress: (() => { const ap = (on, k) => ({bg: on ? '#0f2a4a' : '#fff', mark: on ? '✓' : '', onToggle: () => this.toggleGameFlag(k, 'autoPress')});
         return {nassau: ap(!!EG.nassau.autoPress, 'nassau'), bestball: ap(!!EG.bestball.autoPress, 'bestball'), six: ap(!!EG.sixsixsix.autoPress, 'sixsixsix'), gm: ap(!!(s.games.groupmatch || {}).autoPress, 'groupmatch')}; })(),
       ...(() => {
