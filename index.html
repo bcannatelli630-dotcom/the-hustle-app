@@ -4478,19 +4478,7 @@ class Component extends DCLogic {
       if (this.state.games.bestball.active && this.state.games.bestball.value){
         const val = this.state.games.bestball.value;
         const tiebreak = !!this.state.games.bestball.secondBallTiebreak;
-        const teams = [];
-        for (let i=0; i+1 < active.length; i+=2){
-          teams.push({label:`${active[i].name} & ${active[i+1].name}`, players:[active[i], active[i+1]]});
-        }
-        // Odd number (e.g. a fivesome): the last player either plays solo against each
-        // team, or joins the last team as a 3-player best ball.
-        if (active.length % 2 === 1 && teams.length){
-          const odd = active[active.length - 1];
-          if (this.state.games.bestball.oddMode === 'three'){
-            const t = teams[teams.length - 1];
-            t.players = [...t.players, odd]; t.label = t.players.map(p => p.name).join(' & ');
-          } else teams.push({label: `${odd.name} (solo)`, players: [odd]});
-        }
+        const teams = this.bestBallTeams(active, this.state.games.bestball).map(t => ({label: t.length === 1 ? t[0].name + ' (solo)' : t.map(p => p.name).join(' & '), players: t}));
         const teamTotals = teams.map(t => {
           let bestSum = 0, secondSum = 0, any = false;
           for (let h=1; h<=18; h++){
@@ -5152,6 +5140,16 @@ class Component extends DCLogic {
   // One-line standings for every bet the owner is in (or every match, read from the
   // first-named side, when this phone has no owner set).
   // Every head-to-head match that can be pressed, with the windows a press can run in.
+  // Best Ball teams: the A/B/C groups when players are split into more than one,
+  // otherwise pairs in roster order (odd player solo or on the last team).
+  bestBallTeams(ps, B){
+    const keys = [...new Set(ps.map(p => p.group || 'A'))].sort();
+    if (keys.length >= 2) return keys.map(k => ps.filter(p => (p.group || 'A') === k));
+    const teams = [];
+    for (let i = 0; i + 1 < ps.length; i += 2) teams.push([ps[i], ps[i + 1]]);
+    if (ps.length % 2 === 1 && teams.length){ const odd = ps[ps.length - 1]; if ((B || {}).oddMode === 'three') teams[teams.length - 1].push(odd); else teams.push([odd]); }
+    return teams;
+  }
   pressMatches(){
     const s = this.state, mode = s.scoringMode, all = s.roster.filter(p => p.active);
     const order = this.playOrder(), rng = (a, b) => order.filter(x => x >= a && x <= b);
@@ -5167,9 +5165,7 @@ class Component extends DCLogic {
           windows: nines(G.nassau.front, G.nassau.back).map(w => ({...w, orig: w.holes}))});
       }
       if (G.bestball && G.bestball.active && G.bestball.value && ps.length >= 3){
-        const teams = [];
-        for (let i = 0; i + 1 < ps.length; i += 2) teams.push([ps[i], ps[i + 1]]);
-        if (ps.length % 2 === 1 && teams.length){ const odd = ps[ps.length - 1]; if (G.bestball.oddMode === 'three') teams[teams.length - 1].push(odd); else teams.push([odd]); }
+        const teams = this.bestBallTeams(ps, G.bestball);
         for (let i = 0; i < teams.length; i++) for (let j = i + 1; j < teams.length; j++){
           const sides = [teams[i], teams[j]];
           out.push({key: 'bb|' + g.key + '|' + i + '|' + j, game: 'bestball', name: gp + 'Best Ball', auto: !!G.bestball.autoPress, mp: this.isMatchPlay(), sides,
@@ -5311,12 +5307,7 @@ class Component extends DCLogic {
         });
       }
       if (G.bestball && G.bestball.active && ps.length >= 3){
-        const teams = [];
-        for (let i = 0; i + 1 < ps.length; i += 2) teams.push([ps[i], ps[i + 1]]);
-        if (ps.length % 2 === 1 && teams.length){
-          const odd = ps[ps.length - 1];
-          if (G.bestball.oddMode === 'three') teams[teams.length - 1].push(odd); else teams.push([odd]);
-        }
+        const teams = this.bestBallTeams(ps, G.bestball);
         const best = (t, hh) => { const v = t.map(p => this.netToParAt(p, hh, mode, ps)).filter(x => x != null); return v.length < t.length ? null : Math.min(...v); };
         const base = teams.find(t => t.some(isMe));
         const pairs = [];
@@ -6160,9 +6151,9 @@ class Component extends DCLogic {
       activeColor: p.active ? '#1e7a3d' : '#98928a',
       onToggleActive: () => this.toggleActive(p.id),
       onRemove: () => this.removePlayer(p.id),
-      // Group buttons show once there's more than a foursome, even before Group Match
-      // is turned on in the next step (Bets), so groups can be set up in order.
-      showGroups: !!gmState.active || s.roster.filter(x => x.active).length > 4,
+      // Group buttons show once two players are in, so teams (A vs B) can be set
+      // before Group Match is turned on in the next step (Bets).
+      showGroups: !!gmState.active || s.roster.filter(x => x.active).length >= 2,
       groupChips: ['A','B','C'].map(k => {
         const on = (p.group || 'A') === k;
         const full = !on && gmCounts[k] >= 5;
