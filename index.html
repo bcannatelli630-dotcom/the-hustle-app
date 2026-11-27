@@ -202,12 +202,12 @@ input, select, textarea { font-size:16px !important; }
                 <sc-for list="{{ sb6.segs }}" as="sx" hint-placeholder-count="3">
                   <div style="display:flex;flex-direction:column;gap:6px;cursor:pointer;" onClick="{{ sx.onToggle }}">
                     <div style="display:flex;justify-content:space-between;gap:8px;font:800 11px Archivo,sans-serif;color:#1a2733;"><span style="min-width:0;">{{ sx.label }}</span><span style="color:{{ sx.statusColor }};flex:none;">{{ sx.status }}</span></div>
+                    <sc-if value="{{ sx.open }}" hint-placeholder-val="{{ false }}">
                     <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;">
                       <sc-for list="{{ sx.boxes }}" as="bx" hint-placeholder-count="6">
                         <div style="height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font:800 9px Archivo,sans-serif;background:{{ bx.bg }};color:{{ bx.color }};border:{{ bx.border }};box-sizing:border-box;">{{ bx.label }}</div>
                       </sc-for>
                     </div>
-                    <sc-if value="{{ sx.open }}" hint-placeholder-val="{{ false }}">
                       <div style="background:#fbfaf7;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
                         <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;margin-bottom:2px;">{{ sx.vsText }}</div>
                         <sc-for list="{{ sx.details }}" as="dt" hint-placeholder-count="0">
@@ -217,7 +217,7 @@ input, select, textarea { font-size:16px !important; }
                     </sc-if>
                   </div>
                 </sc-for>
-                <div style="font:600 9px Archivo,sans-serif;color:#98928a;line-height:1.4;">Match after each hole, from the named team's side: navy = holes up, orange = holes down, AS = all square. Tap a six for net best balls.</div>
+                <div style="font:600 9px Archivo,sans-serif;color:#98928a;line-height:1.4;">Tap a six for hole by hole: navy = holes up, orange = holes down, AS = all square.</div>
               </div>
             </sc-for>
             <sc-for list="{{ leaderboardRows }}" as="r" hint-placeholder-count="6">
@@ -303,12 +303,12 @@ input, select, textarea { font-size:16px !important; }
                 <sc-for list="{{ sb6.segs }}" as="sx" hint-placeholder-count="3">
                   <div style="display:flex;flex-direction:column;gap:6px;cursor:pointer;" onClick="{{ sx.onToggle }}">
                     <div style="display:flex;justify-content:space-between;gap:8px;font:800 11px Archivo,sans-serif;color:#1a2733;"><span style="min-width:0;">{{ sx.label }}</span><span style="color:{{ sx.statusColor }};flex:none;">{{ sx.status }}</span></div>
+                    <sc-if value="{{ sx.open }}" hint-placeholder-val="{{ false }}">
                     <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;">
                       <sc-for list="{{ sx.boxes }}" as="bx" hint-placeholder-count="6">
                         <div style="height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font:800 9px Archivo,sans-serif;background:{{ bx.bg }};color:{{ bx.color }};border:{{ bx.border }};box-sizing:border-box;">{{ bx.label }}</div>
                       </sc-for>
                     </div>
-                    <sc-if value="{{ sx.open }}" hint-placeholder-val="{{ false }}">
                       <div style="background:#fbfaf7;border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;">
                         <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;margin-bottom:2px;">{{ sx.vsText }}</div>
                         <sc-for list="{{ sx.details }}" as="dt" hint-placeholder-count="0">
@@ -318,34 +318,73 @@ input, select, textarea { font-size:16px !important; }
                     </sc-if>
                   </div>
                 </sc-for>
-                <div style="font:600 9px Archivo,sans-serif;color:#98928a;line-height:1.4;">Match after each hole, from the named team's side: navy = holes up, orange = holes down, AS = all square. Tap a six for net best balls.</div>
+                <div style="font:600 9px Archivo,sans-serif;color:#98928a;line-height:1.4;">Tap a six for hole by hole: navy = holes up, orange = holes down, AS = all square.</div>
               </div>
             </sc-for>
 
             <sc-for list="{{ sbMatchups }}" as="m" hint-placeholder-count="1">
-              <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ m.label }}</div>
-                <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin-top:10px;">
-                  <div style="text-align:center;min-width:0;">
-                    <div style="font:800 11px Archivo,sans-serif;color:#1a2733;letter-spacing:.3px;overflow-wrap:anywhere;">{{ m.aName }}</div>
-                    <div style="font:900 44px 'Archivo Black',sans-serif;color:{{ m.aColor }};line-height:1;margin-top:6px;">{{ m.aNet }}</div>
-                  </div>
-                  <div style="font:800 11px Archivo,sans-serif;color:#98928a;">VS</div>
-                  <div style="text-align:center;min-width:0;">
-                    <div style="font:800 11px Archivo,sans-serif;color:#1a2733;letter-spacing:.3px;overflow-wrap:anywhere;">{{ m.bName }}</div>
-                    <div style="font:900 44px 'Archivo Black',sans-serif;color:{{ m.bColor }};line-height:1;margin-top:6px;">{{ m.bNet }}</div>
-                  </div>
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:16px;display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ m.label }}</div>
+                  <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ m.fmt }}</div>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:14px;">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                  <div style="font:800 11px Archivo,sans-serif;color:#5a6672;letter-spacing:.4px;">{{ m.side }}</div>
+                  <div style="font:900 44px 'Archivo Black',sans-serif;color:{{ m.bigColor }};line-height:1;">{{ m.big }}</div>
+                  <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ m.vs }}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;">
                   <sc-for list="{{ m.segs }}" as="sg" hint-placeholder-count="3">
-                    <div style="background:#f3f1ea;border-radius:6px;padding:7px 4px;text-align:center;">
+                    <div style="background:{{ sg.bg }};border-radius:8px;padding:9px 4px;text-align:center;">
                       <div style="font:800 9px Archivo,sans-serif;color:#98928a;">{{ sg.label }}</div>
-                      <div style="font:800 11px Archivo,sans-serif;color:#0f2a4a;margin-top:2px;overflow-wrap:anywhere;">{{ sg.status }}</div>
+                      <div style="font:800 12px Archivo,sans-serif;color:{{ sg.color }};margin-top:3px;overflow-wrap:anywhere;">{{ sg.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f3f1ea;padding-top:10px;cursor:pointer;" onClick="{{ m.onToggle }}">
+                  <div style="font:700 11px Archivo,sans-serif;color:#0f2a4a;">Hole by hole &amp; score to par</div>
+                  <div style="font:800 12px Archivo,sans-serif;color:#98928a;">{{ m.chev }}</div>
+                </div>
+                <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:-4px;">
+                    <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">FRONT</div>
+                    <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;">
+                      <sc-for list="{{ m.frontBoxes }}" as="bx" hint-placeholder-count="9">
+                        <div style="height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font:800 9px Archivo,sans-serif;background:{{ bx.bg }};color:{{ bx.color }};border:{{ bx.border }};box-sizing:border-box;">{{ bx.label }}</div>
+                      </sc-for>
+                    </div>
+                    <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">BACK</div>
+                    <div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;">
+                      <sc-for list="{{ m.backBoxes }}" as="bx" hint-placeholder-count="9">
+                        <div style="height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font:800 9px Archivo,sans-serif;background:{{ bx.bg }};color:{{ bx.color }};border:{{ bx.border }};box-sizing:border-box;">{{ bx.label }}</div>
+                      </sc-for>
+                    </div>
+                    <div style="font:600 10px Archivo,sans-serif;color:#5a6672;line-height:1.4;">{{ m.boxNote }}</div>
+                    <div style="display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px 14px;font:700 11px Archivo,sans-serif;color:#1a2733;border-top:1px solid #f3f1ea;padding-top:8px;">
+                      <div style="color:#98928a;font-size:9px;letter-spacing:.5px;">TO PAR (NET)</div><div style="color:#98928a;font-size:9px;">{{ m.pName }}</div><div style="color:#98928a;font-size:9px;">{{ m.qName }}</div>
+                      <div>Counted balls</div><div style="font-family:Georgia,serif;">{{ m.pNet }}</div><div style="font-family:Georgia,serif;">{{ m.qNet }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{ hasMatchRows }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">{{ matchListTitle }}</div>
+                <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:0 14px;">
+                  <sc-for list="{{ matchRows }}" as="mr" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f1ea;">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font:800 12px Archivo,sans-serif;color:#1a2733;">{{ mr.title }}</div>
+                        <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;line-height:1.35;">{{ mr.sub }}</div>
+                      </div>
+                      <div style="font:900 14px 'Archivo Black',sans-serif;color:{{ mr.color }};flex:none;text-align:right;">{{ mr.status }}</div>
                     </div>
                   </sc-for>
                 </div>
               </div>
-            </sc-for>
+            </sc-if>
 
             <sc-if value="{{ sbHasGroups }}" hint-placeholder-val="{{ false }}">
               <div style="display:grid;grid-template-columns:{{ sbGridCols }};gap:10px;align-items:start;">
@@ -653,29 +692,15 @@ input, select, textarea { font-size:16px !important; }
         <div style="flex:none;padding:12px 18px 16px;display:flex;flex-direction:column;gap:8px;">
           <sc-if value="{{ pressPickerOpen }}" hint-placeholder-val="{{ false }}">
             <div style="background:#fff8e6;border:1.5px solid #d4a017;border-radius:10px;padding:10px 12px;">
-              <div style="display:flex;gap:6px;margin-bottom:8px;">
-                <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressModeIndividualBg }};color:{{ pressModeIndividualColor }};border:1.5px solid #0f2a4a;" onClick="{{ onPressModeIndividual }}">INDIVIDUAL</div>
-                <div style="flex:1;text-align:center;padding:6px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressModeTeamBg }};color:{{ pressModeTeamColor }};border:1.5px solid #0f2a4a;" onClick="{{ onPressModeTeam }}">TEAM</div>
-              </div>
-              <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;margin-bottom:8px;">WHO IS CALLING THE PRESS?</div>
-              <sc-if value="{{ isPressIndividual }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                  <sc-for list="{{ pressChips }}" as="pc" hint-placeholder-count="4">
-                    <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:#fff;border:1.5px solid #d4a017;color:#0f2a4a;" onClick="{{ pc.onClick }}">{{ pc.initials }}</div>
-                  </sc-for>
+              <div style="font:800 10px Archivo,sans-serif;color:#a4750f;letter-spacing:.5px;margin-bottom:8px;">CALL A PRESS</div>
+              <sc-for list="{{ pressOpts }}" as="po" hint-placeholder-count="0">
+                <div style="background:#fff;border:1.5px solid #d4a017;border-radius:8px;padding:9px 10px;margin-bottom:6px;cursor:pointer;" onClick="{{ po.onClick }}">
+                  <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ po.text }}</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-top:2px;">{{ po.sub }}</div>
                 </div>
-              </sc-if>
-              <sc-if value="{{ isPressTeam }}" hint-placeholder-val="{{ false }}">
-                <div style="font:600 10px Archivo,sans-serif;color:#5a6672;margin-bottom:6px;">Tap each player to assign — cycles none → Team A → Team B</div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-                  <sc-for list="{{ pressAssignChips }}" as="pac" hint-placeholder-count="4">
-                    <div style="padding:7px 12px;border-radius:20px;font:800 11px Archivo,sans-serif;cursor:pointer;background:{{ pac.bg }};color:{{ pac.color }};" onClick="{{ pac.onClick }}">{{ pac.label }}</div>
-                  </sc-for>
-                </div>
-                <div style="display:flex;gap:8px;">
-                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressTeamACallBg }};color:{{ pressTeamACallColor }};" onClick="{{ onTeamACallsPress }}">{{ pressTeamALabel }} CALLS PRESS</div>
-                  <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ pressTeamBCallBg }};color:{{ pressTeamBCallColor }};" onClick="{{ onTeamBCallsPress }}">{{ pressTeamBLabel }} CALLS PRESS</div>
-                </div>
+              </sc-for>
+              <sc-if value="{{ pressNoOpts }}" hint-placeholder-val="{{ false }}">
+                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.4;">{{ pressEmptyText }}</div>
               </sc-if>
             </div>
           </sc-if>
@@ -740,6 +765,10 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </div>
             <sc-if value="{{ groupMatch.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ autoPress.gm.onToggle }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ autoPress.gm.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;">{{ autoPress.gm.mark }}</div>
+                <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Auto-press when 2 down</div>
+              </div>
               <div style="display:flex;gap:6px;margin-top:12px;">
                 <sc-for list="{{ groupMatch.formats }}" as="gf" hint-placeholder-count="3">
                   <div style="flex:1;text-align:center;padding:8px 4px;border-radius:6px;font:800 9px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ gf.bg }};color:{{ gf.color }};-webkit-text-fill-color:{{ gf.color }};" onClick="{{ gf.onClick }}">{{ gf.label }}</div>
@@ -847,6 +876,13 @@ input, select, textarea { font-size:16px !important; }
                 <label style="display:flex;align-items:center;background:#f3f1ea;border-radius:6px;padding:6px 8px;min-width:0;cursor:text;"><span style="font:700 12px Georgia,serif;color:#98928a;">$</span><input type="number" inputmode="decimal" value="{{ nassau.overall }}" onChange="{{ nassau.onOverall }}" style="border:none;background:transparent;width:100%;min-width:0;flex:1;font:700 13px Georgia,serif;color:#1a2733;outline:none;"/></label>
               </div>
             </div>
+            <sc-if value="{{ nassau.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ autoPress.nassau.onToggle }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ autoPress.nassau.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;">{{ autoPress.nassau.mark }}</div>
+                <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Auto-press when 2 down</div>
+              </div>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:4px;">Presses work head to head only (2 players).</div>
+            </sc-if>
           </div>
 
           <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 2px rgba(15,42,74,.06);margin-bottom:6px;">
@@ -861,6 +897,10 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </div>
             <sc-if value="{{ bestBall.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ autoPress.bestball.onToggle }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ autoPress.bestball.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;">{{ autoPress.bestball.mark }}</div>
+                <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Auto-press when 2 down</div>
+              </div>
               <div style="display:flex;align-items:center;gap:8px;margin-top:8px;cursor:pointer;" onClick="{{ bestBall.onToggleTiebreak }}">
                 <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ bestBall.tiebreakBg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;flex:none;">{{ bestBall.tiebreakCheck }}</div>
                 <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">Second Ball Breaks Ties</div>
@@ -909,6 +949,10 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </div>
             <sc-if value="{{ sixSix.active }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;" onClick="{{ autoPress.six.onToggle }}">
+                <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid #0f2a4a;background:{{ autoPress.six.bg }};display:flex;align-items:center;justify-content:center;font:800 11px Archivo,sans-serif;color:#fff;box-sizing:border-box;">{{ autoPress.six.mark }}</div>
+                <div style="font:700 11px Archivo,sans-serif;color:#1a2733;">Auto-press when 2 down</div>
+              </div>
               <sc-for list="{{ sixSix.pickers }}" as="pk" hint-placeholder-count="1">
                 <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">
                   <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ pk.title }}</div>
@@ -1048,35 +1092,14 @@ input, select, textarea { font-size:16px !important; }
             <div style="text-align:center;padding:30px 10px;font:600 12px Archivo,sans-serif;color:#98928a;">Enter some scores (and turn on games/junk) to see who owes who.</div>
           </sc-if>
 
-          <div>
-            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">GROSS SCORES</div>
-            <div style="background:#fff;border-radius:12px;padding:6px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-              <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;padding:6px 0;border-bottom:1px solid #f3f1ea;font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">
-                <div></div><div style="text-align:right;">OUT</div><div style="text-align:right;">IN</div><div style="text-align:right;">TOTAL</div>
-              </div>
-              <sc-for list="{{ settleGrossTotals }}" as="gt" hint-placeholder-count="4">
-                <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;align-items:center;padding:9px 0;border-bottom:1px solid #f3f1ea;">
-                  <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ gt.name }}</div>
-                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.out }}</div>
-                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.inn }}</div>
-                  <div style="text-align:right;font:800 15px Georgia,serif;color:#0f2a4a;">{{ gt.gross }}</div>
-                </div>
-              </sc-for>
-            </div>
-          </div>
           <sc-if value="{{ hasSettleData }}" hint-placeholder-val="{{ false }}">
-            <div>
-              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">NET</div>
-              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
-                <sc-for list="{{ settleNetRows }}" as="r" hint-placeholder-count="4">
-                  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
-                    <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ r.name }}</div>
-                    <div style="font:800 14px Georgia,serif;color:{{ r.color }};">{{ r.amountLabel }}</div>
-                  </div>
-                </sc-for>
+            <sc-if value="{{ settleHasMe }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:16px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="font:800 9px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">{{ settleMeLabel }}</div>
+                <div style="font:900 40px 'Archivo Black',sans-serif;color:{{ settleMeColor }};line-height:1;">{{ settleMeAmount }}</div>
+                <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ settleMeSub }}</div>
               </div>
-            </div>
-
+            </sc-if>
             <div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">WHO PAYS WHO</div>
               <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
@@ -1102,6 +1125,44 @@ input, select, textarea { font-size:16px !important; }
               </div>
             </div>
 
+            <sc-if value="{{ settleNoMe }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">EVERYONE</div>
+              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleNetRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
+                    <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ r.name }}</div>
+                    <div style="font:800 14px Georgia,serif;color:{{ r.color }};">{{ r.amountLabel }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            </sc-if>
+          </sc-if>
+          <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;" onClick="{{ onToggleSettleDetails }}">
+            <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+              <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ settleDetailsLabel }}</div>
+              <div style="font:600 10px Archivo,sans-serif;color:#98928a;">{{ settleDetailsSub }}</div>
+            </div>
+            <div style="font:800 12px Archivo,sans-serif;color:#98928a;flex:none;">{{ settleDetailsChev }}</div>
+          </div>
+          <sc-if value="{{ settleDetailsOpen }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ hasSettleData }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ settleHasMe }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">EVERYONE</div>
+              <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+                <sc-for list="{{ settleNetRows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f1ea;">
+                    <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ r.name }}</div>
+                    <div style="font:800 14px Georgia,serif;color:{{ r.color }};">{{ r.amountLabel }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+              </sc-if>
             <div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">BREAKDOWN</div>
               <div style="background:#fff;border-radius:12px;padding:2px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
@@ -1129,6 +1190,23 @@ input, select, textarea { font-size:16px !important; }
                 </sc-for>
               </div>
             </div>
+            </sc-if>
+          <div>
+            <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">GROSS SCORES</div>
+            <div style="background:#fff;border-radius:12px;padding:6px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;padding:6px 0;border-bottom:1px solid #f3f1ea;font:800 10px Archivo,sans-serif;color:#98928a;letter-spacing:.5px;">
+                <div></div><div style="text-align:right;">OUT</div><div style="text-align:right;">IN</div><div style="text-align:right;">TOTAL</div>
+              </div>
+              <sc-for list="{{ settleGrossTotals }}" as="gt" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:minmax(0,1fr) 44px 44px 52px;align-items:center;padding:9px 0;border-bottom:1px solid #f3f1ea;">
+                  <div style="font:700 13px Archivo,sans-serif;color:#1a2733;">{{ gt.name }}</div>
+                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.out }}</div>
+                  <div style="text-align:right;font:700 14px Georgia,serif;color:#5a6672;">{{ gt.inn }}</div>
+                  <div style="text-align:right;font:800 15px Georgia,serif;color:#0f2a4a;">{{ gt.gross }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
           </sc-if>
         </div>
       </div>
@@ -1428,6 +1506,17 @@ input, select, textarea { font-size:16px !important; }
                   </div>
                 </div>
               </sc-if>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
+                <div style="display:flex;flex-direction:column;gap:2px;">
+                  <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">SCORING</div>
+                  <div style="font:600 10px Archivo,sans-serif;color:#98928a;">{{ matchFormatNote }}</div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                  <sc-for list="{{ matchFormatChips }}" as="mf" hint-placeholder-count="2">
+                    <div style="flex:1;text-align:center;padding:9px 4px;border-radius:6px;font:800 10px Archivo,sans-serif;letter-spacing:.3px;cursor:pointer;background:{{ mf.bg }};color:{{ mf.color }};" onClick="{{ mf.onClick }}">{{ mf.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
               <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
                 <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;">
                   <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.3px;">STARTING HOLE</div>
@@ -1984,6 +2073,7 @@ input, select, textarea { font-size:16px !important; }
         <div style="background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;max-height:85%;overflow-y:auto;box-sizing:border-box;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:12px;">
           <div style="font:800 15px Archivo,sans-serif;color:#0f2a4a;">Check the bets before tee-off</div>
           <div style="font:600 11px Archivo,sans-serif;color:#5a6672;line-height:1.4;">Bets lock once the round starts.</div>
+          <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ betsCheckFormat }}</div>
           <sc-if value="{{ betsCheckHasStart }}" hint-placeholder-val="{{ false }}">
             <div style="font:800 12px Archivo,sans-serif;color:#0f2a4a;">{{ betsCheckStart }}</div>
           </sc-if>
@@ -2330,7 +2420,7 @@ const SYNC_KEYS = [
   'greenieWinners', 'greenieResolved', 'wolfPicks',
   'sandyFlags', 'polyFlags', 'barkyFlags', 'chippyFlags', 'vegasTeams', 'taFlips', 'bbbPoints',
   'customJunk', 'presses', 'courseName', 'liveCourses', 'groupJunk', 'groupGames', 'groupGreenies', 'groupTrack',
-  'roundType', 'startHole', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
+  'roundType', 'startHole', 'matchFormat', 'tournamentDays', 'eventName', 'showHero', 'editingHistoryId', 'rules', 'roundLive', 'cellStamps', 'roundId', 'roundIdAt',
   'adminDeviceId', 'adminName', 'adminPinned', 'roundEnd', 'devices', 'endAcks'
 ];
 const RULE_PRESETS = [
@@ -2364,7 +2454,7 @@ function pickSyncFields(obj){
 // id; the newer round wins outright so an old round can't come back.
 // Single values merged as one cell each (newest edit wins), instead of riding along
 // with whichever phone saved last.
-const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','startHole','tournamentDays','eventName','roundLive','adminDeviceId','adminName','adminPinned','roundEnd'];
+const SCALAR_MERGE_KEYS = ['rrcHolder','sweepCandidate','sweepCount','sweepDead','scoringMode','courseName','roundType','startHole','matchFormat','tournamentDays','eventName','roundLive','adminDeviceId','adminName','adminPinned','roundEnd'];
 // Lists merged item by item.
 const LIST_MERGE_KEYS = ['roster','history','presses','customJunk'];
 const MERGE_KEYS = ['scores','greenieWinners','groupGreenies','greenieResolved','wolfPicks','sandyFlags','polyFlags','barkyFlags','chippyFlags','vegasTeams','taFlips','bbbPoints','liveCourses','roster','history',
@@ -2555,6 +2645,7 @@ class Component extends DCLogic {
     clubDeleteName: null, clubUndo: null, clubDup: null, clubExpanded: {},
     roundType: '18',
     startHole: 1,
+    matchFormat: 'match',
     tournamentDays: 2,
     eventName: '',
     showHero: true
@@ -3840,6 +3931,22 @@ class Component extends DCLogic {
   holePos(h){ const t = this.totalHolesForRound(); return ((h - this.startHole()) % t + t) % t; }
   lastHole(){ const o = this.playOrder(); return o[o.length - 1]; }
   nextHole(h){ const o = this.playOrder(), i = this.holePos(h); return i < o.length - 1 ? o[i + 1] : null; }
+  isMatchPlay(){ return this.state.matchFormat !== 'stroke'; }
+  setMatchFormat(v){ if (this.lockedOut()) return; this.setState({matchFormat: v === 'stroke' ? 'stroke' : 'match'}); }
+  // Compare two sides over a set of holes. Match play counts holes won; stroke play sums net.
+  // diff > 0 means side A is ahead (holes up, or strokes better).
+  compareSides(holes, scoreA, scoreB, tieA, tieB){
+    let a = 0, b = 0, n = 0, up = 0;
+    holes.forEach(h => {
+      const x = scoreA(h), y = scoreB(h);
+      if (x == null || y == null) return;
+      a += x; b += y; n++;
+      let res = x < y ? 1 : (y < x ? -1 : 0);
+      if (!res && tieA && tieB){ const tx = tieA(h), ty = tieB(h); if (tx != null && ty != null) res = tx < ty ? 1 : (ty < tx ? -1 : 0); }
+      up += res;
+    });
+    return {diff: this.isMatchPlay() ? up : b - a, n, a, b};
+  }
   setStartHole(n){ if (this.lockedOut()) return; this.setState({startHole: n, ...(this.isRoundLive() ? {} : {currentHole: n})}); }
   allScoresComplete(){
     const active = this.state.roster.filter(p => p.active);
@@ -4160,10 +4267,12 @@ class Component extends DCLogic {
   // setup moves to seat 2. Later sixes rotate so everyone partners everyone once.
   sixSixOrder(grp, G){
     const map = ((G || this.state.games.sixsixsix) || {}).partners || {};
-    const w = grp[0], pid = map[w.id];
-    const x = grp.find(p => p.id !== w.id && String(p.id) === String(pid));
-    if (!x) return grp;
-    return [w, x].concat(grp.filter(p => p.id !== w.id && p.id !== x.id));
+    const map2 = ((G || this.state.games.sixsixsix) || {}).partners2 || {};
+    const w = grp[0];
+    const x = grp.find(p => p.id !== w.id && String(p.id) === String(map[w.id])) || grp[1];
+    const rest = grp.filter(p => p.id !== w.id && p.id !== x.id);
+    const y = rest.find(p => String(p.id) === String(map2[w.id])) || rest[0];
+    return [w, x, y].concat(rest.filter(p => p.id !== y.id));
   }
   sixRanges(){
     const o = this.playOrder();
@@ -4212,16 +4321,38 @@ class Component extends DCLogic {
           {key:'overall', label:'OVERALL', start:1, end:18, value:this.state.games.nassau.overall}
         ];
         segs.forEach(seg => {
-          const withScores = active.map(p => ({p, ...this.segmentNet(p, mode, active, seg.start, seg.end)})).filter(x => x.count > 0);
-          if (withScores.length < 2 || !seg.value) return;
-          const minNet = Math.min(...withScores.map(x => x.net));
-          const winners = withScores.filter(x => x.net === minNet);
-          if (winners.length !== 1) return;
-          const winner = winners[0].p;
+          if (!seg.value) return;
+          let winner = null, how = '';
+          if (this.isMatchPlay()){
+            // Match play: outright low net wins the hole; most holes won takes the segment.
+            const won = {}; let any = 0;
+            active.forEach(p => { won[p.id] = 0; });
+            for (let hh = seg.start; hh <= seg.end; hh++){
+              const vals = active.map(p => ({p, v: this.netToParAt(p, hh, mode, active)}));
+              if (vals.some(x => x.v == null)) continue;
+              any++;
+              const m = Math.min(...vals.map(x => x.v)), w = vals.filter(x => x.v === m);
+              if (w.length === 1) won[w[0].p.id]++;
+            }
+            if (!any) return;
+            const top = Math.max(...active.map(p => won[p.id]));
+            const lead = active.filter(p => won[p.id] === top);
+            if (lead.length !== 1 || top === 0) return;
+            winner = lead[0];
+            const second = Math.max(...active.filter(p => p.id !== winner.id).map(p => won[p.id]));
+            how = active.length === 2 ? ' ' + (top - second) + ' UP' : ' (' + top + ' hole' + (top === 1 ? '' : 's') + ' won)';
+          } else {
+            const withScores = active.map(p => ({p, ...this.segmentNet(p, mode, active, seg.start, seg.end)})).filter(x => x.count > 0);
+            if (withScores.length < 2) return;
+            const minNet = Math.min(...withScores.map(x => x.net));
+            const winners = withScores.filter(x => x.net === minNet);
+            if (winners.length !== 1) return;
+            winner = winners[0].p;
+          }
           const payers = active.filter(p => p.id !== winner.id);
           ledger[winner.id] += seg.value * payers.length;
           payers.forEach(p => { ledger[p.id] -= seg.value; });
-          lines.push(`NASSAU · ${seg.label}: ${winner.name} wins $${seg.value} from every other player`);
+          lines.push(`NASSAU · ${seg.label}: ${winner.name}${how} wins $${seg.value} from every other player`);
         });
       }
       // Birdies (gross only)
@@ -4377,6 +4508,16 @@ class Component extends DCLogic {
             const A = teamTotals[i], B = teamTotals[j];
             if (!A.any || !B.any) continue;
             let winnerTeam = null, loserTeam = null;
+            if (this.isMatchPlay()){
+              const best = (t, hh) => { const v = t.players.map(p => this.netToParAt(p, hh, mode, active)).filter(x => x != null); return v.length < t.players.length ? null : Math.min(...v); };
+              const sec = (t, hh) => { const v = t.players.map(p => this.netToParAt(p, hh, mode, active)).filter(x => x != null).sort((x, y) => x - y); return v.length < t.players.length ? null : (v[1] ?? v[0]); };
+              const cmp = this.compareSides(Array.from({length: 18}, (_, k) => k + 1), hh => best(A, hh), hh => best(B, hh), tiebreak ? hh => sec(A, hh) : null, tiebreak ? hh => sec(B, hh) : null);
+              if (!cmp.diff) continue;
+              winnerTeam = cmp.diff > 0 ? A : B; loserTeam = cmp.diff > 0 ? B : A;
+              loserTeam.players.forEach(l => winnerTeam.players.forEach(w => { ledger[w.id] += val; ledger[l.id] -= val; }));
+              lines.push('BEST BALL: ' + winnerTeam.label + ' beat ' + loserTeam.label + ' ' + Math.abs(cmp.diff) + ' UP');
+              continue;
+            }
             if (A.bestSum !== B.bestSum){
               winnerTeam = A.bestSum < B.bestSum ? A : B;
               loserTeam = A.bestSum < B.bestSum ? B : A;
@@ -4567,14 +4708,10 @@ class Component extends DCLogic {
       };
       segs.forEach(seg => {
         if (!seg.value) return;
-        let totA = 0, totB = 0, holes = 0;
-        for (let h = seg.start; h <= seg.end; h++){
-          const a = sideScore(A, h), b = sideScore(B, h);
-          if (a == null || b == null) continue;
-          totA += a; totB += b; holes++;
-        }
-        if (!holes || totA === totB) return; // ties push
-        const win = totA < totB ? A : B, lose = totA < totB ? B : A;
+        const hs = []; for (let h = seg.start; h <= seg.end; h++) hs.push(h);
+        const cmp = this.compareSides(hs, h => sideScore(A, h), h => sideScore(B, h));
+        if (!cmp.n || cmp.diff === 0) return; // ties push
+        const win = cmp.diff > 0 ? A : B, lose = cmp.diff > 0 ? B : A;
         lose.players.forEach(p => { ledger[p.id] -= seg.value; });
         // Uneven sides: winners split the pot in whole dollars; any leftover goes to
         // the winner with the best net score over the segment, so totals stay at $0.
@@ -4588,7 +4725,7 @@ class Component extends DCLogic {
           win.players.forEach(p => { ledger[p.id] += each; });
           ledger[best.id] += Math.round((pot - each * win.players.length) * 100) / 100;
         }
-        lines.push(`GROUP MATCH · ${seg.label}: ${this.groupName(win.key)} beats ${this.groupName(lose.key)} — each ${this.groupName(lose.key)} player pays $${seg.value}`);
+        lines.push(`GROUP MATCH · ${seg.label}: ${this.groupName(win.key)} beats ${this.groupName(lose.key)} ${Math.abs(cmp.diff)} ${this.isMatchPlay() ? 'UP' : (Math.abs(cmp.diff) === 1 ? 'stroke' : 'strokes')} — each ${this.groupName(lose.key)} player pays $${seg.value}`);
       });
     }
   }
@@ -4614,6 +4751,7 @@ class Component extends DCLogic {
       this.withGroup(g.key, () => this.settleIndividualGames(g.players, ledger, recorder(groups.length > 1 ? this.groupName(g.key).toUpperCase() : ''), mode));
     });
     this.settleGroupMatch(active, ledger, recorder(''), mode);
+    this.settlePresses(ledger, recorder(''));
 
     const netRows = active.map(p => ({id:p.id, name:p.name, amount: ledger[p.id] || 0}))
       .sort((a,b) => b.amount - a.amount);
@@ -4978,6 +5116,7 @@ class Component extends DCLogic {
       adminDeviceId: this.state.adminDeviceId || this.deviceId,
       ...(!this.state.adminDeviceId && this.state.ownerName ? {adminName: this.state.ownerName, adminPinned: 'owner'} : {})});
   }
+  setSixPartner2(leaderId, pid){ this.editGames('sixsixsix', x => { x.partners2 = Object.assign({}, x.partners2 || {}, {[leaderId]: pid}); }); }
   setSixPartner(leaderId, pid){ this.editGames('sixsixsix', x => { x.partners = Object.assign({}, x.partners || {}, {[leaderId]: pid}); }); }
   buildBetsCheck(){
     const s = this.state, active = s.roster.filter(p => p.active);
@@ -4988,6 +5127,8 @@ class Component extends DCLogic {
       const games = [];
       if (G.nassau && G.nassau.active) games.push('Nassau $' + G.nassau.front + '/$' + G.nassau.back + '/$' + G.nassau.overall);
       ['bestball','wolf','sixsixsix','skins','vegas','ta','bbb'].forEach(k => { if (G[k] && G[k].active) games.push(G[k].label.charAt(0) + G[k].label.slice(1).toLowerCase() + ' $' + G[k].value); });
+      const apOn = ['nassau','bestball','sixsixsix'].filter(k => G[k] && G[k].active && G[k].autoPress).map(k => ({nassau: 'Nassau', bestball: 'Best Ball', sixsixsix: '6-6-6'})[k]);
+      if (apOn.length) games.push('Auto-press when 2 down: ' + apOn.join(', '));
       if (G.sixsixsix && G.sixsixsix.active){
         for (let i = 0; i + 4 <= g.players.length; i += 4){
           const o = this.sixSixOrder(g.players.slice(i, i + 4));
@@ -5003,10 +5144,202 @@ class Component extends DCLogic {
     }));
     const gm = s.games.groupmatch;
     const sh = this.startHole();
-    return {betsCheckStart: sh !== 1 ? 'Shotgun start on #' + sh + ' · finish on #' + this.lastHole() : '', betsCheckHasStart: sh !== 1, betsCheckOpen: !!s.betsCheckOpen, betsCheckGroups: out,
-      betsCheckHasGm: !!(gm && gm.active && multi), betsCheckGm: gm ? 'Group Match $' + gm.front + '/$' + gm.back + '/$' + gm.overall : '',
+    return {betsCheckFormat: this.isMatchPlay() ? 'Match play' : 'Stroke play', betsCheckStart: sh !== 1 ? 'Shotgun start on #' + sh + ' · finish on #' + this.lastHole() : '', betsCheckHasStart: sh !== 1, betsCheckOpen: !!s.betsCheckOpen, betsCheckGroups: out,
+      betsCheckHasGm: !!(gm && gm.active && multi), betsCheckGm: gm ? 'Group Match $' + gm.front + '/$' + gm.back + '/$' + gm.overall + (gm.autoPress ? ' · auto-press when 2 down' : '') : '',
       onBetsCheckOk: () => this.startEvent(true),
       onBetsCheckEdit: () => { this.setState({betsCheckOpen: false}); this.goSetupStep(3); }};
+  }
+  // One-line standings for every bet the owner is in (or every match, read from the
+  // first-named side, when this phone has no owner set).
+  // Every head-to-head match that can be pressed, with the windows a press can run in.
+  pressMatches(){
+    const s = this.state, mode = s.scoringMode, all = s.roster.filter(p => p.active);
+    const order = this.playOrder(), rng = (a, b) => order.filter(x => x >= a && x <= b);
+    const groups = this.activeGroups(all), multi = groups.length > 1, out = [];
+    const best = (ps, hh, act) => { const v = ps.map(p => this.netToParAt(p, hh, mode, act)).filter(x => x != null); return v.length < ps.length ? null : Math.min(...v); };
+    const nm = ps => ps.map(p => shortName(p.name)).join(' & ');
+    const nines = (v1, v2) => [['front', 'Front', 1, 9, v1], ['back', 'Back', 10, 18, v2]].filter(w => w[4]).map(([seg, label, a, b, value]) => ({seg, label, holes: rng(a, b), value}));
+    groups.forEach(g => this.withGroup(g.key, () => {
+      const G = this.state.games, ps = g.players, gp = multi ? this.groupName(g.key) + ' · ' : '';
+      if (G.nassau && G.nassau.active && ps.length === 2){
+        out.push({key: 'nassau|' + g.key, game: 'nassau', name: gp + 'Nassau', auto: !!G.nassau.autoPress, mp: this.isMatchPlay(), sides: ps.map(p => [p]),
+          score: (k, hh) => this.netToParAt(ps[k], hh, mode, ps), pay: 'each',
+          windows: nines(G.nassau.front, G.nassau.back).map(w => ({...w, orig: w.holes}))});
+      }
+      if (G.bestball && G.bestball.active && G.bestball.value && ps.length >= 3){
+        const teams = [];
+        for (let i = 0; i + 1 < ps.length; i += 2) teams.push([ps[i], ps[i + 1]]);
+        if (ps.length % 2 === 1 && teams.length){ const odd = ps[ps.length - 1]; if (G.bestball.oddMode === 'three') teams[teams.length - 1].push(odd); else teams.push([odd]); }
+        for (let i = 0; i < teams.length; i++) for (let j = i + 1; j < teams.length; j++){
+          const sides = [teams[i], teams[j]];
+          out.push({key: 'bb|' + g.key + '|' + i + '|' + j, game: 'bestball', name: gp + 'Best Ball', auto: !!G.bestball.autoPress, mp: this.isMatchPlay(), sides,
+            score: (k, hh) => best(sides[k], hh, ps), pay: 'cross',
+            windows: nines(G.bestball.value, G.bestball.value).map(w => ({...w, orig: order}))});
+        }
+      }
+      if (G.sixsixsix && G.sixsixsix.active && G.sixsixsix.value){
+        this.buildSixSixSegments(ps).forEach(x => {
+          const sides = [x.teamA, x.teamB];
+          out.push({key: 'six|' + g.key + '|' + x.chunk + '|' + x.idx, game: 'sixsixsix', name: gp + '6-6-6', auto: !!G.sixsixsix.autoPress, mp: true, sides,
+            score: (k, hh) => best(sides[k], hh, ps), pay: 'each',
+            windows: [{seg: 'six', label: 'Holes ' + x.start + '–' + x.end, holes: x.holes, orig: x.holes, value: G.sixsixsix.value}]});
+        });
+      }
+    }));
+    const gm = s.games.groupmatch;
+    if (gm && gm.active && multi){
+      for (let i = 0; i < groups.length; i++) for (let j = i + 1; j < groups.length; j++){
+        const A = groups[i], B = groups[j];
+        const balls = gm.format === 'best1' ? 1 : gm.format === 'best2' ? 2 : Math.min(A.players.length, B.players.length);
+        if (A.players.length < balls || B.players.length < balls) continue;
+        const side = (ps, hh) => { const v = ps.map(p => this.netToParAt(p, hh, mode, all)).filter(x => x != null).sort((a, b) => a - b); return v.length < balls ? null : v.slice(0, balls).reduce((t, x) => t + x, 0); };
+        const sides = [A.players, B.players];
+        out.push({key: 'gm|' + A.key + B.key, game: 'groupmatch', name: 'Group Match', auto: !!gm.autoPress, mp: this.isMatchPlay(), sides,
+          sideNames: [this.groupName(A.key), this.groupName(B.key)], score: (k, hh) => side(sides[k], hh), pay: 'gm',
+          windows: nines(gm.front, gm.back).map(w => ({...w, orig: w.holes}))});
+      }
+    }
+    out.forEach(m => { m.labels = m.sideNames || m.sides.map(nm); });
+    return out;
+  }
+  holeRes(m, hh){ const a = m.score(0, hh), b = m.score(1, hh); if (a == null || b == null) return null; return m.mp ? (a < b ? 1 : (b < a ? -1 : 0)) : (b - a); }
+  // A press is a separate bet from the hole it starts to the end of its nine (or six).
+  // Auto-presses are worked out from the scores, so every phone agrees without syncing them.
+  allPresses(){
+    const s = this.state, out = [];
+    this.pressMatches().forEach(m => m.windows.forEach(w => {
+      let p = null;
+      if (m.auto){
+        let run = 0;
+        for (const hh of w.orig){
+          if (w.holes.includes(hh) && Math.abs(run) >= 2){ p = {auto: true, side: run > 0 ? 1 : 0, start: hh}; break; }
+          const x = this.holeRes(m, hh); if (x == null) break; run += x;
+        }
+      } else {
+        const rec = (s.presses || []).find(x => x.mk === m.key && x.seg === w.seg && w.holes.includes(x.hole));
+        if (rec) p = {auto: false, side: rec.side, start: rec.hole};
+      }
+      if (!p) return;
+      const hs = w.holes.slice(w.holes.indexOf(p.start));
+      let d = 0, n = 0, last = 0;
+      hs.forEach(hh => { const x = this.holeRes(m, hh); if (x == null) return; d += x; n++; last = hh; });
+      out.push(Object.assign({m, w, holes: hs, diff: d, n, last, fin: n === hs.length}, p));
+    }));
+    return out;
+  }
+  pressOptions(){
+    const s = this.state, cur = s.currentHole || this.startHole(), have = this.allPresses(), opts = [];
+    this.pressMatches().forEach(m => { if (m.auto) return; m.windows.forEach(w => {
+      if (have.some(p => p.m.key === m.key && p.w.seg === w.seg)) return;
+      const start = this.holeRes(m, cur) != null ? this.nextHole(cur) : cur;
+      if (start == null || !w.holes.includes(start)) return;
+      let run = 0;
+      for (const hh of w.orig){ if (hh === start) break; const x = this.holeRes(m, hh); if (x == null) break; run += x; }
+      if (run === 0) return;
+      const side = run > 0 ? 1 : 0;
+      opts.push({m, w, start, side, text: m.labels[side] + ' presses ' + m.labels[1 - side], sub: m.name + ' · ' + w.label + ' · $' + w.value + ' · from #' + start});
+    }); });
+    return opts;
+  }
+  callMatchPress(o){
+    const by = o.m.labels[o.side];
+    const presses = [...(this.state.presses || []), {id: 'pr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), hole: o.start, mk: o.m.key, seg: o.w.seg, side: o.side, playerName: by}];
+    this.setState({presses, pressPickerOpen: false, activeNotif: {kind: 'press', name: by, hole: o.start}});
+  }
+  settlePresses(ledger, lines){
+    this.allPresses().forEach(p => {
+      if (!p.n || p.diff === 0) return;
+      const wi = p.diff > 0 ? 0 : 1, win = p.m.sides[wi], lose = p.m.sides[1 - wi], v = p.w.value;
+      if (p.m.pay === 'cross') lose.forEach(l => win.forEach(w => { ledger[w.id] += v; ledger[l.id] -= v; }));
+      else if (p.m.pay === 'gm' && win.length !== lose.length){
+        lose.forEach(l => { ledger[l.id] -= v; });
+        const pot = v * lose.length, each = Math.floor(pot / win.length);
+        win.forEach(w => { ledger[w.id] += each; });
+        ledger[win[0].id] += Math.round((pot - each * win.length) * 100) / 100;
+      } else { win.forEach(w => { ledger[w.id] += v; }); lose.forEach(l => { ledger[l.id] -= v; }); }
+      const amt = Math.abs(p.diff), unit = p.m.mp ? ' UP' : (amt === 1 ? ' stroke' : ' strokes');
+      lines.push('PRESS · ' + p.m.name.toUpperCase() + ' ' + p.w.label.toUpperCase() + ' #' + p.start + ': ' + p.m.labels[wi] + ' beat ' + p.m.labels[1 - wi] + ' ' + amt + unit + (p.auto ? ' (auto-press)' : '') + (p.fin ? '' : ' (thru ' + p.last + ')'));
+    });
+  }
+  buildMatchList(){
+    const s = this.state, mode = s.scoringMode, all = s.roster.filter(p => p.active), mpOn = this.isMatchPlay();
+    const meKey = s.ownerName ? this.playerKey(s.ownerName) : '';
+    const isMe = p => !!meKey && this.playerKey(p.name) === meKey;
+    const nm = ps => ps.slice().sort((x, y) => (isMe(y) ? 1 : 0) - (isMe(x) ? 1 : 0)).map(p => isMe(p) ? 'You' : shortName(p.name)).join(' & ');
+    const groups = this.activeGroups(all), multi = groups.length > 1;
+    const myG = groups.find(g => g.players.some(isMe));
+    const tone = (d, pov) => !pov ? '#0f2a4a' : (d > 0 ? '#1e7a3d' : (d < 0 ? '#c8102e' : '#0f2a4a'));
+    const res = (d, fin, mp) => {
+      if (d === 0) return fin ? 'HALVED' : (mp ? 'AS' : 'EVEN');
+      return (fin ? (d > 0 ? 'WON ' : 'LOST ') : '') + Math.abs(d) + (mp ? (d > 0 ? ' UP' : ' DN') : (d > 0 ? ' AHEAD' : ' BEHIND'));
+    };
+    const rows = [];
+    (myG ? [myG] : groups).forEach(g => this.withGroup(g.key, () => {
+      const G = this.state.games, ps = g.players, me = ps.find(isMe), pov = !!me;
+      const tag = multi && !myG ? this.groupName(g.key) + ' · ' : '';
+      const unit = mpOn ? '' : ' · strokes';
+      if (G.sixsixsix && G.sixsixsix.active){
+        this.sixSixMatches(ps, mode).forEach(x => {
+          if (!x.played) return;
+          const inB = x.teamB.some(isMe);
+          if (pov && !inB && !x.teamA.some(isMe)) return;
+          const d = x.up * (inB ? -1 : 1), mine = inB ? x.teamB : x.teamA, oth = inB ? x.teamA : x.teamB;
+          rows.push({fin: x.final, title: tag + '6-6-6 · Holes ' + x.start + '–' + x.end, status: res(d, x.final, true), color: tone(d, pov),
+            sub: nm(mine) + ' vs ' + nm(oth) + (x.final ? ' · final' : ' · thru ' + x.last)});
+        });
+      }
+      if (G.nassau && G.nassau.active && ps.length >= 2){
+        [['Front', 1, 9], ['Back', 10, 18], ['Overall', 1, 18]].forEach(([lbl, a, b]) => {
+          const sc = {}; ps.forEach(p => { sc[p.id] = 0; }); let n = 0, last = 0;
+          for (let hh = a; hh <= b; hh++){
+            const vals = ps.map(p => ({p, v: this.netToParAt(p, hh, mode, ps)}));
+            if (vals.some(x => x.v == null)) continue;
+            n++; last = hh;
+            if (mpOn){ const m = Math.min(...vals.map(x => x.v)), w = vals.filter(x => x.v === m); if (w.length === 1) sc[w[0].p.id]++; }
+            else vals.forEach(x => { sc[x.p.id] -= x.v; });
+          }
+          if (!n) return;
+          const fin = n === b - a + 1, two = ps.length === 2;
+          const ranked = ps.slice().sort((x, y) => sc[y.id] - sc[x.id]);
+          const view = me || ranked[0], rival = ranked.find(p => p.id !== view.id);
+          const d = sc[view.id] - Math.max(...ps.filter(p => p.id !== view.id).map(p => sc[p.id]));
+          const status = two ? res(d, fin, mpOn)
+            : (d > 0 ? (fin ? 'WON BY ' : 'LEADS BY ') + d : (d === 0 ? 'TIED' : (fin ? 'LOST BY ' : '') + (-d) + (fin ? '' : ' BACK')));
+          const who = two ? (pov ? 'vs ' + shortName(rival.name) : shortName(view.name) + ' vs ' + shortName(rival.name))
+            : (pov ? (d < 0 ? 'Leader: ' + shortName(ranked[0].name) : ps.length + ' players') : 'Leader: ' + shortName(view.name));
+          rows.push({fin, title: tag + 'Nassau · ' + lbl, status, color: tone(d, pov), sub: who + unit + (fin ? ' · final' : ' · thru ' + last)});
+        });
+      }
+      if (G.bestball && G.bestball.active && ps.length >= 3){
+        const teams = [];
+        for (let i = 0; i + 1 < ps.length; i += 2) teams.push([ps[i], ps[i + 1]]);
+        if (ps.length % 2 === 1 && teams.length){
+          const odd = ps[ps.length - 1];
+          if (G.bestball.oddMode === 'three') teams[teams.length - 1].push(odd); else teams.push([odd]);
+        }
+        const best = (t, hh) => { const v = t.map(p => this.netToParAt(p, hh, mode, ps)).filter(x => x != null); return v.length < t.length ? null : Math.min(...v); };
+        const base = teams.find(t => t.some(isMe));
+        const pairs = [];
+        if (base) teams.forEach(t => { if (t !== base) pairs.push([base, t]); });
+        else for (let i = 0; i < teams.length; i++) for (let j = i + 1; j < teams.length; j++) pairs.push([teams[i], teams[j]]);
+        pairs.forEach(([T, U]) => {
+          const cmp = this.compareSides(Array.from({length: 18}, (_, k) => k + 1), hh => best(T, hh), hh => best(U, hh));
+          if (!cmp.n) return;
+          const fin = cmp.n === 18;
+          rows.push({fin, title: tag + 'Best Ball', status: res(cmp.diff, fin, mpOn), color: tone(cmp.diff, pov),
+            sub: nm(T) + ' vs ' + nm(U) + unit + (fin ? ' · final' : ' · ' + cmp.n + ' holes played')});
+        });
+      }
+    }));
+    this.allPresses().forEach(p => {
+      const idx = p.m.sides.findIndex(sd => sd.some(isMe));
+      if (myG && idx < 0) return;
+      const view = idx < 0 ? 0 : idx, d = view === 0 ? p.diff : -p.diff;
+      rows.push({fin: p.fin, title: 'Press · ' + p.m.name + ' ' + p.w.label, status: p.n ? res(d, p.fin, p.m.mp) : 'STARTS #' + p.start, color: tone(d, idx >= 0),
+        sub: p.m.labels[view] + ' vs ' + p.m.labels[1 - view] + ' · from #' + p.start + (p.auto ? ' · auto' : '') + (p.fin ? ' · final' : (p.n ? ' · thru ' + p.last : ''))});
+    });
+    rows.sort((x, y) => (x.fin ? 1 : 0) - (y.fin ? 1 : 0));
+    return {matchRows: rows, hasMatchRows: rows.length > 0, matchListTitle: myG ? 'YOUR MATCHES' : 'MATCHES'};
   }
   buildSixSixVals(){
     const s = this.state, mode = s.scoringMode, active = s.roster.filter(p => p.active);
@@ -5338,23 +5671,53 @@ class Component extends DCLogic {
           const vals = S.players.map(p => this.netToParAt(p, h, mode, allActive)).filter(v => v != null).sort((a,b) => a-b);
           return vals.length < balls ? null : vals.slice(0, balls).reduce((t,v) => t+v, 0);
         };
-        const seg = (s, e) => {
-          let a = 0, b = 0, n = 0;
-          for (let h = s; h <= e; h++){ const x = side(A,h), y = side(B,h); if (x == null || y == null) continue; a += x; b += y; n++; }
-          return {a, b, n};
-        };
+        const seg = (s, e) => { const hs = []; for (let h = s; h <= e; h++) hs.push(h); return this.compareSides(hs, h => side(A,h), h => side(B,h)); };
         const status = r => {
           if (!r.n) return '—';
-          if (r.a === r.b) return 'TIED';
-          const d = Math.abs(r.a - r.b);
-          return `${(r.a < r.b ? this.groupName(A.key) : this.groupName(B.key)).toUpperCase()} BY ${d}`;
+          if (r.diff === 0) return this.isMatchPlay() ? 'ALL SQUARE' : 'TIED';
+          const d = Math.abs(r.diff), who = (r.diff > 0 ? this.groupName(A.key) : this.groupName(B.key)).toUpperCase();
+          return this.isMatchPlay() ? who + ' ' + d + ' UP' : who + ' BY ' + d;
         };
-        const fr = seg(1,9), bk = seg(10,18), ov = seg(1,18);
+        // Read from the owner's group when it's in this matchup, otherwise from the first group.
+        const meKey = this.state.ownerName ? this.playerKey(this.state.ownerName) : '';
+        const mine = S => !!meKey && S.players.some(p => this.playerKey(p.name) === meKey);
+        const P = mine(B) && !mine(A) ? B : A, Q = P === A ? B : A;
+        const mp = this.isMatchPlay();
+        const segP = (s0, e0) => { const hs = []; for (let x = s0; x <= e0; x++) hs.push(x); return this.compareSides(hs, x => side(P,x), x => side(Q,x)); };
+        const fr = segP(1,9), bk = segP(10,18), ov = segP(1,18);
+        const word = d => mp ? (d > 0 ? ' UP' : ' DN') : (d > 0 ? ' AHEAD' : ' BEHIND');
+        const tone = d => d > 0 ? '#1e7a3d' : (d < 0 ? '#c8102e' : '#0f2a4a');
+        const tint = d => d > 0 ? '#e8f3ec' : (d < 0 ? '#fbe9ec' : '#f3f1ea');
+        const chip = (lbl, r0, len) => {
+          const fin = r0.n === len;
+          const st = !r0.n ? '–' : (r0.diff === 0 ? (fin ? 'HALVED' : (mp ? 'AS' : 'EVEN')) : (fin ? (r0.diff > 0 ? 'WON ' : 'LOST ') : '') + Math.abs(r0.diff) + word(r0.diff));
+          return {label: lbl + (r0.n && !fin && len === 9 ? ' · THRU ' + (lbl === 'BACK' ? r0.n + 9 : r0.n) : ''), status: st, color: r0.n ? tone(r0.diff) : '#98928a', bg: r0.n ? tint(r0.diff) : '#f3f1ea'};
+        };
+        const boxes = (s0, e0) => { let run = 0; const out = [];
+          for (let x = s0; x <= e0; x++){
+            const a = side(P,x), b = side(Q,x);
+            if (a == null || b == null){ out.push({label: String(x), bg: '#fff', color: '#c9c3b6', border: '1px dashed #c9c3b6'}); continue; }
+            run += mp ? (a < b ? 1 : (b < a ? -1 : 0)) : (b - a);
+            out.push(run > 0 ? {label: String(run), bg: '#0f2a4a', color: '#fff', border: '1px solid transparent'}
+              : run < 0 ? {label: String(-run), bg: '#ffa62f', color: '#0f2a4a', border: '1px solid transparent'}
+              : {label: 'AS', bg: '#f3f1ea', color: '#1a2733', border: '1px solid transparent'});
+          }
+          return out; };
+        const mkey = A.key + B.key, open = !!(this.state.gmOpen || {})[mkey];
+        const pn = this.groupName(P.key), qn = this.groupName(Q.key);
         sbMatchups.push({
-          label: `${this.groupName(A.key).toUpperCase()} VS ${this.groupName(B.key).toUpperCase()} · THRU ${ov.n}`,
-          aName: this.groupName(A.key).toUpperCase(), bName: this.groupName(B.key).toUpperCase(),
-          aNet: this.fmtNet(ov.a), bNet: this.fmtNet(ov.b), aColor: this.netColorSB(ov.a), bColor: this.netColorSB(ov.b),
-          segs: [{label:'FRONT', status: status(fr)}, {label:'BACK', status: status(bk)}, {label:'OVERALL', status: status(ov)}]
+          label: 'GROUP MATCH · ' + (ov.n ? 'THRU ' + ov.n : 'NOT STARTED'),
+          fmt: (gm.format === 'best1' ? 'BEST BALL' : gm.format === 'best2' ? 'BEST 2 BALLS' : 'ALL BALLS') + (mp ? '' : ' · STROKES'),
+          side: (mine(P) ? 'YOUR TEAM · ' : '') + pn.toUpperCase(),
+          big: !ov.n ? '–' : (ov.diff === 0 ? (mp ? 'AS' : 'EVEN') : Math.abs(ov.diff) + word(ov.diff)),
+          bigColor: ov.n ? tone(ov.diff) : '#98928a',
+          vs: 'vs ' + qn + (mp || !ov.n || ov.diff === 0 ? '' : ' · ' + (Math.abs(ov.diff) === 1 ? 'stroke' : 'strokes')),
+          segs: [chip('FRONT', fr, 9), chip('BACK', bk, 9), chip('OVERALL', ov, 18)],
+          open, chev: open ? '▾' : '▸',
+          onToggle: () => this.setState(st => ({gmOpen: {...(st.gmOpen || {}), [mkey]: !open}})),
+          frontBoxes: boxes(1,9), backBoxes: boxes(10,18),
+          boxNote: (mp ? 'Running match' : 'Running stroke lead') + ' each nine from ' + pn + "'s side: navy = ahead, orange = behind, AS = all square.",
+          pName: pn, qName: qn, pNet: this.fmtNet(ov.a), qNet: this.fmtNet(ov.b)
         });
       }
     }
@@ -5644,7 +6007,10 @@ class Component extends DCLogic {
       value: EG.sixsixsix.value,
       sub: this.splitJunk() && egPlayers.length !== 4 ? `Needs exactly 4 players. ${this.groupName(egKey)} has ${egPlayers.length}.` : 'Match play, new partners every 6',
       pickers: (() => { const out = []; for (let i = 0; i + 4 <= egPlayers.length; i += 4){ const grp = egPlayers.slice(i, i + 4), o = this.sixSixOrder(grp, EG.sixsixsix), w = grp[0];
-        out.push({title: shortName(w.name).toUpperCase() + "'S PARTNER FOR HOLES " + this.sixRanges()[0].text, chips: grp.slice(1).map(p => ({name: shortName(p.name), bg: o[1].id === p.id ? '#0f2a4a' : '#f3f1ea', color: o[1].id === p.id ? '#fff' : '#1a2733', onClick: () => this.setSixPartner(w.id, p.id)}))}); } return out; })(),
+        out.push({title: shortName(w.name).toUpperCase() + "'S PARTNER FOR HOLES " + this.sixRanges()[0].text, chips: grp.slice(1).map(p => ({name: shortName(p.name), bg: o[1].id === p.id ? '#0f2a4a' : '#f3f1ea', color: o[1].id === p.id ? '#fff' : '#1a2733', onClick: () => this.setSixPartner(w.id, p.id)}))});
+        const rg = this.sixRanges();
+        out.push({title: shortName(w.name).toUpperCase() + "'S PARTNER FOR HOLES " + rg[1].text, chips: grp.filter(p => p.id !== w.id && p.id !== o[1].id).map(p => ({name: shortName(p.name), bg: o[2].id === p.id ? '#0f2a4a' : '#f3f1ea', color: o[2].id === p.id ? '#fff' : '#1a2733', onClick: () => this.setSixPartner2(w.id, p.id)}))});
+        out.push({title: 'HOLES ' + rg[2].text + ': ' + shortName(w.name).toUpperCase() + ' & ' + shortName(o[3].name).toUpperCase() + ' (EVERYONE PARTNERS ONCE)', chips: []}); } return out; })(),
       onChange: (e)=>this.setGameValue('sixsixsix','value',e.target.value),
       pairingsOpen: s.sixPairingsOpen,
       pairingsLabel: s.sixPairingsOpen ? 'HIDE PAIRINGS' : 'SHOW PAIRINGS',
@@ -5862,6 +6228,19 @@ class Component extends DCLogic {
     const settleGrossTotals = standingsForGross.map(r => ({name:r.name, gross:r.gross,
       out: r.front || '–', inn: r.back || '–'})).sort((a,b)=>a.gross-b.gross);
     const hasSettleData = settleNetRows.some(r => r.amountLabel !== '+$0.00') || settleTransactions.length > 0;
+    const meRow = meKey ? settlement.netRows.find(x => this.playerKey(x.name) === meKey) : null;
+    const money = a => (a > 0 ? '+$' : (a < 0 ? '−$' : '$')) + (Number.isInteger(Math.abs(a)) ? Math.abs(a) : Math.abs(a).toFixed(2));
+    const detOpen = !!s.settleDetailsOpen;
+    const settleVals = {
+      settleHasMe: !!meRow, settleNoMe: !meRow,
+      settleMeLabel: meRow ? 'YOUR DAY · ' + shortName(meRow.name).toUpperCase() : '',
+      settleMeAmount: meRow ? money(meRow.amount) : '',
+      settleMeColor: meRow ? (meRow.amount > 0 ? '#1e7a3d' : (meRow.amount < 0 ? '#c8102e' : '#0f2a4a')) : '#0f2a4a',
+      settleMeSub: s.eventEnded ? 'Final for the round' : 'So far, from holes entered',
+      settleDetailsOpen: detOpen, settleDetailsChev: detOpen ? '▾' : '▸',
+      settleDetailsLabel: detOpen ? 'Hide details' : 'Show details',
+      settleDetailsSub: meRow ? "Everyone's totals, each bet hole by hole, gross scores" : 'Each bet hole by hole, gross scores',
+      onToggleSettleDetails: () => this.setState({settleDetailsOpen: !detOpen})};
 
     const navItems = this.buildNavItems();
     const navItemsOld = [
@@ -5960,6 +6339,7 @@ class Component extends DCLogic {
       ...this.buildStrokesView(),
       ...this.buildWizardVals(),
       ...this.buildSixSixVals(),
+      ...this.buildMatchList(),
       ...this.buildBetsCheck(),
       isStrokesView: s.screen==='strokes',
       isBoard: s.screen==='board' || s.screen==='scoreboard' || s.screen==='strokes', isCard: s.screen==='card', isGames: s.screen==='games',
@@ -6009,7 +6389,7 @@ class Component extends DCLogic {
       })(),
       isHistory: s.screen==='history', isSettings: s.screen==='settings', isSettle: s.screen==='settle',
       goSettle: () => this.goSettle(), settleBtnLabel: s.eventEnded ? 'SETTLE UP' : 'BETS', settleHeaderLabel: s.eventEnded ? 'SETTLE UP · FINAL' : 'BETS · BASED ON HOLES ENTERED SO FAR',
-      settleNetRows, settleTransactions, settleCats, settleGrossTotals, hasSettleData,
+      settleNetRows, settleTransactions, settleCats, settleGrossTotals, hasSettleData, ...settleVals,
       venmoAskOpen: !!s.venmoAsk, venmoAskName: s.venmoAsk ? shortName(s.venmoAsk) : '', venmoAskVal: s.venmoAskVal || '',
       onVenmoAskVal: (e) => this.setState({venmoAskVal: e.target.value}),
       onVenmoAskSave: () => { const v = this.cleanVenmo(s.venmoAskVal); if (v) this.setPlayerVenmo(s.venmoAsk, v); this.setState({venmoAsk: null, venmoAskVal: ''}); },
@@ -6111,6 +6491,8 @@ class Component extends DCLogic {
       onReplaySweep: () => this.replaySweep(),
       holeChips, frontChips, backChips, currentHoleObj,
       startHoleVal, startHoleOpts, startHoleNote,
+      matchFormatChips: [['match','MATCH PLAY'],['stroke','STROKE PLAY']].map(([k, l]) => { const on = (k === 'match') === this.isMatchPlay(); return {label: l, bg: on ? '#0f2a4a' : '#f3f1ea', color: on ? '#fff' : '#5a6672', onClick: () => this.setMatchFormat(k)}; }),
+      matchFormatNote: this.isMatchPlay() ? 'Nassau, Best Ball, Group Match: win holes, most holes wins' : 'Nassau, Best Ball, Group Match: lowest total net wins',
       onStartHole: (e) => this.setStartHole(parseInt(e.target.value, 10) || 1),
       hasShotgun: this.startHole() !== 1,
       shotgunText: 'SHOTGUN · STARTED #' + this.startHole() + ' · FINISH #' + this.lastHole() + ' · HOLE ' + (this.holePos(n) + 1) + ' OF ' + this.totalHolesForRound(),
@@ -6228,6 +6610,15 @@ class Component extends DCLogic {
       onTeamBCallsPress: () => this.callAssignedTeamPress('B'),
       pressLog: s.presses.slice().reverse().map(pr => ({text: `Hole ${pr.hole} — ${pr.playerName} called a press`})),
       nassau, groupMatch, simpleGames, bestBall, junkList, junkTabs, holeJunk, historyList,
+      autoPress: (() => { const ap = (on, k) => ({bg: on ? '#0f2a4a' : '#fff', mark: on ? '✓' : '', onToggle: () => this.toggleGameFlag(k, 'autoPress')});
+        return {nassau: ap(!!EG.nassau.autoPress, 'nassau'), bestball: ap(!!EG.bestball.autoPress, 'bestball'), six: ap(!!EG.sixsixsix.autoPress, 'sixsixsix'), gm: ap(!!(s.games.groupmatch || {}).autoPress, 'groupmatch')}; })(),
+      ...(() => {
+        if (!s.pressPickerOpen) return {pressOpts: [], pressNoOpts: false, pressEmptyText: ''};
+        const opts = this.pressOptions().map(o => ({text: o.text, sub: o.sub, onClick: () => this.callMatchPress(o)}));
+        const autos = [...new Set(this.pressMatches().filter(m => m.auto).map(m => m.name))];
+        return {pressOpts: opts, pressNoOpts: !opts.length,
+          pressEmptyText: (autos.length ? 'Auto-press is on for ' + autos.join(', ') + '. ' : '') + 'Only a side that is behind can press, once per nine (once per six in 6-6-6). Nassau presses need exactly 2 players.'};
+      })(),
       betsGmView: bView === 'groupmatch', betsGamesView: bView === 'games', betsJunkView: bView === 'junk',
       gmSplit: jSplit, gamesHeadingShow: !jSplit,
       gmMatchupText: rGroups.map(g => this.groupName(g)).join(' vs '),
