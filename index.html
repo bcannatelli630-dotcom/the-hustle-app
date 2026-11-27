@@ -1107,6 +1107,48 @@ input, select, textarea { font-size:16px !important; }
                 <div style="font:600 11px Archivo,sans-serif;color:#5a6672;">{{ settleMeSub }}</div>
               </div>
             </sc-if>
+            <sc-for list="{{ sbMatchups }}" as="sm" hint-placeholder-count="0">
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;" onClick="{{ sm.onOpenCard }}">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">GROUP MATCH · {{ sm.fmt }}</div>
+                  <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.4px;">SCORECARD ▸</div>
+                </div>
+                <div style="font:700 12px Archivo,sans-serif;color:#1a2733;">{{ sm.side }} <span style="font-weight:600;color:#5a6672;">{{ sm.vs }}</span></div>
+                <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;">
+                  <sc-for list="{{ sm.segs }}" as="sg" hint-placeholder-count="3">
+                    <div style="background:{{ sg.bg }};border-radius:8px;padding:9px 4px;text-align:center;">
+                      <div style="font:800 9px Archivo,sans-serif;color:#98928a;">{{ sg.label }}</div>
+                      <div style="font:800 12px Archivo,sans-serif;color:{{ sg.color }};margin-top:3px;overflow-wrap:anywhere;">{{ sg.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+            <sc-for list="{{ sixBoard }}" as="sxb" hint-placeholder-count="0">
+              <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;" onClick="{{ sxb.onOpenCard }}">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <sc-if value="{{ sxb.hasTag }}" hint-placeholder-val="{{ false }}"><span style="background:{{ sxb.tagBg }};color:{{ sxb.tagFg }};font:800 9px Archivo,sans-serif;padding:3px 6px;border-radius:4px;">{{ sxb.tag }}</span></sc-if>
+                  <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;">{{ sxb.title }}</div>
+                </div>
+                <div style="font:800 10px Archivo,sans-serif;color:#0f2a4a;letter-spacing:.4px;">SCORECARD ▸</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ hasMatchRows }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">{{ matchListTitle }}</div>
+                <div style="background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(15,42,74,.06);padding:0 14px;">
+                  <sc-for list="{{ matchRows }}" as="mr" hint-placeholder-count="0">
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f1ea;">
+                      <div style="flex:1;min-width:0;">
+                        <div style="font:800 12px Archivo,sans-serif;color:#1a2733;">{{ mr.title }}</div>
+                        <div style="font:600 10px Archivo,sans-serif;color:#98928a;margin-top:2px;line-height:1.35;">{{ mr.sub }}</div>
+                      </div>
+                      <div style="font:900 14px 'Archivo Black',sans-serif;color:{{ mr.color }};flex:none;text-align:right;">{{ mr.status }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
             <div>
               <div style="font:800 11px Archivo,sans-serif;color:#98928a;letter-spacing:.6px;margin-bottom:8px;">WHO PAYS WHO</div>
               <div style="background:#fff;border-radius:12px;padding:8px 14px;box-shadow:0 1px 2px rgba(15,42,74,.06);">
@@ -2055,6 +2097,60 @@ input, select, textarea { font-size:16px !important; }
     <sc-if value="{{ showLockNotice }}" hint-placeholder-val="{{ false }}">
       <div style="position:fixed;left:12px;right:12px;top:16px;z-index:46;display:flex;justify-content:center;pointer-events:none;">
         <div style="background:#0f2a4a;border:1.5px solid #ffa62f;border-radius:10px;padding:11px 14px;max-width:420px;width:100%;box-sizing:border-box;font:700 12px Archivo,sans-serif;color:#fff;line-height:1.4;box-shadow:0 12px 30px rgba(0,0,0,.3);">{{ lockNoticeText }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ scOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed;inset:0;z-index:65;background:#f7f5ef;display:flex;flex-direction:column;">
+        <div style="flex:none;display:flex;align-items:center;gap:10px;padding:8px 14px;background:#0f2a4a;flex-wrap:wrap;">
+          <div style="color:#fff;font:700 18px sans-serif;cursor:pointer;padding:4px 8px 4px 0;" onClick="{{ onScClose }}">←</div>
+          <div style="font:800 13px Archivo,sans-serif;color:#fff;">{{ scTitle }}</div>
+          <div style="font:700 10px Archivo,sans-serif;color:#a9bdd4;letter-spacing:.4px;">{{ scSub }}</div>
+          <div style="flex:1;"></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+            <sc-for list="{{ scResults }}" as="rs" hint-placeholder-count="0">
+              <div style="background:#eef2f6;border-radius:6px;padding:3px 7px;font:800 9px Archivo,sans-serif;color:{{ rs.color }};">{{ rs.text }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:6px;">
+          <div style="min-width:{{ scMinW }};background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e9e5dc;display:flex;flex-direction:column;">
+            <sc-for list="{{ scRows }}" as="sr" hint-placeholder-count="0">
+              <sc-if value="{{ sr.isBand }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;gap:8px;padding:4px 8px;background:#0f2a4a;margin-top:6px;">
+                  <div style="font:800 9px Archivo,sans-serif;color:#fff;letter-spacing:.5px;">{{ sr.label }}</div>
+                  <div style="font:600 9px Archivo,sans-serif;color:#a9bdd4;">{{ sr.note }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sr.isGrid }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;grid-template-columns:{{ scCols }};align-items:stretch;background:{{ sr.bg }};border-bottom:{{ sr.border }};">
+                  <div style="padding:0 8px;display:flex;align-items:center;gap:5px;font:{{ sr.labelFont }};color:{{ sr.labelColor }};white-space:nowrap;overflow:hidden;">
+                    <sc-if value="{{ sr.hasTag }}" hint-placeholder-val="{{ false }}"><span style="font:800 8px Archivo,sans-serif;color:{{ sr.tagFg }};background:{{ sr.tagBg }};border-radius:3px;padding:1px 4px;">{{ sr.tag }}</span></sc-if>
+                    <span>{{ sr.label }}</span>
+                  </div>
+                  <sc-for list="{{ sr.cells }}" as="cl" hint-placeholder-count="0">
+                    <div style="position:relative;display:flex;align-items:center;justify-content:center;gap:2px;padding:{{ cl.pad }};background:{{ cl.bg }};grid-column:{{ cl.span }};">
+                      <div style="min-width:{{ cl.box }};height:{{ cl.boxH }};display:flex;align-items:center;justify-content:center;box-sizing:border-box;font:{{ cl.font }};color:{{ cl.color }};border:{{ cl.ring }};border-radius:{{ cl.radius }};text-decoration:{{ cl.deco }};text-underline-offset:2px;white-space:nowrap;">{{ cl.text }}</div>
+                      <sc-for list="{{ cl.chips }}" as="ch" hint-placeholder-count="0">
+                        <span style="font:800 8px Archivo,sans-serif;color:{{ ch.color }};background:{{ ch.bg }};border-radius:3px;padding:1px 3px;white-space:nowrap;">{{ ch.t }}</span>
+                      </sc-for>
+                      <sc-if value="{{ cl.hasDots }}" hint-placeholder-val="{{ false }}">
+                        <span style="position:absolute;top:1px;right:2px;font:900 9px Archivo,sans-serif;color:#d4a017;line-height:1;">{{ cl.dots }}</span>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font:600 10px Archivo,sans-serif;color:#5a6672;padding:8px 4px;">
+            <span><span style="color:#d4a017;font-weight:900;">•</span> handicap stroke</span>
+            <span>circle = under par · square = double bogey+</span>
+            <span><span style="color:#1f7a8c;font-weight:800;text-decoration:underline;">teal</span> = net, underlined = ball that counted</span>
+            <sc-if value="{{ scIsSix }}" hint-placeholder-val="{{ false }}"><span>shading = the player's side for that six (navy / orange)</span></sc-if>
+            <span>B birdie · E eagle · G greenie · S sandy · P polie · BK barky · CH chippy</span>
+            <span>Turn your phone sideways to see the whole card</span>
+          </div>
+        </div>
       </div>
     </sc-if>
     <sc-if value="{{ sixPopOpen }}" hint-placeholder-val="{{ false }}">
@@ -4326,7 +4422,7 @@ class Component extends DCLogic {
         played++; last = h;
         holes.push({h, done:true, a, b, res, up});
       }
-      return Object.assign({}, seg, {up, played, last, final: played === 6, holes});
+      return Object.assign({}, seg, {up, played, last, final: played === 6, holes, holeNums: seg.holes});
     });
   }
 
@@ -4380,17 +4476,19 @@ class Component extends DCLogic {
       if (this.state.junk.birdies && this.state.junk.birdies.active && this.state.junk.birdies.value){
         const val = this.state.junk.birdies.value;
         active.forEach(p => {
-          let count = 0;
+          // An eagle (or better) pays as two birdies.
+          let count = 0, birds = 0, eagles = 0;
           for (let h = 1; h <= 18; h++){
             const g = (this.state.scores[p.id] || {})[h];
             if (g == null) continue;
-            if (g === this.course.par[h-1] - 1) count++;
+            if (g === this.course.par[h-1] - 1){ count++; birds++; }
+            else if (g <= this.course.par[h-1] - 2){ count += 2; eagles++; }
           }
           if (count > 0){
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * count * others.length;
             others.forEach(o => { ledger[o.id] -= val * count; });
-            lines.push(`BIRDIES: ${p.name} made ${count} — collects $${val} each from every other player`);
+            lines.push(`BIRDIES: ${p.name} made ${[birds ? birds + (birds === 1 ? ' birdie' : ' birdies') : '', eagles ? eagles + (eagles === 1 ? ' eagle' : ' eagles') + ' (pays double)' : ''].filter(Boolean).join(' + ')} — collects $${val * count} each from every other player`);
           }
         });
       }
@@ -4440,6 +4538,8 @@ class Component extends DCLogic {
             if (!flagged[pid]) return;
             const p = active.find(x => String(x.id) === String(pid));
             if (!p) return;
+            const sc_ = (this.state.scores[p.id] || {})[h];
+            if (sc_ == null || sc_ > this.course.par[h-1]) return; // pays only with par or better
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
@@ -4456,6 +4556,8 @@ class Component extends DCLogic {
             if (!flagged[pid]) return;
             const p = active.find(x => String(x.id) === String(pid));
             if (!p) return;
+            const sc_ = (this.state.scores[p.id] || {})[h];
+            if (sc_ == null || sc_ > this.course.par[h-1]) return; // pays only with par or better
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
@@ -4472,6 +4574,8 @@ class Component extends DCLogic {
             if (!flagged[pid]) return;
             const p = active.find(x => String(x.id) === String(pid));
             if (!p) return;
+            const sc_ = (this.state.scores[p.id] || {})[h];
+            if (sc_ == null || sc_ > this.course.par[h-1]) return; // pays only with par or better
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
@@ -4488,6 +4592,8 @@ class Component extends DCLogic {
             if (!flagged[pid]) return;
             const p = active.find(x => String(x.id) === String(pid));
             if (!p) return;
+            const sc_ = (this.state.scores[p.id] || {})[h];
+            if (sc_ == null || sc_ > this.course.par[h-1]) return; // pays only with par or better
             const others = active.filter(o => o.id !== p.id);
             ledger[p.id] += val * others.length;
             others.forEach(o => { ledger[o.id] -= val; });
@@ -4804,13 +4910,20 @@ class Component extends DCLogic {
       if (!c){ c = byKey[key] = {key, wins:{}, totals:{}, rows:[]}; cats.push(c); }
       Object.keys(e.delta).forEach(id => {
         c.totals[id] = (c.totals[id] || 0) + e.delta[id];
-        if (e.delta[id] > 0.001 && head !== 'GREENIE SWEEP') c.wins[id] = (c.wins[id] || 0) + 1;
+        if (e.delta[id] > 0.001 && head !== 'GREENIE SWEEP'){
+          // Birdie lines carry a count (an eagle counts as two); everything else is one win per line.
+          let units = 1;
+          if (head === 'BIRDIES'){ const b = e.raw.match(/(\d+) birdies?/), eg = e.raw.match(/(\d+) eagles?/); units = (b ? +b[1] : 0) + (eg ? 2 * +eg[1] : 0) || 1; }
+          c.wins[id] = (c.wins[id] || 0) + units;
+        }
       });
       c.rows.push({hole, detail});
     });
     return cats.map(c => {
       const winIds = Object.keys(c.wins).sort((a,b) => c.wins[b] - c.wins[a]);
-      const summary = winIds.length ? winIds.map(id => `${first(id)} ${c.wins[id]}`).join(' · ') : (c.rows[0] ? c.rows[0].detail : '');
+      // Team bets read better as who won each segment than as per-player win counts.
+      const segWinners = c.key === 'GROUP MATCH' ? c.rows.map(r => { const m = r.detail.match(/^(.*?) beats/); return m ? (r.hole.replace(/ 9$/, '') + ' ' + m[1]) : ''; }).filter(Boolean) : [];
+      const summary = segWinners.length ? segWinners.join(' · ') : (winIds.length ? winIds.map(id => `${first(id)} ${c.wins[id]}`).join(' · ') : (c.rows[0] ? c.rows[0].detail : ''));
       const ups = Object.keys(c.totals).filter(id => c.totals[id] > 0.001).sort((a,b) => c.totals[b] - c.totals[a]);
       const net = ups.length ? ups.map(id => `${first(id)} +${money(c.totals[id])}`).join(', ') : (Object.keys(c.totals).length && winIds.length ? 'Even' : '');
       return {key: c.key, summary, net, rows: c.rows};
@@ -5278,6 +5391,140 @@ class Component extends DCLogic {
       lines.push('PRESS · ' + p.m.name.toUpperCase() + ' ' + p.w.label.toUpperCase() + ' #' + p.start + ': ' + p.m.labels[wi] + ' beat ' + p.m.labels[1 - wi] + ' ' + amt + unit + (p.auto ? ' (auto-press)' : '') + (p.fin ? '' : ' (thru ' + p.last + ')'));
     });
   }
+  // Landscape scorecard for Group Match (two groups) or a 6-6-6 foursome.
+  buildScorecard(){
+    const s = this.state, o = s.scOpen;
+    const none = {scOpen: false, scRows: [], scCols: '', scMinW: '0px', scTitle: '', scSub: '', scResults: [], scIsSix: false, onScClose: () => this.setState({scOpen: null})};
+    if (!o) return none;
+    const mode = s.scoringMode, all = s.roster.filter(p => p.active), PAR = this.course.par, SI = this.course.si;
+    const sn = p => { const w = String(p.name).trim().split(/\s+/); return w[0] + (w.length > 1 ? ' ' + w[w.length - 1][0].toUpperCase() + '.' : ''); };
+    const fn = p => String(p.name).trim().split(/\s+/)[0];
+    const SIDE = [{bg: '#0f2a4a', fg: '#fff', tint: '#e8eef7', name: '#0f2a4a'}, {bg: '#ffa62f', fg: '#0f2a4a', tint: '#fff0d9', name: '#a4750f'}];
+    const same = (a, b) => String(a.id) === String(b.id);
+    let players, act, segs, teamOf, teamVal, counted, labels, tags, mp, title, sub, results = [];
+    if (o.kind === 'gm'){
+      const gm = s.games.groupmatch || {}, groups = this.activeGroups(all, true);
+      const A = groups.find(g => g.key === o.a), B = groups.find(g => g.key === o.b);
+      if (!A || !B) return none;
+      const balls = gm.format === 'best1' ? 1 : gm.format === 'best2' ? 2 : Math.min(A.players.length, B.players.length);
+      const teams = [A.players, B.players];
+      players = A.players.concat(B.players); act = all; mp = this.isMatchPlay();
+      labels = [this.groupName(A.key), this.groupName(B.key)]; tags = [A.key, B.key];
+      teamOf = p => A.players.some(q => same(q, p)) ? 0 : 1;
+      const nets = (k, hh) => teams[k].map(q => ({q, n: this.netToParAt(q, hh, mode, all)})).filter(x => x.n != null).sort((x, y) => x.n - y.n).slice(0, balls);
+      teamVal = (k, hh) => { const v = nets(k, hh); return v.length < balls ? null : v.reduce((t, x) => t + x.n, 0) + balls * PAR[hh - 1]; };
+      counted = (p, hh) => nets(teamOf(p), hh).some(x => same(x.q, p));
+      segs = [{label: 'OUT', holes: [1,2,3,4,5,6,7,8,9]}, {label: 'IN', holes: [10,11,12,13,14,15,16,17,18]}];
+      title = 'Group Match scorecard';
+      sub = (balls === 1 ? 'BEST BALL' : balls === 2 ? 'BEST 2 BALLS' : 'ALL BALLS') + ' · NET · ' + (mp ? 'MATCH PLAY' : 'STROKE PLAY');
+    } else {
+      const grp = this.activeGroups(all).find(g => g.key === o.g) || {key: 'A', players: all};
+      const four = grp.players.slice(o.c * 4, o.c * 4 + 4);
+      const ms = this.withGroup(grp.key, () => this.sixSixMatches(grp.players, mode)).filter(x => x.chunk === o.c);
+      if (!ms.length || four.length < 4) return none;
+      players = four; act = grp.players; mp = true;
+      labels = ['NAVY SIDE', 'ORANGE SIDE']; tags = null;
+      const segOf = hh => ms.find(x => x.holeNums.includes(hh)) || ms[0];
+      teamOf = (p, hh) => segOf(hh).teamA.some(q => same(q, p)) ? 0 : 1;
+      const team = (k, hh) => k === 0 ? segOf(hh).teamA : segOf(hh).teamB;
+      const best = (k, hh) => { const v = team(k, hh).map(q => this.netToParAt(q, hh, mode, act)).filter(x => x != null); return v.length < 2 ? null : Math.min(...v); };
+      teamVal = (k, hh) => { const b = best(k, hh); return b == null ? null : PAR[hh - 1] + b; };
+      counted = (p, hh) => { const n = this.netToParAt(p, hh, mode, act); return n != null && n === best(teamOf(p, hh), hh); };
+      segs = ms.map(x => ({label: x.start + '–' + x.end, holes: x.holeNums, m: x}));
+      title = '6-6-6 scorecard';
+      sub = '$' + (this.withGroup(grp.key, () => this.state.games.sixsixsix.value)) + ' PER SIX · MATCH PLAY';
+    }
+    // junk chips, per junk group
+    const jcache = {};
+    const jOf = p => { const g = this.splitJunk() ? (p.group || 'A') : 'A'; if (jcache[g]) return jcache[g];
+      return (jcache[g] = this.withGroup(g, () => { const S = this.state, Jk = S.junk || {}, on = k => !!(Jk[k] && Jk[k].active && Jk[k].value), gw = {};
+        if (on('greenies')) this.resolveGreenies().list.forEach(e => { if (e.status === 'won' && e.winner != null){ gw[e.wonOn] = gw[e.wonOn] || {}; gw[e.wonOn][e.winner] = (gw[e.wonOn][e.winner] || 0) + 1; } });
+        return {b: on('birdies'), s: on('sandies'), pl: on('polies'), bk: on('barkies'), ch: on('chippies'), gw, sf: S.sandyFlags || {}, pf: S.polyFlags || {}, bf: S.barkyFlags || {}, cf: S.chippyFlags || {}}; })); };
+    const JC = {B: ['#1e7a3d', '#e8f3ec'], E: ['#14532d', '#d4ecd9'], G: ['#0f2a4a', '#e3eaf3'], S: ['#a4750f', '#fff3d6'], P: ['#7a3d8a', '#f1e6f4'], BK: ['#7a5230', '#f3e9df'], CH: ['#2f6f4f', '#e5f1ea']};
+    const chip = t => ({t, color: (JC[t.replace(/\d/g, '')] || JC.G)[0], bg: (JC[t.replace(/\d/g, '')] || JC.G)[1]});
+    const junkAt = (p, hh) => { const g = (s.scores[p.id] || {})[hh]; if (g == null) return []; const j = jOf(p), pr = PAR[hh - 1], out = [];
+      if (j.b){ if (g === pr - 1) out.push('B'); else if (g <= pr - 2) out.push('E'); }
+      const gc = (j.gw[hh] || {})[p.id]; if (gc) out.push(gc > 1 ? 'G' + gc : 'G');
+      if (g <= pr){ if (j.s && (j.sf[hh] || {})[p.id]) out.push('S'); if (j.pl && (j.pf[hh] || {})[p.id]) out.push('P'); if (j.bk && (j.bf[hh] || {})[p.id]) out.push('BK'); if (j.ch && (j.cf[hh] || {})[p.id]) out.push('CH'); }
+      return out.map(chip); };
+    // columns
+    const seq = []; segs.forEach((x, k) => { x.holes.forEach(hh => seq.push(hh)); seq.push('T' + k); }); seq.push('TOT');
+    const isT = x => typeof x !== 'number';
+    const scCols = '96px ' + seq.map(x => !isT(x) ? 'minmax(26px,1fr)' : (o.kind === 'six' && x !== 'TOT' ? '50px' : '46px')).join(' ');
+    const base = {text: '', bg: 'transparent', color: '#1a2733', font: '700 11px Archivo,sans-serif', ring: '0 solid transparent', radius: '0', deco: 'none', pad: '3px 0', box: '0', boxH: 'auto', chips: [], hasDots: false, dots: '', span: 'auto'};
+    const cellOf = o2 => Object.assign({}, base, o2);
+    const tot = x => isT(x) ? '#f3f1ea' : 'transparent';
+    const holesOf = x => x === 'TOT' ? segs.reduce((a, sg) => a.concat(sg.holes), []) : segs[+x.slice(1)].holes;
+    const sum = (x, f) => { let t = 0, any = false; holesOf(x).forEach(hh => { const v = f(hh); if (v != null){ t += v; any = true; } }); return any ? String(t) : ''; };
+    const rowOf = o2 => Object.assign({isGrid: true, isBand: false, bg: '#fff', border: '1px solid #e9e5dc', labelFont: '800 10px Archivo,sans-serif', labelColor: '#1a2733', hasTag: false, tag: '', tagBg: '', tagFg: '', note: ''}, o2);
+    const rows = [];
+    rows.push(rowOf({label: 'HOLE', bg: '#0f2a4a', labelColor: '#fff', border: '0 solid transparent',
+      cells: seq.map(x => cellOf({text: x === 'TOT' ? 'TOT' : isT(x) ? segs[+x.slice(1)].label : String(x), color: '#fff', font: '800 10px Archivo,sans-serif', bg: isT(x) ? '#1d3a5c' : 'transparent'}))}));
+    rows.push(rowOf({label: 'PAR', labelColor: '#98928a', labelFont: '800 9px Archivo,sans-serif',
+      cells: seq.map(x => cellOf({text: isT(x) ? sum(x, hh => PAR[hh - 1]) : String(PAR[x - 1]), color: '#5a6672', font: '700 10px Archivo,sans-serif', pad: '2px 0', bg: tot(x)}))}));
+    rows.push(rowOf({label: 'HCP', labelColor: '#98928a', labelFont: '800 9px Archivo,sans-serif', border: '1.5px solid #e9e5dc',
+      cells: seq.map(x => cellOf({text: isT(x) ? '' : String(SI[x - 1]), color: '#98928a', font: '600 9px Archivo,sans-serif', pad: '1px 0', bg: tot(x)}))}));
+    players.forEach(p => {
+      const gross = hh => (s.scores[p.id] || {})[hh];
+      const net = hh => { const n = this.netToParAt(p, hh, mode, act); return n == null ? null : PAR[hh - 1] + n; };
+      const shade = hh => o.kind === 'six' ? SIDE[teamOf(p, hh)].tint : 'transparent';
+      const k0 = o.kind === 'gm' ? teamOf(p) : 0;
+      rows.push(rowOf({label: sn(p), border: '0 solid transparent', labelFont: '800 11px Archivo,sans-serif',
+        hasTag: o.kind === 'gm', tag: tags ? tags[k0] : '', tagBg: SIDE[k0].bg, tagFg: SIDE[k0].fg,
+        cells: seq.map(x => { if (isT(x)) return cellOf({text: sum(x, gross), font: '800 12px Georgia,serif', color: '#0f2a4a', bg: tot(x), pad: '4px 0 0'});
+          const g = gross(x); if (g == null) return cellOf({bg: shade(x)});
+          const pr = PAR[x - 1], n = this.netToParAt(p, x, mode, act), st = n == null ? 0 : g - pr - n;
+          return cellOf({text: String(g), font: '700 12px Georgia,serif', bg: shade(x), pad: '2px 0 0', box: '18px', boxH: '18px',
+            ring: g < pr ? '1.5px solid #1e7a3d' : (g >= pr + 2 ? '1.5px solid #c8102e' : '0 solid transparent'), radius: g < pr ? '50%' : '0',
+            hasDots: st > 0, dots: st > 0 ? '•'.repeat(Math.min(st, 3)) : ''}); })}));
+      rows.push(rowOf({label: 'net · junk', labelFont: '600 7px Archivo,sans-serif', labelColor: '#b5afa5',
+        cells: seq.map(x => { if (isT(x)) return cellOf({text: sum(x, net), font: '700 10px Georgia,serif', color: '#1f7a8c', bg: tot(x), pad: '0 0 2px'});
+          const v = net(x); if (v == null) return cellOf({bg: shade(x), pad: '0 0 2px'});
+          const c = counted(p, x);
+          return cellOf({text: String(v), font: (c ? '800' : '700') + ' 10px Georgia,serif', color: c ? '#1f7a8c' : '#8fbcc6', deco: c ? 'underline' : 'none', bg: shade(x), pad: '0 0 2px', chips: junkAt(p, x)}); })}));
+    });
+    rows.push({isGrid: false, isBand: true, label: 'BEST BALL', note: (o.kind === 'six' ? 'partners change every six · ' : '') + 'team net · filled = won the hole', cells: []});
+    if (o.kind === 'six'){
+      let col = 2; const cells = segs.map(sg => { const c = cellOf({span: col + ' / span ' + (sg.holes.length + 1), pad: '3px 0',
+        chips: [{t: sg.m.teamA.map(fn).join(' & '), color: '#fff', bg: '#0f2a4a'}, {t: 'vs', color: '#5a6672', bg: 'transparent'}, {t: sg.m.teamB.map(fn).join(' & '), color: '#0f2a4a', bg: '#ffa62f'}]}); col += sg.holes.length + 1; return c; });
+      cells.push(cellOf({}));
+      rows.push(rowOf({label: 'PARTNERS', bg: '#f4f7fa', labelColor: '#0f2a4a', labelFont: '800 9px Archivo,sans-serif', cells}));
+    }
+    // per-hole results and running match
+    const res = hh => { const a = teamVal(0, hh), b = teamVal(1, hh); if (a == null || b == null) return null; return mp ? (a < b ? 1 : (b < a ? -1 : 0)) : (b - a); };
+    const segRun = (sg, upTo) => { let up = 0, n = 0; for (const hh of sg.holes){ const x = res(hh); if (x != null){ up += x; n++; } if (hh === upTo) break; } return {up, n}; };
+    const segOfHole = hh => segs.find(sg => sg.holes.includes(hh));
+    const word = d => mp ? d + ' UP' : 'BY ' + d;
+    const overall = (() => { let up = 0, n = 0; segs.forEach(sg => sg.holes.forEach(hh => { const x = res(hh); if (x != null){ up += x; n++; } })); return {up, n}; })();
+    [0, 1].forEach(k => rows.push(rowOf({label: labels[k], bg: '#f4f7fa', labelColor: SIDE[k].name,
+      cells: seq.map(x => {
+        if (isT(x)){
+          const rr = x === 'TOT' ? (o.kind === 'gm' ? overall : null) : segRun(segs[+x.slice(1)]);
+          if (!rr || !rr.n) return cellOf({bg: tot(x)});
+          const d = rr.up * (k === 0 ? 1 : -1);
+          return cellOf({text: d > 0 ? word(d) : (d === 0 && k === 0 ? 'AS' : ''), font: '800 8px Archivo,sans-serif', color: d > 0 ? '#1e7a3d' : '#5a6672', bg: tot(x)});
+        }
+        const v = teamVal(k, x), rr = res(x);
+        if (v == null) return cellOf({});
+        const won = rr != null && (k === 0 ? rr > 0 : rr < 0);
+        return cellOf({text: String(v), font: '800 11px Georgia,serif', color: won ? SIDE[k].fg : '#5a6672', bg: won ? SIDE[k].bg : 'transparent'}); })})));
+    const tagOf = up => up === 0 ? 'AS' : (o.kind === 'gm' ? (up > 0 ? tags[0] : tags[1]) + Math.abs(up) : (up > 0 ? '▲' : '▼') + Math.abs(up));
+    const upColor = up => up > 0 ? '#0f2a4a' : (up < 0 ? '#a4750f' : '#98928a');
+    rows.push(rowOf({label: mp ? 'MATCH' : 'LEAD', bg: '#f4f7fa', labelColor: '#0f2a4a', border: '0 solid transparent',
+      cells: seq.map(x => {
+        if (isT(x)){ const rr = x === 'TOT' ? (o.kind === 'gm' ? overall : null) : segRun(segs[+x.slice(1)]); if (!rr || !rr.n) return cellOf({bg: tot(x)});
+          return cellOf({text: tagOf(rr.up), font: '800 9px Archivo,sans-serif', color: upColor(rr.up), bg: tot(x)}); }
+        if (res(x) == null) return cellOf({});
+        const rr = segRun(segOfHole(x), x);
+        return cellOf({text: tagOf(rr.up), font: '800 9px Archivo,sans-serif', color: upColor(rr.up)}); })}));
+    // header results
+    if (o.kind === 'gm'){
+      [['FRONT', segRun(segs[0])], ['BACK', segRun(segs[1])], ['OVERALL', overall]].forEach(([l, rr]) => { if (!rr.n) return;
+        results.push({text: l + ' ' + (rr.up === 0 ? 'HALVED' : tags[rr.up > 0 ? 0 : 1] + ' ' + Math.abs(rr.up) + (mp ? ' UP' : '')), color: upColor(rr.up)}); });
+    } else segs.forEach(sg => { const rr = segRun(sg); if (!rr.n) return; const w = rr.up > 0 ? sg.m.teamA : sg.m.teamB;
+      results.push({text: sg.label + ' ' + (rr.up === 0 ? 'HALVED' : w.map(fn).join(' & ').toUpperCase() + ' ' + Math.abs(rr.up) + ' UP'), color: upColor(rr.up)}); });
+    return {scOpen: true, scRows: rows, scCols, scMinW: (96 + seq.length * 32) + 'px', scTitle: title, scSub: sub, scResults: results, scIsSix: o.kind === 'six', onScClose: () => this.setState({scOpen: null})};
+  }
   buildMatchList(){
     const s = this.state, mode = s.scoringMode, all = s.roster.filter(p => p.active), mpOn = this.isMatchPlay();
     const meKey = s.ownerName ? this.playerKey(s.ownerName) : '';
@@ -5371,7 +5618,7 @@ class Component extends DCLogic {
         const tag = multi ? this.groupName(g.key).toUpperCase() : (chunks.length > 1 ? 'FOURSOME ' + (c + 1) : '');
         const tagBg = multi ? GROUP_COLORS[g.key].bg : '#0f2a4a', tagFg = multi ? GROUP_COLORS[g.key].fg : '#fff';
         const range = x => 'HOLES ' + x.start + '–' + x.end;
-        const cseg = cs.find(x => x.holes.includes(cur)) || cs[cs.length - 1];
+        const cseg = cs.find(x => x.holeNums.includes(cur)) || cs[cs.length - 1];
         const lead = cseg.up < 0 ? cseg.teamB : cseg.teamA;
         live.push({hasTag: !!tag, tag, tagBg, tagFg, range: range(cseg),
           aNames: nm(cseg.teamA), bNames: nm(cseg.teamB),
@@ -5383,7 +5630,7 @@ class Component extends DCLogic {
             ? {label: x.h + ' ' + (x.res === 'A' ? 'W' : (x.res === 'B' ? 'L' : 'H')), bg: x.res === 'A' ? '#0f2a4a' : (x.res === 'B' ? '#ffa62f' : '#f3f1ea'), color: x.res === 'A' ? '#fff' : '#0f2a4a', border: '1px solid transparent'}
             : {label: String(x.h), bg: '#fff', color: '#98928a', border: '1px dashed #c9c3b6'}),
           pairings: cs.map(x => ({range: range(x), text: nm(x.teamA) + ' vs ' + nm(x.teamB), weight: x === cseg ? 800 : 600, color: x === cseg ? '#0f2a4a' : '#5a6672'}))});
-        board.push({hasTag: !!tag, tag, tagBg, tagFg, title: '6-6-6 · $' + G.value, segs: cs.map(x => {
+        board.push({hasTag: !!tag, tag, tagBg, tagFg, title: '6-6-6 · $' + G.value, onOpenCard: () => this.setState({scOpen: {kind: 'six', g: g.key, c}}), segs: cs.map(x => {
           const sign = x.up < 0 ? -1 : 1, named = x.up < 0 ? x.teamB : x.teamA;
           const key = g.key + '|' + c + '|' + x.idx;
           const status = !x.played ? 'NOT STARTED' : (x.final ? (x.up === 0 ? 'HALVED' : 'WON ' + Math.abs(x.up) + ' UP') : (x.up === 0 ? 'ALL SQUARE' : Math.abs(x.up) + ' UP') + ' THRU ' + x.last);
@@ -5703,7 +5950,7 @@ class Component extends DCLogic {
         const chip = (lbl, r0, len) => {
           const fin = r0.n === len;
           const st = !r0.n ? '–' : (r0.diff === 0 ? (fin ? 'HALVED' : (mp ? 'AS' : 'EVEN')) : (fin ? (r0.diff > 0 ? 'WON ' : 'LOST ') : '') + Math.abs(r0.diff) + word(r0.diff));
-          return {label: lbl + (r0.n && !fin && len === 9 ? ' · THRU ' + (lbl === 'BACK' ? r0.n + 9 : r0.n) : ''), status: st, color: r0.n ? tone(r0.diff) : '#98928a', bg: r0.n ? tint(r0.diff) : '#f3f1ea'};
+          return {label: lbl + (r0.n && !fin && len === 9 ? ' · THRU ' + (lbl === 'BACK 9' ? r0.n + 9 : r0.n) : ''), status: st, color: r0.n ? tone(r0.diff) : '#98928a', bg: r0.n ? tint(r0.diff) : '#f3f1ea'};
         };
         const boxes = (s0, e0) => { let run = 0; const out = [];
           for (let x = s0; x <= e0; x++){
@@ -5724,12 +5971,13 @@ class Component extends DCLogic {
           big: !ov.n ? '–' : (ov.diff === 0 ? (mp ? 'AS' : 'EVEN') : Math.abs(ov.diff) + word(ov.diff)),
           bigColor: ov.n ? tone(ov.diff) : '#98928a',
           vs: 'vs ' + qn + (mp || !ov.n || ov.diff === 0 ? '' : ' · ' + (Math.abs(ov.diff) === 1 ? 'stroke' : 'strokes')),
-          segs: [chip('FRONT', fr, 9), chip('BACK', bk, 9), chip('OVERALL', ov, 18)],
+          segs: [chip('FRONT 9', fr, 9), chip('BACK 9', bk, 9), chip('OVERALL', ov, 18)],
           open, chev: open ? '▾' : '▸',
           onToggle: () => this.setState(st => ({gmOpen: {...(st.gmOpen || {}), [mkey]: !open}})),
           frontBoxes: boxes(1,9), backBoxes: boxes(10,18),
           boxNote: (mp ? 'Running match' : 'Running stroke lead') + ' each nine from ' + pn + "'s side: navy = ahead, orange = behind, AS = all square.",
-          pName: pn, qName: qn, pNet: this.fmtNet(ov.a), qNet: this.fmtNet(ov.b)
+          pName: pn, qName: qn, pNet: this.fmtNet(ov.a), qNet: this.fmtNet(ov.b),
+          onOpenCard: () => this.setState({scOpen: {kind: 'gm', a: A.key, b: B.key}})
         });
       }
     }
@@ -5865,6 +6113,9 @@ class Component extends DCLogic {
     const notifTag = s.activeNotif && s.activeNotif.group ? this.groupName(s.activeNotif.group).toUpperCase() + ' · ' : '';
     const flagChips = (map, players, toggle) => players.map(p => {
       const on = !!(map[n] && map[n][p.id]);
+      // Over par on this hole: the junk can't pay, so the button greys out (a stale tap can still be cleared).
+      const g = (s.scores[p.id] || {})[n], over = g != null && g > this.course.par[n-1];
+      if (over) return {id:p.id, initials:p.initials, bg: '#f3f1ea', color: '#c9c3b6', onClick: on ? () => toggle(n, p.id) : () => {}};
       return {id:p.id, initials:p.initials, bg: on?'#0f2a4a':'#fff', color: on?'#fff':'#1a2733', onClick: () => toggle(n, p.id)};
     });
     const holeJunk = this.groupKeys().map(g => this.withGroup(g, () => {
@@ -6231,7 +6482,7 @@ class Component extends DCLogic {
         url: handle ? this.venmoUrl(handle, iPay ? 'pay' : 'charge', t.amount) : '',
         onAdd: () => this.setState({venmoAsk: other, venmoAskVal: ''})};
     });
-    const settleCats = this.settleCategories(settlement.entries).map(c => {
+    const settleCats = this.settleCategories(settlement.entries).filter(c => c.key !== 'GROUP MATCH').map(c => {
       const open = !!(s.settleOpen || {})[c.key];
       return {...c, open, chev: open ? '▾' : '▸', hasHole: true,
         toggle: () => this.setState(st => ({settleOpen: {...(st.settleOpen || {}), [c.key]: !(st.settleOpen || {})[c.key]}}))};
@@ -6352,6 +6603,7 @@ class Component extends DCLogic {
       ...this.buildWizardVals(),
       ...this.buildSixSixVals(),
       ...this.buildMatchList(),
+      ...this.buildScorecard(),
       ...this.buildBetsCheck(),
       isStrokesView: s.screen==='strokes',
       isBoard: s.screen==='board' || s.screen==='scoreboard' || s.screen==='strokes', isCard: s.screen==='card', isGames: s.screen==='games',
